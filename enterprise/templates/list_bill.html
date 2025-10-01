@@ -1,0 +1,104 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %}Contas a Pagar{% endblock %}
+
+{% block content %}
+<div class="w-full bg-white pt-16 rounded-3xl max-w-6xl mx-auto p-6 overflow-auto " x-data="modalHandler()">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <button @click="modalcreate()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+      Nova conta a pagar +
+    </button>
+  </div>
+
+  <!-- Filtro -->
+  <div class="flex  gap-3 mb-4">
+    <div class="flex gap-3">
+    <i data-lucide="filter" class="mt-2"></i>
+      <div class="flex items-center gap-3 mb-6">
+        {% include 'components/_search.html' with placeholder="Buscar por status" name='list_bill' %}
+      </div>
+  </div>
+  </div>
+
+  <!-- Tabela -->
+  
+    <table class="w-full text-sm text-gray-700 border-collapse">
+      <thead class=" border-b text-left">
+        <tr>
+          <th class="px-4 border-r py-3 font-semibold">Descrição</th>
+          <th class="px-4 border-r py-3 font-semibold">Data de vencimento</th>
+          <th class="px-4 border-r py-3 font-semibold">Pagamento</th>
+          <th class="px-4 border-r py-3 font-semibold">Valor</th>
+          <th class="px-4 border-r py-3 font-semibold">Total a pagar</th>
+          <th class="px-4 border-r py-3 font-semibold">Situação</th>
+          <th class="px-4 py-3 font-semibold">Recorrente</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Linha 1 -->
+        
+        {% for obj in object_list %}
+          <tr class="">
+          <td class="px-4 py-3">{{ obj.description }}</td>
+          <td class="px-4 py-3">{{ obj.due_date|date:'d/m/Y' }}</td>
+          <td class="px-4 py-3">
+          {% if obj.date_payment %}
+            {{ obj.date_payment|date:'d/m/y' }}
+          {% else %}
+            {{ obj.status }}
+          {% endif %}
+            </td>
+          <td class="px-4 py-3">R$ {{ obj.value }}</td>
+          <td class="px-4 py-3 text-green-600 font-semibold">R$ {{ obj.total_value }}</td>
+          <td class="px-4 py-3">
+            <button @click="modalstatus({{obj.id}})" class="p-2 rounded-lg w-32 text-white font-semibold" :class="{
+            'bg-green-500' : '{{obj.status.status}}' == 'PAGO',
+            'bg-red-500' : '{{obj.status.status}}' == 'ATRASADO',
+            'bg-[#F65F0B]': '{{obj.status.status}}' == 'AGENDADO',
+            'bg-[#484747]': '{{obj.status.status}}' == 'AUTOMÁTICO',
+            'bg-blue-500': '{{obj.status.status}}' == 'PENDENTE'
+           } ">{{obj.status}}</button>
+
+            
+              
+          
+          </td>
+          <td class="px-4 py-3 flex justify-around">
+          {% if obj.appellant %}
+            Sim
+          {% else %}
+              Não            
+          {% endif %}
+            
+            <div>
+              <button @click="modalupdate({{obj.id}})" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800">
+                <i data-lucide="pencil" class="w-[15px] h-[15px]"></i>
+              </button>
+              <button @click="modaldelete({{obj.id}})" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800"><i data-lucide="trash" class="w-[15px] h-[15px]"></i></button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+          <tr><td class="text-center pt-3" colspan="7">Nenhuma conta cadastrada</td></tr>
+        {% endfor %}
+          
+      </tbody>
+    </table>
+     <!-- =================== MODAL CRIAR/PAGAMENTO =================== -->
+    {% include 'components/modal_create_update_bill.html' %}
+    <!-- =================== MODAL EDITAR =================== -->
+    {% include 'components/modal_update_status_bill.html' %}
+    <!-- =================== MODAL Delete =================== -->
+    {% include 'components/modal_delete.html' %}
+  </div>
+</div>
+
+<script src="{% static 'js/list_bill.js' %}"></script>
+{% endblock %}
+ 
+
+
+

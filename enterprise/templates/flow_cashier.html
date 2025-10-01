@@ -1,0 +1,159 @@
+{% extends "_base.html" %}
+
+{% block title %}Fluxo de Caixa{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-7xl mx-auto p-6">
+
+  <!-- Header -->
+  <div class="flex gap-5 text-white mb-4">
+    <div>
+      <span class="font-semibold">Situação:</span>
+      <span class="text-green-400">Aberto</span>
+    </div>
+    <div>
+      <span class="font-semibold">Data de abertura:</span>
+      <span class="font-bold">01/09/2025 - 00h00</span>
+    </div>
+  </div>
+
+  <!-- Card principal -->
+  <div class="bg-transparent rounded-3xl shadow-xl border-2 border-black p-4">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-white border-none">
+        <thead>
+          <tr class="border-b ">
+            <th class="text-left py-2 px-3 font-semibold">Fluxo de Caixa</th>
+            <th class="px-3 py-2">Jan</th>
+            <th class="px-3 py-2">Fev</th>
+            <th class="px-3 py-2">Mar</th>
+            <th class="px-3 py-2">Abr</th>
+            <th class="px-3 py-2">Mai</th>
+            <th class="px-3 py-2">Jun</th>
+            <th class="px-3 py-2">Jul</th>
+            <th class="px-3 py-2">Ago</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-200">
+          <tr class="">
+            <td class="px-3 py-2">Saldo Inicial</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+          </tr>
+          <tr >
+            <td class="px-3 py-2">Receitas</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+          </tr>
+          <tr >
+            <td class="px-3 py-2">Despesas</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+          </tr>
+          <tr >
+            <td class="px-3 py-2">Lucro/Prejuízo</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2">Acumulado</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+            <td class="px-3 py-2">R$ 00.000,00</td>
+          </tr>
+          <tr >
+            <td class="px-3 py-2">Lucratividade</td>
+            <td class="px-3 py-2">00,0%</td>
+            <td class="px-3 py-2">00,0%</td>
+            <td class="px-3 py-2">00,0%</td>
+            <td class="px-3 py-2">00,0%</td>
+            <td class="px-3 py-2">00,0%</td>
+            <td class="px-3 py-2">00,0%</td>
+            <td class="px-3 py-2">00,0%</td>
+            <td class="px-3 py-2">00,0%</td>
+          </tr>
+          <!-- linha dos botões -->
+          <tr>
+            <td class="px-3 py-2"></td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+            <td class="px-3 py-2">
+              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+                Download ⬇️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Navegação -->
+    <div class="flex justify-end gap-2 mt-4">
+      <a href="#" class="p-1 bg-black text-white font-bold cursor-pointer rounded-full hover:bg-black/60"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+      <a href="#" class="p-1 bg-black text-white font-bold cursor-pointer rounded-full hover:bg-black/60"><i data-lucide="arrow-right" class="w-5 h-5"></i></a>
+    </div>
+  </div>
+</div>
+{% endblock %}

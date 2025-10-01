@@ -1,0 +1,67 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %} Estoque {% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <!-- Título -->
+  <h1 class="text-2xl font-bold mb-6">📦 Estoque</h1>
+
+  <!-- Card resumo -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-sm text-gray-500">Total de Produtos em Estoque</h2>
+      <p class="text-2xl font-semibold text-gray-800 mt-2">{{ total_stock|default:"0" }}</p>
+    </div>
+  </div>
+
+  <!-- Barra de busca -->
+  <div class="flex justify-between items-center mb-4">
+    <form method="get" action="">
+      <input type="text" name="q" value="{{ request.GET.q }}" 
+             placeholder="🔍 Buscar produto..."
+             class="w-72 px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:outline-none">
+      <button type="submit"
+              class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        Buscar
+      </button>
+    </form>
+    <a href="{% url 'create_intflow' %}" 
+       class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+      Nova entrada de produto
+    </a>
+  </div>
+
+  <!-- Tabela de produtos -->
+  <div class="overflow-x-auto shadow-md rounded-xl">
+    {% if object_list %}
+    <table class="min-w-full text-center border-collapse">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="px-4 py-2 text-sm font-semibold">Produto</th>
+          <th class="px-4 py-2 text-sm font-semibold">Quantidade em Estoque</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for obj in object_list %}
+        <tr class="hover:bg-gray-100">
+          <td class="px-4 py-2 text-sm font-medium text-gray-800">
+            {{ obj.product.name }}
+          </td>
+          <td class="px-4 py-2 text-sm text-gray-600">
+            {{ obj.quantity }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="p-4 text-gray-600">Nenhum produto encontrado.</p>
+    {% endif %}
+  </div>
+
+  <!-- Paginação -->
+  {% include 'components/_pagination.html' %}
+</div>
+{% endblock %}

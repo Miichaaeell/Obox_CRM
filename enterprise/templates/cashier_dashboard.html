@@ -1,0 +1,98 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %} Caixa {% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <!-- Título -->
+  <h1 class="text-2xl font-bold mb-6">📊 Caixa</h1>
+
+  <!-- Cards resumo -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-sm text-gray-500">Valor em Caixa</h2>
+      <p class="text-2xl font-semibold text-gray-800 mt-2">R$ 15.230,00</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-sm text-gray-500">Valores Pagos</h2>
+      <p class="text-2xl font-semibold text-green-600 mt-2">R$ 8.120,00</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-sm text-gray-500">Valores Recebidos</h2>
+      <p class="text-2xl font-semibold text-blue-600 mt-2">R$ 12.540,00</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-sm text-gray-500">Lucro</h2>
+      <p class="text-2xl font-semibold text-emerald-600 mt-2">R$ 4.420,00</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-sm text-gray-500">Valor Prospectado</h2>
+      <p class="text-2xl font-semibold text-indigo-600 mt-2">R$ 6.000,00</p>
+    </div>
+  </div>
+
+<!-- Gráficos -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <!-- Gráfico de linha -->
+  <div class="bg-white p-6 rounded-xl shadow-md flex flex-col">
+    <h2 class="text-lg font-semibold mb-4">Evolução do Caixa</h2>
+    <div class="flex-1">
+      <canvas id="lineChart" class="h-full max-h-[500px] w-full"></canvas>
+    </div>
+  </div>
+
+  <!-- Gráfico de pizza -->
+  <div class="bg-white p-6 rounded-xl shadow-md flex flex-col">
+    <h2 class="text-lg font-semibold mb-4">Alunos por Plano</h2>
+    <div class="container">
+      <canvas id="pieChart" class="h-full max-h-[500px] w-full"></canvas>
+    </div>
+  </div>
+</div>
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Gráfico de linha (valores do caixa ao longo do tempo)
+  const ctxLine = document.getElementById('lineChart').getContext('2d');
+  new Chart(ctxLine, {
+  type: 'line',
+  data: {
+    labels: ['01/09', '05/09', '10/09', '15/09', '20/09', '25/09'],
+    datasets: [{
+      label: 'Caixa (R$)',
+      data: [10000, 11500, 11200, 13000, 12500, 15230],
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59,130,246,0.2)',
+      tension: 0.3,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false, // 🔑 aqui!
+    plugins: { legend: { display: false } }
+  }
+});
+
+  // Gráfico de pizza (quantidade de alunos por plano)
+  const ctxPie = document.getElementById('pieChart').getContext('2d');
+new Chart(ctxPie, {
+  type: 'doughnut',
+  data: {
+    labels: ['Mensal', 'Trimestral', 'Semestral', 'Anual'],
+    datasets: [{
+      data: [40, 25, 20, 15],
+      backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false, // 🔑 aqui também
+    plugins: { legend: { position: 'top' } }
+  }
+});
+</script>
+{% endblock %}

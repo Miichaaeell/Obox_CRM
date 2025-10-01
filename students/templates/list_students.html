@@ -1,0 +1,114 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}
+  Lista de Alunos
+{% endblock title %}
+  
+
+{% block content %}
+  <div x-data="{ filter: 'all' }" class="p-6 bg-gray-100 rounded-xl">
+
+  <!-- Linha com botão e input -->
+  <div class="flex items-center justify-between mb-4">
+    <a href="{% url 'create_student' %}">
+        <button class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700">
+          Novo aluno +
+        </button>
+    </a>
+   {% for message in messages %}
+{% if 'success' in message.tags %}
+  <li class="bg-green-100 border border-green-400 text-green-700 px-4 py-1 rounded" role="alert" style="max-width: 580px">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </li>
+{% else %}
+  <li class='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded' role="alert" style="max-width: 580px">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </li>
+{% endif %}
+{% endfor %}
+    <div class="flex items-center gap-3">
+      <form action="{% url 'uploadfile' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+          <input type="file"
+                 class="px-3 bg-[#a3a2a2] py-1 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                 name="file">
+                 <button type="submit" class="bg-black text-white border rounded-lg p-2">Importar arquivo</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Linha de filtros -->
+  <div class="flex gap-3">
+    <i data-lucide="filter" class="mt-2"></i>
+      <div class="inline-flex mb-6 border rounded-lg overflow-hidden">
+        <button @click="filter = 'ativo'"
+                :class="filter === 'ativo' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
+                class="px-4 py-2 border rounded-l-lg font-medium">
+          Ativo
+        </button>
+        <button @click="filter = 'inativo'"
+                :class="filter === 'inativo' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
+                class="px-4 py-2 border font-medium">
+          Inativo
+        </button>
+        <button @click="filter = 'avencer'"
+                :class="filter === 'avencer' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
+                class="px-4 py-2 border font-medium">
+          A vencer
+        </button>
+        <button @click="filter = 'atrasado'"
+                :class="filter === 'atrasado' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
+                class="px-4 py-2 border rounded-r-lg font-medium">
+          Atrasado
+        </button>
+      </div>
+      <div class="flex items-center gap-3 mb-6">
+          <form action="{% url 'list_student' %}" method="get" autocomplete="on">
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar Aluno"
+                   class="px-3 py-2 border border-[#a3a2a2] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+          </form>
+          <button class="text-sm text-gray-500 hover:underline">Apagar filtros</button>
+        </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="overflow-x-auto">
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b text-gray-600">
+          <th class="p-3 border-r w-2/5">Nome</th>
+          <th class="p-3 border-r">CPF</th>
+          <th class="p-3 border-r">Telefone</th>
+          <th class="p-3 border-r">Plano</th>
+          <th class="p-3 border-r">Status</th>
+          <th class="p-3 border-r">Início</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in object_list %}
+          <tr class="hover:bg-gray-50">
+          <td class="p-3">{{obj.name}}</td>
+          <td class="p-3">{{obj.cpf_cnpj}}</td>
+          <td class="p-3">{{obj.phone_number}}</td>
+          <td class="p-3">{{obj.plan.name_plan}}</td>            
+            {% if obj.status|lower == 'ativo' %}
+             <td class="p-3 font-medium text-green-600"> {{obj.status}}</td>
+            {% else %}
+            <td class="p-3 font-medium text-red-600">{{obj.status}}</td>
+            {% endif %}              
+          <td class="p-3 flex justify-between">{{obj.created_at|date:'d/m/Y'}}
+            <button class="p-1 rounded-full hover:bg-gray-200"><a href="{% url 'detail_student' obj.id %}">⟳</a></button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% include 'components/_pagination.html' %}
+  </div>
+</div>
+
+{% endblock content %}
+    

@@ -1,0 +1,107 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">📋 {{ title }}</h1>
+
+<div class="flex justify-between mb-3">
+        {% if add_filter %}
+            <div class="grow">
+                {% include 'components/search.html' %}
+            </div>
+        {% endif %}
+<!-- Botão Criar Novo -->        
+    <div class="flex-end">                            
+        <a href="{% url 'create_'|add:sufix_url %}"
+            class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+            ➕ Novo {{ title }}
+        </a>
+    </div>
+</div>
+    {% if title == 'Alunos' %}
+<div class='flex justify-end'>
+    <div>{% include 'components/_uploadfile.html' %}</div>
+</div>
+{% endif %}
+<div class="overflow-x-auto shadow-md rounded-lg">
+{% if object_list %}
+    <table class="min-w-full text-left border-collapse">
+        <thead class="bg-gray-200">
+            <tr> 
+                <th class="px-4 py-2 text-left text-sm font-semibold">
+                    {{ title }}
+                </th>
+                {% if title == 'Alunos' %}
+                    <th class="px-4 py-2 text-left text-sm font-semibold">
+                        CPF/CNPJ
+                    </th>
+                    <th class="px-4 py-2 text-left text-sm font-semibold">
+                        Telefone
+                    </th>                            
+                    <th class="px-4 py-2 text-left text-sm font-semibold">
+                        Data de Vencimento
+                    </th>
+                    <th class="px-4 py-2 text-left text-sm font-semibold">
+                        Plano
+                    </th>
+                    <th class="px-4 py-2 text-left text-sm font-semibold">
+                        Status
+                    </th>
+                {% elif title|upper == 'PRODUTOS' %}
+                <th class="px-4 py-2 text-left text-sm font-semibold">
+                    Descrição
+                </th>
+                <th class="px-4 py-2 text-left text-sm font-semibold">
+                    Valor
+                </th>
+                <th class="px-4 py-2 text-right text-sm font-semibold">
+                    Ações
+                </th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for obj in object_list %}                           
+                {% if title == 'Alunos' %}
+                <tr onclick="window.location='{% url 'detail_'|add:sufix_url obj.id %}'" class="hover:bg-gray-300 transition cursor-pointer">
+                    <td class="px-4 py-2 text-left text-sm">{{ obj|upper }}</td>                        
+                    <td class="px-4 py-2 text-left text-sm">{{obj.cpf_cnpj}}</td>
+                    <td class="px-4 py-2 text-left text-sm">{{obj.phone_number}}</td>
+                    <td class="px-4 py-2 text-left text-sm"> Dia {{obj.due_date}}</td>
+                    <td class="px-4 py-2 text-left text-sm">{{obj.plan}}</td>
+                    <td class="px-4 py-2 text-left text-sm">{{obj.status}}</td>
+                {% elif  title|upper == 'PRODUTOS'%}
+                 <td class="px-4 py-2 text-sm flex justify-between">
+                    <span>{{ obj.name|upper }} </span>                                            
+                </td>
+                    <td  class="px-4 py-2 text-left text-sm">
+                        {{obj.description}}
+                    </td>
+                    <td class="px-4 py-2 text-left text-sm">
+                        R$ {{obj.price}}
+                    </td>
+                    <td class="px-4 py-2 text-right space-x-2">
+                        <a href="{% url 'update_'|add:sufix_url obj.id %}" 
+                        class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                        Editar
+                        </a>
+                    </td>
+                {% else %}
+                <tr class="hover:bg-gray-300"> 
+                    <td class="px-4 py-2 text-sm flex justify-between">
+                    <span>{{ obj|upper }} </span>                                            
+                </td>
+                {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="text-gray-600">Nenhum {{ title }} encontrado.</p>
+{% endif %}
+</div>
+{% include 'components/_pagination.html' %}
+
+{% endblock %}

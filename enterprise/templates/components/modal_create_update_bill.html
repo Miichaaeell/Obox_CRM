@@ -1,0 +1,111 @@
+<div x-show="showModal" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-[900px] p-6 relative">
+      <h2 class="text-lg font-semibold mb-4">Nova Conta</h2>
+
+      <!-- Fechar -->
+      <button @click="modalclose()" class="absolute top-3 right-3 text-gray-500 hover:text-black">✖</button>
+      {% csrf_token %}
+      <!-- Conteúdo -->
+      <form  @submit.prevent="submitForm">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-500">Descrição</label>
+           <input type="text" name="description" x-model="formData.description" required class="border-b">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-500" >Valor inicial:</label>
+              <input type="number" name="value" id="value" placeholder="R$ 200000" x-model="formData.value" @input="recalcTotal" required class="border-b">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500">Data do Vencimento:</label>
+              <input type="date" name="due_date" id="due_date" required x-model="formData.due_date" class="border-b">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Método de pagamento</label>
+            <div class="flex gap-2" >
+              
+              {% for payment in payment_methods %}
+              <label class="px-4 py-2 rounded-lg bg-black text-white text-center grow cursor-pointer transition-all duration-200" :class="{
+              'bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm': formData.payment_method == {{payment.id}},
+              'bg-gray-800 text-white rounded-lg text-sm':formData.payment_method != {{payment.id}},}" >
+              <input type="radio" name="payment_method" value="{{payment.id}}" x-model="formData.payment_method" class="sr-only" required>{{payment.method}}
+            </label>
+              {% endfor %}
+            </div>
+          </div>
+          <!-- Recorrente -->
+          <div class="flex items-center gap-2">
+            <input type="checkbox" name="appellant" id="appellant" x-model="formData.appellant" class="h-4 w-4 text-green-500 border-gray-300 rounded">
+            <label for="appellant" class="text-sm">Tornar recorrente</label>
+          </div>
+          <!-- Desconto/Multa -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="active_discount" name="active_discount" x-model="formData.apply_discount" class="h-4 w-4 text-green-500 border-gray-300 rounded" @change="recalcTotal">
+              <label for="descontoMulta" class="text-sm">Aplicar desconto ou multa</label>
+            </div>
+           <div class="grid grid-cols-2 gap-4">
+                <div class="gap-2">
+                  <label class="text-sm block">(-) Desconto</label>
+                  <input type="number" placeholder="%" id="percent_discount" name="percent_discount" x-model="formData.percent_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
+                  <input type="number" placeholder="R$" id="value_discount" name="value_discount" x-model="formData.value_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
+                </div>
+                <div class="gap-2">
+                  <label class="text-sm block">(+) Multa</label>
+                  <input type="number" placeholder="%" name="percent_fine" id="percent_fine" x-model="formData.percent_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
+                  <input type="number" placeholder="R$" name="value_fine" id="value_fine" x-model="formData.value_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
+                </div>
+              </div>
+          </div>
+          <!-- Total -->
+          <div class="flex-col">
+            <label class="text-sm">Total a pagar:</label>
+            <input type="number" class="font-bold text-sm boder-b" id="total_value" name="total_value" x-model="formData.total_value" readonly>
+          </div>
+          <!-- Ações -->
+          <div class="flex justify-center gap-4 pt-4">
+<!-- Botões quando for CREATE -->
+    <template x-if="mode === 'create'">
+        <div class="flex gap-4">
+            {% for status in status_bill %}
+                {% if status.status != 'ATRASADO' %}
+                    <button 
+                        type="submit"
+                        class="px-4 py-2 w-32 rounded-lg text-white"
+                        :class="{
+                        ' bg-green-500 ': '{{status.status}}' == 'PAGO',
+                        ' bg-blue-500 ': '{{status.status}}' == 'PENDENTE',
+                        ' bg-[#F65F0B] ': '{{status.status}}' == 'AGENDADO',
+                        ' bg-[#484747]': '{{status.status}}' == 'AUTOMÁTICO',
+                        }"
+                        @click="formData.status = {{ status.id }}">
+                        {{status.status|title}}
+                    </button>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </template>
+
+    <!-- Botões quando for UPDATE -->
+    <template x-if="mode === 'update'">
+        <div class="flex gap-4">
+            <button 
+                type="button"
+                class="px-4 py-2 w-32 rounded-lg bg-gray-500 text-white"
+                @click="modalclose()">
+                Cancelar
+            </button>
+            <button 
+                type="submit"
+                class="px-4 py-2 w-32 rounded-lg bg-green-600 text-white">
+                Salvar
+            </button>
+        </div>
+    </template>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>

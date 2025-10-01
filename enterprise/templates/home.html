@@ -1,0 +1,394 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %} Início {% endblock %}
+
+{% block content %}
+<div x-data="mainPage()" class="space-y-6">
+
+  <!-- Saudação -->
+  <h1 class="text-xl font-semibold text-white">Olá, O BOX!</h1>
+
+  <div class="flex gap-6">
+    <!-- Coluna esquerda (cards) -->
+    <div class="flex-1 space-y-6">
+       <!-- Card Ativos -->
+    <div x-data="{ open: false }" class="border border-gray-600 rounded-xl shadow-md p-4">
+      <button @click="open = !open" class="flex justify-between items-center w-full">
+        <div class="flex items-center space-x-2">
+          <span class="text-green-500 font-semibold text-lg">Contratos ativos</span>
+          <span class="text-green-500 text-3xl font-bold">{{ actives_total }}</span>
+        </div>
+        <!-- Seta -->
+        <svg x-show="!open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+        <svg x-show="open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+      <div x-show="open" x-transition class="mt-4 text-sm text-gray-300">
+        <ul class="space-y-1">
+          
+          {% for active in actives_students %}
+            <li class="flex justify-between"><span>{{ active.name }} - Plano: {{ active.plan.name_plan }}</span> <span></span></li>
+            {% empty %}
+            <li class="text-gray-400">Nenhum contrato ativo.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+      <!-- Card A vencer -->
+      <div x-data="{ open: false }" class="border border-gray-600 rounded-xl shadow-md p-4">
+        <button @click="open = !open" class="flex justify-between items-center w-full">
+          <div class="flex items-center space-x-2">
+            <span class="text-orange-500 font-semibold text-lg">Contratos a vencer</span>
+            <span id="total_due" class="text-orange-500 text-3xl font-bold">{{ monthly_fees_due_total }}</span>
+          </div>
+          <svg x-show="!open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+          <svg x-show="open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+        <div x-show="open" x-transition class="mt-4 text-sm text-gray-300">
+          <table class="w-full text-left text-gray-300">
+            <thead>              
+              {% if monthly_fees_due  %}
+                <tr class="border-b border-gray-600">
+                <th class="px-4 py-2">Nome Completo</th>
+                <th class="px-4 py-2">Plano</th>
+                <th class="px-4 py-2">Vencimento</th>
+                <th class="px-4 py-2">Ações</th>
+              </tr>
+              {% endif %}
+            </thead>
+            <tbody>
+              {% for fee in monthly_fees_due %}
+              <tr id="fee-row-{{ fee.id }}" class="border-l border-r border-gray-600">
+                <td class="px-4 py-2">{{ fee.student.name }}</td>
+                <td class="px-4 py-2">{{ fee.student.plan.name_plan }}</td>
+                <td class="px-4 py-2">{{ fee.due_date|date:"d/m/Y" }}</td>
+                <td class="px-4 py-2">
+                  <!-- Botão Receber -->
+                  <button 
+                    @click="paymentModal.show({{ fee.id }}, total_due)"
+                    class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                    Receber
+                  </button>
+                  <!-- Botão Inativar -->
+                  <button 
+                    @click="openDeactivateModal = true; monthly_feesID = {{ fee.id }}" 
+                    class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
+                    Inativar
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4">Nenhum contrato a vencer.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+          <!-- Card Atrasados -->
+    <div x-data="{ open: false }" class="border border-gray-600 rounded-xl shadow-md p-4">
+      <button @click="open = !open" class="flex justify-between items-center w-full">
+        <div class="flex items-center space-x-2">
+          <span class="text-red-500 font-semibold text-lg">Contratos atrasados</span>
+          <span id="total_overdue" class="text-red-500 text-3xl font-bold">{{ monthly_fees_overdue_total }}</span>
+        </div>
+        <svg x-show="!open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+        <svg x-show="open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+      <div x-show="open" x-transition class="mt-4 text-sm text-gray-300">
+        <div class="space-y-1">
+          <table class="w-full text-left text-gray-300">
+            {% if monthly_fees_overdue %}
+              <thead>
+              <tr class="border-b border-gray-600">
+                <th class="px-4 py-2">
+                  Nome Completo
+                </th>
+                <th class="px-4 py-2">
+                  Plano
+                </th>
+                <th class="px-4 py-2">
+                  Vencimento
+                </th>
+                <th class="px-4 py-2">
+                  Acões
+                </th>
+              </tr>
+            </thead>
+            {% endif %}
+          <tbody>
+          {% for fee in monthly_fees_overdue %}
+          <tr id="fee-row-{{ fee.id }}" class="border-l border-r border-gray-600">
+            <td class="px-4 py-2">{{ fee.student.name }}</td>
+            <td class="px-4 py-2">
+              {{ fee.student.plan.name_plan }}
+            </td>
+            <td class="px-4 py-2">
+              {{ fee.due_date|date:"d/m/Y" }}
+            </td>
+            <td class="px-4 py-2">
+                <!-- Botão Receber -->
+                  <button 
+                    @click="paymentModal.show({{ fee.id }}, total_overdue)"
+                    class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                    Receber
+                  </button>
+                  <!-- Botão Inativar -->
+                  <button 
+                    @click="openDeactivateModal = true; monthly_feesID = {{ fee.id }}; " 
+                    class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
+                    Inativar
+                  </button>
+             </td>
+            {% empty %}
+            <tr> Nenhum contrato em atraso.</tr>
+            </>
+          {% endfor %}
+          </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    </div> 
+      <!-- Coluna direita (calendário) -->
+  <div class="w-80">
+    <div x-data="calendar()" 
+     class="bg-black text-gray-100 rounded-2xl shadow-xl p-4 border border-gray-700">
+  <div class="flex justify-between items-center mb-4">
+    <button @click="prevMonth" 
+            class="px-2 py-1 text-gray-400 hover:text-white">&lt;</button>
+    <h2 class="font-bold" 
+        x-text="monthNames[currentMonth] + ' ' + currentYear"></h2>
+    <button @click="nextMonth" 
+            class="px-2 py-1 text-gray-400 hover:text-white">&gt;</button>
+  </div>
+
+  <!-- Cabeçalho dias da semana -->
+  <div class="grid grid-cols-7 text-center text-xs font-semibold mb-2 text-gray-400">
+    <span class=" text-red-600">Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+  </div>
+
+  <!-- Dias -->
+  <div class="grid grid-cols-7 text-center text-sm gap-y-2">
+    <template x-for="blank in blanks">
+      <span></span>
+    </template>
+    <template x-for="day in daysInMonth" :key="day">
+      <div class="relative">
+        <span class="inline-block w-8 h-8 leading-8 rounded-full cursor-pointer"
+              :class="{
+                'border-b border-red-700 text-white': hasEvent(day),
+                'hover:bg-gray-700': !hasEvent(day)
+              }"
+              x-text="day">
+        </span>
+        <!-- bolinha indicadora -->
+        <span x-show="hasEvent(day)" 
+              class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-red-500 rounded-full">
+        </span>
+      </div>
+    </template>
+    </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- Modal de Pagamento -->
+  <div x-show="paymentModal.open" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-[780px] p-6 relative">
+      <button @click="paymentModal.close()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">✕</button>
+      <h2 class="text-xl font-semibold mb-4">Dados do pagamento</h2>
+
+      <form @submit.prevent="paymentModal.submitForm()" class="space-y-6 gap-8">
+        <input type="hidden" x-model="paymentModal.monthlyfeeId">
+
+        <div class="grid grid-cols-3 gap-4 text-sm">
+          <!-- Plano -->
+          <div>
+            <label class="block font-medium">Plano:</label>
+             <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="paymentModal.feeData.plan" readonly>
+          </div>
+            <!-- Valor -->
+          <div>
+            <label class="block font-medium">Valor:</label>
+            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="paymentModal.feeData.value" readonly>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 text-sm ">
+          <!-- Desconto -->
+          <div>
+            <label class="block font-medium">Desconto %:</label>
+            <input type="number" step="0.01" min="0"
+                   placeholder="Ex. 10"
+                   class="w-32 border-b border-gray-300 focus:border-green-500 outline-none bg-transparent">
+          </div>
+          <!-- Valor desconto -->
+          <div>
+          <label class="block font-medium">Valor desconto:</label>
+          <input type="number" name="discount_value" placeholder="Ex. 10"
+            class="w-32 border-b border-gray-400 focus:outline-none">
+        </div>
+         <!-- Valor após desconto -->
+          <div>
+            <label class="block font-medium">Valor após desconto:</label>
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " readonly x-model="paymentModal.feeData.value">
+          </div>
+        </div>
+<!-- Metodos de pagamento -->
+        <div class="max-w-[600px]">
+          <div class="flex flex-wrap justify-evenly p-4">
+            <template x-for="method in paymentModal.feeData.paymentMethods" :key="method.id">
+              <button type="button"
+                @click="paymentModal.selectedMethod = method.id"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition"
+                :class="paymentModal.selectedMethod === method.id 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-gray-800 text-gray-200 hover:bg-gray-700'"
+                x-text="method.name">
+              </button>
+            </template>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8 text-sm">
+        <!-- Dia do pagamento -->
+        <div>
+          <label class="block text-gray-700">Dia do pagamento</label>
+          <input type="text" name="dia_pagamento" value="{{today|date:'d/m/Y'}}" 
+            class="w-32 border-b border-gray-400 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-gray-700">Nº de parcelas</label>
+          <input type="text" name="parcelas" value="1x" 
+            class="w-32 border-b border-gray-400 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-gray-700">Valor a receber</label>
+          <input type="text" name="valor_receber" x-model="paymentModal.feeData.value" readonly
+            class="w-32 border-b border-gray-400 focus:outline-none">
+        </div>
+      </div>
+        <div class="flex justify-center">
+          <button type="submit"
+            class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+            Receber
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function mainPage() {
+  return {
+    openDeactivateModal: false,
+    monthly_feesID: null,
+    paymentModal: {
+      open: false,
+      monthlyfeeId: null,
+      feeData: { plan: '', value: '', },
+      paymentMethods: '',
+      selectedMethod: null,
+      cardchange:null,
+
+      async show(id, cardchange) {
+        this.open = true;
+        this.monthlyfeeId = id;
+        this.cardchange = cardchange
+        const res = await fetch(`/api/monthlyfee/${id}/`);
+        const data = await res.json();
+        if (data.paymentMethods) {
+        data.paymentMethods = data.paymentMethods.map(item => ({
+            id: item[0],
+            name: item[1]
+        }));
+        this.feeData = data;
+        console.log(this.feeData);
+    }
+      },
+
+      close() {
+        this.open = false;
+        this.monthlyfeeId = null;
+        this.selectedMethod = null;
+      },
+
+      submitForm() {
+        fetch("{% url 'monthlyfee_update_api' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            monthlyfee_id: this.monthlyfeeId,
+            payment_method: this.selectedMethod
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            let el_total = document.getElementById(this.cardchange.id);
+            console.log(this.cardchange)
+            el_total.innerHTML = parseInt(el_total.textContent, 10) - 1;
+            document.querySelector(`#fee-row-${this.monthlyfeeId}`).remove();
+            this.close();
+            
+          } else {
+            alert(data.message);
+          }
+        });
+      }
+    }
+  }
+}
+function calendar() {
+  return {
+    currentMonth: new Date().getMonth(),
+    currentYear: new Date().getFullYear(),
+    monthNames: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],
+    events: [5, 12, 20], // dias com "contas a vencer"
+    get daysInMonth() {
+      return new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+    },
+    get blanks() {
+      return new Date(this.currentYear, this.currentMonth, 1).getDay();
+    },
+    hasEvent(day) {
+      return this.events.includes(day);
+    },
+    prevMonth() {
+      if (this.currentMonth === 0) {
+        this.currentMonth = 11;
+        this.currentYear--;
+      } else {
+        this.currentMonth--;
+      }
+    },
+    nextMonth() {
+      if (this.currentMonth === 11) {
+        this.currentMonth = 0;
+        this.currentYear++;
+      } else {
+        this.currentMonth++;
+      }
+    }
+  }
+}
+</script>
+
+
+{% endblock %}

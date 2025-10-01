@@ -1,0 +1,22 @@
+{% load static %}
+  <div class="flex items-center justify-between w-full">
+    <!-- Campo de pesquisa -->
+    <div class="flex items-center justify-between bg-transparent border-b gap-2 border-gray-400 w-full">
+      <i data-lucide="search" class="text-gray-400 ml-2 "></i>
+      <form action="{% url 'list_student' %}" method="get" autocomplete="on" class="w-4/5 border-l border-gray-400">
+      <input 
+      type="text"
+      name="search" 
+      value="{{ request.GET.search }}" 
+      placeholder="Buscar Aluno"
+      class="w-full p-2 bg-transparent text-sm text-gray-200 focus:outline-none">
+    </form>
+    <!-- Espaço à direita -->
+      <i data-lucide="bell" class=" mx-2 text-gray-400"></i>
+      <img src="{% static 'media/logo/logo_obox.png' %}" alt="logo_obox" class="border-l border-gray-400 pl-4 w-[80px] h-[50px]">
+      <div class="w-40 text-center ml-2">        
+        <h6 class="text-white font-bold ">O BOX TRAINING</h6>
+        <a href="" class="text-sm text-gray-200">Configurações</a>
+      </div>
+    </div>
+  </div>

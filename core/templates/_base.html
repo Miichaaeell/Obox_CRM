@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="shortcut icon" href="{% static 'media/logo/favicon.png' %}" type="image/png">
+  <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.plugin(window.AlpineMask);
+        lucide.createIcons();
+    })
+  </script>
+
+
+</head>
+<body x-data="{ open: false }" class="bg-gradient-to-l from-[#aaaaaa] to-[#1F1F1F]">
+
+  <!-- Sidebar -->
+  <aside id="sidebar"
+         :class="open ? 'w-64' : 'w-20'"
+         class="fixed top-[4vh] left-4 bg-black text-white transition-all duration-300 shadow-2xl rounded-2xl z-40">
+    {% include 'components/_sidebar.html' %}
+  </aside>
+
+  <!-- Área principal -->
+  <div class="flex flex-col min-h-screen transition-all duration-300"
+       :class="open ? 'ml-[272px]' : 'ml-[112px]'">
+
+    <!-- Header -->
+    <header class="fixed top-0 right-0 h-16 px-6 py-4 flex justify-between items-center z-30 transition-all duration-300"
+            :class="open ? 'left-[272px]' : 'left-[112px]'">
+      {% include 'components/_header.html' %}
+    </header>
+
+    <!-- Conteúdo -->
+    <main class="pt-20 p-6 flex-1 overflow-y-auto h-[calc(100vh-5rem)]">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+</body>
+</html>

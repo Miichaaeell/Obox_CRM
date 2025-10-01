@@ -1,0 +1,100 @@
+{% extends "_base.html" %}
+
+{% block title %}
+    Frequência
+{% endblock title %}
+    
+
+{% block content %}
+<div class="p-6 bg-gray-100 min-h-screen">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow p-6" x-data="{'search' : ''}">
+        <!-- Cabeçalho -->
+        <div class="flex items-center justify-between mb-4">
+            <button @click="previousDay()" class="p-2 bg-gray-200 rounded-full hover:bg-gray-300"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+            <h2 class="text-xl font-semibold">Quinta-feira - 18 de Setembro de 2025</h2>
+            <button @click="nextDay()" class="p-2 bg-gray-200 rounded-full hover:bg-gray-300"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- Filtro -->
+        <div class="mb-4 flex gap-3">
+            <i data-lucide="filter" class="mt-2"></i>
+            <input type="text" x-model="search" placeholder="Nome" 
+                   class="border border-gray-300 rounded-2xl p-2 w-2/5" />
+        </div>
+
+        <!-- Tabela -->
+        <div class="overflow-x-auto" >
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="border-b-2">
+                    <tr>
+                        <th class="px-4 border-r py-2 text-left text-sm font-medium text-gray-500">Nome</th>
+                        <th class="px-4 border-r py-2 text-left text-sm font-medium text-gray-500">Presença</th>
+                        <th class="px-4 border-r py-2 text-left text-sm font-medium text-gray-500">Plano</th>
+                        <th class="px-4 border-r py-2 text-left text-sm font-medium text-gray-500">Status</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Observação</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+
+                        {% for student in students %}
+                        <tr>
+                            <td class="px-4 py-2 text-sm">{{student.name}}</td>
+                            <td class="px-4 py-2 text-sm">
+                               <i data-lucide="thumbs-up" class="cursor-pointer" id="{{student.id}}" onclick="updatefrequence({{student.id}})"></i>
+                            </td>
+                            <td class="px-4 py-2 text-sm">{{student.plan}}</td>
+                            <td class="px-4 py-2 text-sm" :class="'{{student.status.status}}' === 'ATIVO' ? 'text-green-500' : 'text-orange-500'"> {{student.status}}</td>
+                            <td class="px-4 py-2 text-sm">
+                                <input type="text" class="border border-gray-300 rounded p-1 w-full" />
+                            </td>
+                        </tr>
+                        {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Alpine.js data -->
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('attendancePage', () => ({
+            search: '',
+            users: [
+                {id: 1, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 2, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 3, name: 'Nome completo', presenca: true, plano: 'Trimestral', status: 'Ativo', observacao: ''},
+                {id: 4, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 5, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 6, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 7, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 8, name: 'Nome completo', presenca: true, plano: '3x Mensais', status: 'Ativo', observacao: ''},
+                {id: 9, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 10, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'A vencer', observacao: ''},
+                {id: 11, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 12, name: 'Nome completo', presenca: true, plano: '3x Mensais', status: 'Ativo', observacao: ''},
+                {id: 13, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 14, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'A vencer', observacao: ''},
+                {id: 15, name: 'Nome completo', presenca: false, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+                {id: 16, name: 'Nome completo', presenca: false, plano: '5x Mensais', status: 'Ativo', observacao: ''},
+            ],
+            filteredUsers() {
+                return this.users.filter(u => u.name.toLowerCase().includes(this.search.toLowerCase()));
+            },
+            previousDay() {
+                // Lógica para ir para o dia anterior
+            },
+            nextDay() {
+                // Lógica para ir para o próximo dia
+            }
+        }))
+    })
+
+    function updatefrequence(student_id){
+        const studant = document.getElementById(student_id)
+        text_green = studant.classList.contains('text-green-600')
+        text_green == false ? studant.classList.add('text-green-600') : studant.classList.remove('text-green-600')
+    }
+</script>
+
+{% endblock %}

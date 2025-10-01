@@ -1,0 +1,165 @@
+<div class="bg-white rounded-2xl shadow-xl w-4/5 mx-auto p-6 relative">
+        <h2 class="text-xl font-semibold mb-4">{{ title_card }}</h2>        
+      <form class="space-y-6 gap-8" method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+  <div class="bg-red-100 text-red-800 p-2 rounded">
+    {{ form.errors }}
+  </div>
+{% endif %}
+
+        <!--Nome completo-->
+        <div class="gap -4 text-sm"> 
+            <div>
+            <label class="block font-medium">Nome completo:</label>
+            {{form.name}}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 text-sm">        
+            <!-- CPF -->
+        <div>
+            <label class="block font-medium">CPF:</label>
+             {{form.cpf_cnpj}}
+          </div>
+            <!--Data de nascimento -->
+            <div>
+            <label class="block font-medium">Data de nascimento:</label>
+            {{form.date_of_birth}}
+          </div>
+            <!--Telefone-->
+         <div>
+            <label class="block font-medium">Telefone:</label>
+            {{form.phone_number}}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 text-sm">
+               <!--Data da matricula-->
+          <div>
+            <label class="block font-medium">Data da Matricula:</label>
+             <input class="" value="{{today|date:'d/m/Y'}}" readonly>
+          </div>
+          <!-- Plano -->
+         <div>
+            <label class="block font-medium">Plano:</label>
+            {{form.plan}}
+          </div>
+            <!-- Valor -->
+          <div>
+            <label class="block font-medium">Valor:</label>
+            <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="value_plan" readonly>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 text-sm ">
+          <!-- Desconto -->
+          <div>
+            <label class="block font-medium">Desconto %:</label>
+            <input type="number" step="0.01" min="0"
+                   placeholder="Ex. 10"
+                   class="w-32 border-b border-gray-300 focus:border-green-500 outline-none bg-transparent"
+                   id="percent_discount"
+                   name="percent_discount">
+                   
+          </div>
+          <!-- Valor desconto -->
+          <div>
+          <label class="block font-medium">Valor desconto:</label>
+          <input type="number" name="discount_value" placeholder="Ex. 10"
+            class="w-32 border-b border-gray-400 focus:outline-none"
+            id="discount_value">
+        </div>
+         <!-- Valor após desconto -->
+          <div>
+            <label class="block font-medium">Valor após desconto:</label>
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " id="value_after_discount" readonly>
+          </div>
+        </div>
+<!-- Metodos de pagamento -->
+          <div class="flex flex-wrap justify-evenly p-4 w-4/6" x-data="{selectedOpption: ''}">
+            {% for payment in payment_methods %}
+            <label class="px-4 p-2 border rounded-lg cursor-pointer transition-all duration-200" :class="{' bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm': selectedOpption === '{{payment.method}}', 'bg-gray-800 text-white rounded-lg text-sm':selectedOpption !== '{{payment.method}}'}">
+            <input type="radio" name="payment_method" value="{{payment.method}}" class="sr-only" x-model="selectedOpption" required>{{payment.method}}
+            </label>
+               
+            {% endfor %}
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8 text-sm">
+        <!-- Dia do pagamento -->
+        <div>
+          <label class="block text-gray-700">Dia do pagamento</label>
+          <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" disabled value="{{today|date:'d'}}">
+        </div>
+        <div>
+          <label class="block text-gray-700">Nº de parcelas</label>
+          <select name="quantity_installments" id="quantity_installments" class="text-gray-700 w-32 bg-transparent border-b border-gray-400 focus:outline-none">
+            
+            {% for installment in quantity_installments %}
+              <option value="{{installment}}">{{installment}}</option>
+            {% endfor %}
+              
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700">Valor a receber</label>
+          <input type="text" name="value_receiver" id="total_value" readonly
+            class="w-32 border-b border-gray-400 focus:outline-none">
+        </div>
+      </div>
+        <div class="flex gap-6 justify-center">
+            <a href="{% url 'list_student' %}" class="px-3 w-32 cursor-pointer py-1 bg-gray-800 text-center text-white rounded-lg text-sm">
+           Cancelar
+          </a>
+          <button type="submit"
+            class="px-3 w-32 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+            Salvar e Receber
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+    let plansData = {{ plans|safe }};
+    console.log(plansData); 
+    document.addEventListener("DOMContentLoaded", function() {
+      const planSelect = document.getElementById("id_plan");
+      const valueInput = document.getElementById("value_plan");
+      const valueTotal = document.getElementById('total_value');
+      const ValueAfterDescount = document.getElementById('value_after_discount')
+      const percentDiscount = document.getElementById('percent_discount')
+      const valueDiscount = document.getElementById('discount_value')
+      planSelect.addEventListener("change", function() {
+        const selectedId = parseInt(this.value);
+        const plan = plansData.find(p => p.id === selectedId);
+        if (plan) {
+          valueInput.value = plan.price;
+          valueTotal.value = plan.price;
+          ValueAfterDescount.value = plan.price;
+          percentDiscount.value = "";
+          valueDiscount.value = "";
+           
+        } else {
+          valueInput.value = '';
+          valueTotal.value = '';
+          ValueAfterDescount.value =  "";
+        }
+    });
+      percentDiscount.addEventListener('change', function(){
+        const discount = valueInput.value - (valueTotal.value * percentDiscount.value / 100) 
+        ValueAfterDescount.value = discount
+        valueTotal.value = discount
+      })
+      valueDiscount.addEventListener('change', function(){
+        const discount = valueInput.value - valueDiscount.value
+        ValueAfterDescount.value = discount
+        valueTotal.value = discount
+      })
+  // inicializa no load
+    if (planSelect.value) {
+      const plan = plansData.find(p => p.id === parseInt(planSelect.value));
+      if (plan) {
+        valueInput.value = plan.price;
+      }
+    }
+  });
+    </script>
