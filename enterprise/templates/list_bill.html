@@ -4,7 +4,7 @@
 {% block title %}Contas a Pagar{% endblock %}
 
 {% block content %}
-<div class="w-full bg-white pt-16 rounded-3xl max-w-6xl mx-auto p-6 overflow-auto " x-data="modalHandler()">
+<div class="w-full bg-white pt-16 rounded-3xl max-w-[80vw] mx-auto p-6 " x-data="modalHandler()">
 
   <!-- Header -->
   <div class="flex justify-between items-center mb-6">
@@ -87,6 +87,7 @@
           
       </tbody>
     </table>
+    {% include 'components/_pagination.html' %}
      <!-- =================== MODAL CRIAR/PAGAMENTO =================== -->
     {% include 'components/modal_create_update_bill.html' %}
     <!-- =================== MODAL EDITAR =================== -->

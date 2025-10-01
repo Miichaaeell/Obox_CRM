@@ -1,0 +1,7 @@
+Django==5.2.6
+djangorestframework==3.16.1
+python-decouple==3.8
+pandas==2.3.2
+openpyxl==3.1.5
+requests==2.32.5
+webmanaia-client @ git+https://github.com/Miichaaeell/webmania-client.git@90848f68ce52645dc94e18cca4e9b0bd111933bd

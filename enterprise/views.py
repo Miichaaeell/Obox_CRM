@@ -194,6 +194,7 @@ class PlanUpdateView(LoginRequiredMixin, UpdateView):
 class BillListView(LoginRequiredMixin, ListView):
     model = Bill
     template_name = 'list_bill.html'
+    paginate_by = 8
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
