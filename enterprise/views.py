@@ -208,7 +208,12 @@ class BillListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(status__status__icontains=status_filter)
         return queryset
 
+#Views NFE's
 
+class NFESListView(LoginRequiredMixin, TemplateView ):
+    template_name='nfes.html'
+    
+    
 # API'S VIEW
 class BillDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bill.objects.all()

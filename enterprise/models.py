@@ -59,6 +59,8 @@ class TypeBill(TimeStampedModel, models.Model):
 
 class PaymentMethod(TimeStampedModel, models.Model):
     method = models.CharField(max_length=100, verbose_name='método')
+    applies_to = models.CharField(
+        max_length=24, verbose_name='Aplica-se a', help_text='students / all', default='students')
 
     def __str__(self):
         return self.method

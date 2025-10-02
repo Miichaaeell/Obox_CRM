@@ -36,7 +36,7 @@
                 <span>
                   {% for payment in payment_methods %}
                     <span x-show="formData.payment_method == {{payment.id}}">
-                      {{payment.method}}
+                      {{payment.method|title}}
                     </span>
                   {% endfor %}
                 </span>
@@ -52,7 +52,7 @@
             <li @click="formData.payment_method = {{payment.id}}; openPaymentDropdown = false"
                 class="cursor-pointer px-3 py-2 hover:bg-gray-700 hover:text-white transition duration-200 ease-in-out transform hover:translate-x-1 rounded-lg"
                 :class="{ 'bg-gray-100 font-semibold': formData.payment_method == {{payment.id}} }">
-              {{payment.method}}
+              {{payment.method|title}}
             </li>
             {% endfor %}
           </ul>

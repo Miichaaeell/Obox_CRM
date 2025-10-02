@@ -43,7 +43,8 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Aluno'
         context['sufix_url'] = 'student'
-        context['payment_methods'] = PaymentMethod.objects.all()
+        context['payment_methods'] = PaymentMethod.objects.filter(
+            applies_to__icontains='students')
         context['today'] = today
         context['plans'] = json.dumps(list(
             Plan.objects.values('id', 'price')), cls=DjangoJSONEncoder)

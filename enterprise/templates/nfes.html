@@ -1,0 +1,65 @@
+{% extends '_base.html' %}
+{% load static %}
+
+
+{% block title %}
+    NFE's
+{% endblock title %}
+    
+
+
+{% block content %}
+      <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col min-h-[80vh]">
+        <h1 class="text-2xl font-bold mb-6">Nota Fiscal Eletrônica de Serviço</h1>
+
+        <div class="py-3">
+            <h2 class="text-1xl font-bold ">Mês de competencia</h2>
+            <select name="" id="" class="w-48 border-b">
+
+            </select>
+        </div>
+      <!-- Filtros -->
+      <div class="flex items-center gap-4 mb-4">
+        <button class="p-2 border rounded hover:bg-gray-100">
+          <!-- Icone filtro -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v6l-4-2v-4L3 6V4z"/>
+          </svg>
+        </button>
+        <div class="inline-flex mb-6 mt-5  overflow-hidden"">
+            <button class="px-3 py-1 border rounded-l-lg ">5x Mensais</button>
+            <button class="px-3 py-1 border ">3x Mensais</button>
+            <button class="px-3 py-1 border ">Trimestral</button>
+            <button class="px-3 py-1 border rounded-r-lg ">Todos</button>
+        </div>
+        <input type="text" class="px-2 py-1 border rounded-lg" placeholder="Nome">
+        <button class="text-gray-500 hover:underline">Apagar filtros</button>
+      </div>
+
+      <!-- Tabela -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="border-b">
+              <th class="text-center py-2 px-3 border-l">Data</th>
+              <th class="text-center py-2 px-3 border-l">Nome</th>
+              <th class="text-center py-2 px-3 border-l">Valor</th>
+              <th class="text-center py-2 px-3 border-l">Descrição</th>
+              <th class="text-center py-2 px-3 border-l">Formato</th>
+              <th class="text-center py-2 px-3 border-l">Subtotal</th>
+              <th class="text-center py-2 px-3 border-l">NF</th>
+            </tr>
+          </thead>
+          <tbody>
+           <tr>
+            <td>em construcao</td>
+           </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="flex justify-center mt-10"><button class="text-center text-white bg-green-500 rounded-lg p-2 w-min-32">Emtir NF</button></div>
+{% endblock content %}
+    
