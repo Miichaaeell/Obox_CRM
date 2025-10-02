@@ -67,7 +67,6 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
         monthly_fees_overdue = MonthlyFee.objects.filter(
             due_date__range=(date_start, date_end), paid=False)
         context = {
-            'user': request.user,
             'actives_total': actives_students.count(),
             'actives_students': actives_students,
             'monthly_fees_due_total': monthly_fees_due.count(),
@@ -89,7 +88,8 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
         month, year = datetime.today().month,  datetime.today().year
         start = f'{year}-{month}-01'
         end = f'{year}-{month}-30'
-        total = MonthlyFee.objects.filter(due_date__range=(start, end)).aggregate(
+        monthlyfees = MonthlyFee.objects.filter(due_date__range=(start, end))
+        total = monthlyfees.aggregate(
             pix=Sum('amount', filter=Q(payment_method__iexact="pix")),
             credito=Sum('amount', filter=Q(payment_method__iexact="crédito")),
             debito=Sum('amount', filter=Q(payment_method__iexact="débito")),
@@ -102,7 +102,6 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             total_pay=Sum('value'))
         print(pay)
         context = {
-            'user': request.user,
             'pix': total['pix'] if total['pix'] else 0,
             'credito': total['credito'] if total['credito'] else 0,
             'debito': total['debito'] if total['debito'] else 0,
@@ -110,7 +109,7 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             'tot': total['tot'] if total['tot'] else 0,
             'bills': bill if bill else 0,
             'pay': pay['total_pay'] if pay['total_pay'] else 0,
-
+            'monthlyfees': monthlyfees,
         }
         return render(request, 'cashier.html', context)
 
@@ -194,7 +193,7 @@ class PlanUpdateView(LoginRequiredMixin, UpdateView):
 class BillListView(LoginRequiredMixin, ListView):
     model = Bill
     template_name = 'list_bill.html'
-    paginate_by = 8
+    # paginate_by = 8
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

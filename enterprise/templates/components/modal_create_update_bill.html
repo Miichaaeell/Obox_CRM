@@ -46,16 +46,16 @@
               <input type="checkbox" id="active_discount" name="active_discount" x-model="formData.apply_discount" class="h-4 w-4 text-green-500 border-gray-300 rounded" @change="recalcTotal">
               <label for="descontoMulta" class="text-sm">Aplicar desconto ou multa</label>
             </div>
-           <div class="grid grid-cols-2 gap-4">
+           <div x-show="formData.apply_discount" class="grid grid-cols-2 gap-4">
                 <div class="gap-2">
                   <label class="text-sm block">(-) Desconto</label>
-                  <input type="number" placeholder="%" id="percent_discount" name="percent_discount" x-model="formData.percent_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
-                  <input type="number" placeholder="R$" id="value_discount" name="value_discount" x-model="formData.value_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
+                  <input type="number" placeholder="%" id="percent_discount" name="percent_discount" x-model="formData.percent_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" >
+                  <input type="number" placeholder="R$" id="value_discount" name="value_discount" x-model="formData.value_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" >
                 </div>
                 <div class="gap-2">
                   <label class="text-sm block">(+) Multa</label>
-                  <input type="number" placeholder="%" name="percent_fine" id="percent_fine" x-model="formData.percent_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
-                  <input type="number" placeholder="R$" name="value_fine" id="value_fine" x-model="formData.value_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" :disabled="!formData.apply_discount">
+                  <input type="number" placeholder="%" name="percent_fine" id="percent_fine" x-model="formData.percent_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" >
+                  <input type="number" placeholder="R$" name="value_fine" id="value_fine" x-model="formData.value_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal">
                 </div>
               </div>
           </div>
@@ -76,7 +76,7 @@
                         class="px-4 py-2 w-32 rounded-lg text-white"
                         :class="{
                         ' bg-green-500 ': '{{status.status}}' == 'PAGO',
-                        ' bg-blue-500 ': '{{status.status}}' == 'PENDENTE',
+                        ' bg-[#FFB007] ': '{{status.status}}' == 'PENDENTE',
                         ' bg-[#F65F0B] ': '{{status.status}}' == 'AGENDADO',
                         ' bg-[#484747]': '{{status.status}}' == 'AUTOMÁTICO',
                         }"

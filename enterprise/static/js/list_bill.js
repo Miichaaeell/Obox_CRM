@@ -3,6 +3,7 @@ function modalHandler(){
     showModal: false,
     showStatus : false,
     showDelete: false,
+    applydiscount:false,
     formData: {},
     mode: '',
     selectedID: null,

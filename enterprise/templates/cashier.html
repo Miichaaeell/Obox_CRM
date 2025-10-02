@@ -91,10 +91,11 @@
           </thead>
           <tbody>
            
-           {% for bill in bills %}
-            <tr>
+           {% for bill in bills %}            
+            {% if bill.status.status|lower == 'pago' %}
+              <tr>
               <td> {{ bill.due_date|date:'d/m/y' }}</td>
-              <td>{{ bill.type_bill }}</td>
+              <td>Saída</td>
               <td>{{ bill.value }}</td>
               <td>{{ bill.description }}</td>
               <td>
@@ -106,10 +107,25 @@
                 </td>
               <td>{{ bill.value }}</td>
             </tr>
-           {% empty %}
+            {% endif %}
+           {% endfor %}
+           {% for monthlyfee  in monthlyfees %}
+           {% if monthlyfee.paid %}
             <tr>
-              <td>Nenhua conta cadastrada</td>
+              <td> {{ monthlyfee.due_date|date:'d/m/y' }}</td>
+              <td>Entrada</td>
+              <td>{{ monthlyfee.amount }}</td>
+              <td>{{ monthlyfee.student }}</td>
+              <td>
+              {% if monthlyfee.payment_method %}
+                {{ monthlyfee.payment_method }}
+                {% else %}
+                Em aberto
+              {% endif %}
+                </td>
+              <td>{{ monthlyfee.amount }}</td>
             </tr>
+           {% endif %}
            {% endfor %}
           </tbody>
         </table>
