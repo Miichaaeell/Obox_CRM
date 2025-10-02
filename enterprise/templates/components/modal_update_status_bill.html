@@ -60,11 +60,10 @@
           <div class="flex justify-center gap-4 pt-4">
             <button type="button" @click="modalclose()" class="px-4 py-2 w-32 rounded-lg bg-gray-700 text-white">Cancelar</button>
             {% for status in status_bill %}
-            {% if status.status != 'PENDENTE' and status.status != 'ATRASADO' %}
+            {% if status.status != 'PENDENTE' and status.status != 'ATRASADO' and status.status != 'AUTOMÁTICO' %}
               <button type="submit" @click="formData.status = {{ status.id }}" class="px-4 py-2 w-32 rounded-lg text-white" 
               :class="{
               'bg-green-500' : '{{status.status}}' == 'PAGO',
-              'bg-[#484747]' : '{{status.status}}' == 'AUTOMÁTICO',
               'bg-[#F65F0B]' : '{{status.status}}' == 'AGENDADO',
               }">{{status.status|title}}</button>
             {% endif %}

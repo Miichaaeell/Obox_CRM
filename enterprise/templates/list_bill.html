@@ -52,7 +52,13 @@
           {% endif %}
             </td>
           <td class="px-4 py-3">R$ {{ obj.value }}</td>
-          <td class="px-4 py-3 text-green-600 font-semibold">R$ {{ obj.total_value }}</td>
+          <td class="px-4 py-3 text-green-600 font-semibold"> 
+          {% if obj.total_value %}
+            R$ {{ obj.total_value }}
+          {% else %}
+            -
+          {% endif %}
+             </td>
           <td class="px-4 py-3">
             <button @click="modalstatus({{obj.id}})" class="p-2 rounded-lg w-32 text-white font-semibold" :class="{
             'bg-green-500' : '{{obj.status.status}}' == 'PAGO',
@@ -61,10 +67,6 @@
             'bg-[#484747]': '{{obj.status.status}}' == 'AUTOMÁTICO',
             'bg-[#FFB007]': '{{obj.status.status}}' == 'PENDENTE'
            } ">{{obj.status}}</button>
-
-            
-              
-          
           </td>
           <td class="px-4 py-3 flex justify-around">
           {% if obj.appellant %}
@@ -72,7 +74,6 @@
           {% else %}
               Não            
           {% endif %}
-            
             <div>
               <button @click="modalupdate({{obj.id}})" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800">
                 <i data-lucide="pencil" class="w-[15px] h-[15px]"></i>

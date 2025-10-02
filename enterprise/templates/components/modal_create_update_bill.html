@@ -24,7 +24,7 @@
           </div>
           <div>
             <!--metodos de pagamento-->
-            <label class="block text-sm font-medium mb-2">Método de pagamento</label>
+            <label class="block text-sm font-medium mb-2" for="payment_method">Método de pagamento</label>
          <div class="relative w-64"
           @mouseenter="openPaymentDropdown = true"
           @mouseleave="openPaymentDropdown = false">
@@ -94,19 +94,19 @@
 <!-- Botões quando for CREATE -->
     <template x-if="mode === 'create'">
         <div class="flex gap-4">
+          <button 
+                type="button"
+                class="px-4 py-2 w-32 rounded-lg bg-gray-500 text-white"
+                @click="modalclose()">
+                Cancelar
+            </button>
             {% for status in status_bill %}
-                {% if status.status != 'ATRASADO' %}
+                {% if status.status == 'PENDENTE' %}
                     <button 
                         type="submit"
-                        class="px-4 py-2 w-32 rounded-lg text-white"
-                        :class="{
-                        ' bg-green-500 ': '{{status.status}}' == 'PAGO',
-                        ' bg-[#FFB007] ': '{{status.status}}' == 'PENDENTE',
-                        ' bg-[#F65F0B] ': '{{status.status}}' == 'AGENDADO',
-                        ' bg-[#484747]': '{{status.status}}' == 'AUTOMÁTICO',
-                        }"
+                        class="px-4 py-2 w-32 rounded-lg bg-green-600 text-white"
                         @click="formData.status = {{ status.id }}">
-                        {{status.status|title}}
+                        Salvar
                     </button>
                 {% endif %}
             {% endfor %}
