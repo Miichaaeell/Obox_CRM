@@ -8,6 +8,7 @@
 {% block content %}
 <div 
     x-data="nfeHandler()" 
+    x-init="init()"
     class="bg-white rounded-2xl shadow-xl p-6 flex flex-col min-h-[80vh]"
 >
   <h1 class="text-2xl font-bold mb-6">Nota Fiscal Eletrônica de Serviço</h1>
@@ -17,8 +18,9 @@
       <h2 class="text-1xl font-bold">Mês de competência</h2>
       <select x-model="reference_month" class="w-48 border-b bg-transparent">
         <option value="">Selecione...</option>
-        <option value="2025-09">Setembro/2025</option>
-        <option value="2025-10">Outubro/2025</option>
+        {% for month in reference_months %}
+          <option value="{{ month }}">{{ month }}</option>
+        {% endfor %}
       </select>
   </div>
 
@@ -30,13 +32,13 @@
       </svg>
     </button>
     <div class="inline-flex mb-6 mt-5 overflow-hidden">
-        <button class="px-3 py-1 border rounded-l-lg">5x Mensais</button>
-        <button class="px-3 py-1 border">3x Mensais</button>
-        <button class="px-3 py-1 border">Trimestral</button>
-        <button class="px-3 py-1 border rounded-r-lg">Todos</button>
+        <button type="button" class="px-3 py-1 border rounded-l-lg" @click="setPlanFilter('5x Mensal')">5x Mensais</button>
+        <button type="button" class="px-3 py-1 border" @click="setPlanFilter('3x Mensal')">3x Mensais</button>
+        <button type="button" class="px-3 py-1 border" @click="setPlanFilter('Trimestral')">Trimestral</button>
+        <button type="button" class="px-3 py-1 border rounded-r-lg" @click="setPlanFilter('Todos')">Todos</button>
     </div>
-    <input type="text" class="px-2 py-1 border rounded-lg" placeholder="Nome">
-    <button class="text-gray-500 hover:underline">Apagar filtros</button>
+    <input type="text" class="px-2 py-1 border rounded-lg" placeholder="Nome" x-model.debounce.300ms="student_filter">
+    <button type="button" class="text-gray-500 hover:underline" @click="clearFilters()">Apagar filtros</button>
   </div>
 
   <!-- Tabela -->
@@ -55,7 +57,7 @@
       </thead>
       <tbody>
         {% for monthlyfee in monthlyfees %}
-          <tr>
+          <tr data-nfe-row data-plan="{{ monthlyfee.plan|default_if_none:'' }}" data-student="{{ monthlyfee.student.name }}" data-month="{{ monthlyfee.reference_month }}">
             <td>{{monthlyfee.due_date|date:'d/m/Y'}}</td>
             <td>{{monthlyfee.student}}</td>
             <td>{{monthlyfee.amount}}</td>
