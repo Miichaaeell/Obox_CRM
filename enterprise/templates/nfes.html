@@ -1,65 +1,132 @@
 {% extends '_base.html' %}
 {% load static %}
 
-
 {% block title %}
     NFE's
 {% endblock title %}
-    
-
 
 {% block content %}
-      <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col min-h-[80vh]">
-        <h1 class="text-2xl font-bold mb-6">Nota Fiscal Eletrônica de Serviço</h1>
+<div 
+    x-data="nfeHandler()" 
+    class="bg-white rounded-2xl shadow-xl p-6 flex flex-col min-h-[80vh]"
+>
+  <h1 class="text-2xl font-bold mb-6">Nota Fiscal Eletrônica de Serviço</h1>
 
-        <div class="py-3">
-            <h2 class="text-1xl font-bold ">Mês de competencia</h2>
-            <select name="" id="" class="w-48 border-b">
+  <!-- Mês de competência -->
+  <div class="py-3">
+      <h2 class="text-1xl font-bold">Mês de competência</h2>
+      <select x-model="reference_month" class="w-48 border-b bg-transparent">
+        <option value="">Selecione...</option>
+        <option value="2025-09">Setembro/2025</option>
+        <option value="2025-10">Outubro/2025</option>
+      </select>
+  </div>
 
-            </select>
-        </div>
-      <!-- Filtros -->
-      <div class="flex items-center gap-4 mb-4">
-        <button class="p-2 border rounded hover:bg-gray-100">
-          <!-- Icone filtro -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v6l-4-2v-4L3 6V4z"/>
-          </svg>
-        </button>
-        <div class="inline-flex mb-6 mt-5  overflow-hidden"">
-            <button class="px-3 py-1 border rounded-l-lg ">5x Mensais</button>
-            <button class="px-3 py-1 border ">3x Mensais</button>
-            <button class="px-3 py-1 border ">Trimestral</button>
-            <button class="px-3 py-1 border rounded-r-lg ">Todos</button>
-        </div>
-        <input type="text" class="px-2 py-1 border rounded-lg" placeholder="Nome">
-        <button class="text-gray-500 hover:underline">Apagar filtros</button>
-      </div>
+  <!-- Filtros -->
+  <div class="flex items-center gap-4 mb-4">
+    <button class="p-2 border rounded hover:bg-gray-100">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v6l-4-2v-4L3 6V4z"/>
+      </svg>
+    </button>
+    <div class="inline-flex mb-6 mt-5 overflow-hidden">
+        <button class="px-3 py-1 border rounded-l-lg">5x Mensais</button>
+        <button class="px-3 py-1 border">3x Mensais</button>
+        <button class="px-3 py-1 border">Trimestral</button>
+        <button class="px-3 py-1 border rounded-r-lg">Todos</button>
+    </div>
+    <input type="text" class="px-2 py-1 border rounded-lg" placeholder="Nome">
+    <button class="text-gray-500 hover:underline">Apagar filtros</button>
+  </div>
 
-      <!-- Tabela -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm border-collapse">
-          <thead>
-            <tr class="border-b">
-              <th class="text-center py-2 px-3 border-l">Data</th>
-              <th class="text-center py-2 px-3 border-l">Nome</th>
-              <th class="text-center py-2 px-3 border-l">Valor</th>
-              <th class="text-center py-2 px-3 border-l">Descrição</th>
-              <th class="text-center py-2 px-3 border-l">Formato</th>
-              <th class="text-center py-2 px-3 border-l">Subtotal</th>
-              <th class="text-center py-2 px-3 border-l">NF</th>
-            </tr>
-          </thead>
-          <tbody>
-           <tr>
-            <td>em construcao</td>
-           </tr>
-          </tbody>
-        </table>
+  <!-- Tabela -->
+  <div class="overflow-auto">
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="border-b border-gray-500">
+          <th class="text-left py-2 px-3 w-32">Data</th>
+          <th class="text-left py-2 px-3 border-l border-gray-500">Nome</th>
+          <th class="text-left py-2 px-3 w-32 border-l border-gray-500">Valor</th>
+          <th class="text-left py-2 px-3 border-l border-gray-500">Descrição</th>
+          <th class="text-left py-2 px-3 w-40 border-l border-gray-500">Formato</th>
+          <th class="text-left py-2 px-3 w-32 border-l border-gray-500">Subtotal</th>
+          <th class="text-left py-2 px-3 w-32 border-l border-gray-500">NF</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for monthlyfee in monthlyfees %}
+          <tr>
+            <td>{{monthlyfee.due_date|date:'d/m/Y'}}</td>
+            <td>{{monthlyfee.student}}</td>
+            <td>{{monthlyfee.amount}}</td>
+            <td>{{monthlyfee.plan}}</td>
+            <td>{{monthlyfee.payment_method}}</td>
+            <td>{{monthlyfee.amount}}</td>
+            <td>
+              <input 
+                type="checkbox" 
+                class="nf-checkbox"
+                @change="toggleSelected($el, '{{monthlyfee.id}}', {{monthlyfee.amount}})"
+              >
+            </td>
+          </tr>
+        {% endfor %}
+        <tr><td class="text-right" colspan="7">Selecionados: <span id="tot_nfe" class="px-4" x-text="tot_select"></span></td></tr>
+        <tr><td class="text-right" colspan="7">Total: R$<span id="tot_nfe" class="px-2" x-text="total"></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Botão Emitir -->
+  <div class="flex justify-center mt-10">
+    <button 
+      @click="openModalEmitir()" 
+      class="text-center text-white bg-green-500 rounded-lg p-2 w-min-32">
+      Emitir NF
+    </button>
+  </div>
+
+  <!-- Modal emitir -->
+  <div 
+    x-show="showModalEmitir" 
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div class="bg-white p-6 rounded-lg w-96">
+      <h2 class="text-xl font-bold mb-4">Confirmar Emissão</h2>
+      <p class="mb-2">Quantidade de NFs: <span x-text="selected.length"></span></p>
+      <p class="mb-2">Valor Total: R$ <span x-text="total.toFixed(2)"></span></p>
+      {% csrf_token %}
+      <label class="block mt-2">Descrição:</label>
+      <input type="text" x-model="description" class="border p-2 w-full rounded">
+
+      <label class="block mt-2">Mês de Referência:</label>
+      <select x-model="reference_month" class="w-full border p-2 rounded" disabled>
+        <option x-text="reference_month" selected></option>
+      </select>
+
+      <div class="flex justify-end gap-2 mt-4">
+        <button @click="showModalEmitir=false" class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
+        <button @click="emitir()" class="px-4 py-2 bg-green-500 text-white rounded">Confirmar</button>
       </div>
     </div>
+  </div>
 
+  <!-- Modal Notificação-->
+   <div 
+    x-show="showModalNotification" 
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div class="bg-white p-6 rounded-lg w-96">
+      <h2 class="text-xl font-bold mb-4" x-text="notification"></h2>
+      <div class="flex justify-end gap-2 mt-4">
+        <button @click="closeNotification()" class="px-4 py-2 bg-gray-300 rounded">Fechar</button>
 
-    <div class="flex justify-center mt-10"><button class="text-center text-white bg-green-500 rounded-lg p-2 w-min-32">Emtir NF</button></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="{% static 'js/nfes.js' %}"></script>
+
 {% endblock content %}
-    

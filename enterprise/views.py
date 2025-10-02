@@ -1,18 +1,25 @@
-from django.views import View
-from django.shortcuts import render,  get_object_or_404, redirect
-from django.views.generic import View, CreateView, ListView, UpdateView, DetailView, TemplateView
-from rest_framework import generics
-from .serializers import BillSerializer
-from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import PaymentMethod, Plan, Bill, TypeBill, StatusBill
-from students.models import MonthlyFee, Student
-from .forms import PaymentMethodForm, PlanForm, BillForm
-from django.db.models import Q, Count, Sum
-from datetime import datetime, timedelta
-from django.http import JsonResponse
 import json
+from datetime import datetime, timedelta
+
+from django.shortcuts import render,  get_object_or_404, redirect
+from django.http import JsonResponse
+from django.urls import reverse_lazy
+
+from django.views.generic import View, CreateView, ListView, UpdateView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.db.models import Q, Sum
 from django.utils.safestring import mark_safe
+
+from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+from students.models import MonthlyFee, Student
+from .models import PaymentMethod, Plan, Bill,  StatusBill
+from .forms import PaymentMethodForm, PlanForm
+from .serializers import BillSerializer, NFESerializer
 
 
 class MonthlyFeeUpdateView(View):
@@ -208,12 +215,18 @@ class BillListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(status__status__icontains=status_filter)
         return queryset
 
-#Views NFE's
+# Views NFE's
 
-class NFESListView(LoginRequiredMixin, TemplateView ):
-    template_name='nfes.html'
-    
-    
+
+class NFESListView(LoginRequiredMixin, TemplateView):
+    template_name = 'nfes.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['monthlyfees'] = MonthlyFee.objects.all()
+        return context
+
+
 # API'S VIEW
 class BillDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bill.objects.all()
@@ -223,3 +236,29 @@ class BillDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class BillCreateAPIView(generics.ListCreateAPIView):
     queryset = Bill.objects.all()
     serializer_class = BillSerializer
+
+
+class NFEAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+
+        serializer = NFESerializer(data=request.data)
+
+        if serializer.is_valid():
+            data = serializer.validated_data
+            students = data['student']
+            description = data['description']
+            reference_month = data['reference_month']
+
+            #Criar função para rodar em segundo plano e emitir a nota
+            for student in students:
+                print(
+                    f'emitindo nota para {student['id']}, descrição {description},mes de referencia {reference_month} ')
+
+            return Response({
+                'status': 'ok',
+                'mensagem': f'{len(students)} notas agendadas para emissão.'
+            },
+                status=status.HTTP_202_ACCEPTED
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -15,7 +15,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm text-gray-500" >Valor inicial:</label>
-              <input type="number" name="value" id="value" placeholder="R$ 200000" x-model="formData.value" @input="recalcTotal" required class="border-b">
+              <input type="number" name="value" id="value" placeholder="R$ 200000" x-model="formData.value" @input="recalcTotal" required class="border-b" inputmode="decimal" step="any">
             </div>
             <div>
               <label class="block text-sm text-gray-500">Data do Vencimento:</label>
