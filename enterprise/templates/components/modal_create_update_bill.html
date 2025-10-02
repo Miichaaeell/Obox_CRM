@@ -23,17 +23,42 @@
             </div>
           </div>
           <div>
+            <!--metodos de pagamento-->
             <label class="block text-sm font-medium mb-2">Método de pagamento</label>
-            <div class="flex gap-2" >
-              
-              {% for payment in payment_methods %}
-              <label class="px-4 py-2 rounded-lg bg-black text-white text-center grow cursor-pointer transition-all duration-200" :class="{
-              'bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm': formData.payment_method == {{payment.id}},
-              'bg-gray-800 text-white rounded-lg text-sm':formData.payment_method != {{payment.id}},}" >
-              <input type="radio" name="payment_method" value="{{payment.id}}" x-model="formData.payment_method" class="sr-only" required>{{payment.method}}
-            </label>
-              {% endfor %}
-            </div>
+         <div class="relative w-64"
+          @mouseenter="openPaymentDropdown = true"
+          @mouseleave="openPaymentDropdown = false">
+          <!-- Botão -->
+          <button type="button"
+                  class="w-full flex justify-between items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm hover:border-gray-700 focus:border-gray-700 focus:ring-2 focus:ring-gray-700 transition">
+            <span>
+              <template x-if="formData.payment_method">
+                <span>
+                  {% for payment in payment_methods %}
+                    <span x-show="formData.payment_method == {{payment.id}}">
+                      {{payment.method}}
+                    </span>
+                  {% endfor %}
+                </span>
+              </template>
+            </span>
+            <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400"></i>
+          </button>
+          <!-- Dropdown -->
+          <ul x-show="openPaymentDropdown"
+              x-transition
+              class="absolute left-0 w-full rounded-lg border border-gray-200 bg-white shadow-lg z-50">
+            {% for payment in payment_methods %}
+            <li @click="formData.payment_method = {{payment.id}}; openPaymentDropdown = false"
+                class="cursor-pointer px-3 py-2 hover:bg-gray-700 hover:text-white transition duration-200 ease-in-out transform hover:translate-x-1 rounded-lg"
+                :class="{ 'bg-gray-100 font-semibold': formData.payment_method == {{payment.id}} }">
+              {{payment.method}}
+            </li>
+            {% endfor %}
+          </ul>
+  <!-- Hidden input para enviar ID no backend -->
+  <input type="hidden" name="payment_method" :value="formData.payment_method">
+</div>
           </div>
           <!-- Recorrente -->
           <div class="flex items-center gap-2">

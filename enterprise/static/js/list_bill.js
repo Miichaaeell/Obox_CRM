@@ -4,9 +4,10 @@ function modalHandler(){
     showStatus : false,
     showDelete: false,
     applydiscount:false,
-    formData: {},
+    formData: {payment_method: null},
     mode: '',
     selectedID: null,
+     openPaymentDropdown: false,
 
     modalcreate(){
       this.mode = 'create'
