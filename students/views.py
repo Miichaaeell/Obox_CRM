@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
-from django.shortcuts import HttpResponse, redirect, render
+from django.shortcuts import HttpResponse, redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import (
@@ -16,9 +16,20 @@ from django.views.generic import (
     View,
 )
 
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+
 from core.uploadfile import upload_file
 from enterprise.models import Installments, PaymentMethod, Plan
 from students.forms import StatusStudentForm, StudentForm
+from enterprise.serializers import (
+    MonthlyFeePaymentDetailSerializer,
+    MonthlyFeePaymentUpdateSerializer,
+    StudentInactivationSerializer,
+)
 from students.models import Frequency, History, MonthlyFee, StatusStudent, Student
 
 
@@ -63,7 +74,8 @@ class StudentListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['current_filter'] = self.request.GET.get('filter', 'all') or 'all'
+        context['current_filter'] = self.request.GET.get(
+            'filter', 'all') or 'all'
         context['search_query'] = self.request.GET.get('search', '')
         context['list_url'] = reverse('list_student')
         return context
@@ -241,3 +253,77 @@ class UploadFileView(View):
             case '400':
                 messages.error(request, response['message'])
         return redirect('list_student')
+
+
+class MonthlyFeePaymentDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        fee = get_object_or_404(MonthlyFee, pk=pk)
+        serializer = MonthlyFeePaymentDetailSerializer(fee)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MonthlyFeePaymentUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        monthlyfee_id = request.data.get('monthlyfee_id')
+        if not monthlyfee_id:
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Informe a mensalidade a ser atualizada.',
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        fee = get_object_or_404(MonthlyFee, pk=monthlyfee_id)
+        serializer = MonthlyFeePaymentUpdateSerializer(fee, data=request.data)
+
+        if serializer.is_valid():
+            updated_fee = serializer.save()
+            detail = MonthlyFeePaymentDetailSerializer(updated_fee)
+            return Response(
+                {
+                    'success': True,
+                    'message': 'Pagamento registrado com sucesso.',
+                    'payment': detail.data,
+                }
+            )
+
+        return Response(
+            {
+                'success': False,
+                'errors': serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class StudentInactivationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = StudentInactivationSerializer(data=request.data)
+
+        if serializer.is_valid():
+            student = serializer.save()
+            message = f'Aluno {student.name} inativado com sucesso.'
+            return Response(
+                {
+                    'success': True,
+                    'message': message,
+                    'deleted_count': serializer.context.get('deleted_count', 0),
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {
+                'success': False,
+                'message': 'Não foi possível inativar o aluno.',
+                'errors': serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )

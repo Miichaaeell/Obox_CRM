@@ -7,8 +7,6 @@ from enterprise.views import (
     EnterpriseCashierView,
     EnterpriseHomeView,
     FlowCashierView,
-    MonthlyFeePaymentDetailAPIView,
-    MonthlyFeePaymentUpdateAPIView,
     NFEAPIView,
     NFESListView,
     PaymentMethodCreateView,
@@ -17,7 +15,7 @@ from enterprise.views import (
     PlanCreateView,
     PlanListView,
     PlanUpdateView,
-    StudentInactivationAPIView,
+
 )
 
 
@@ -46,12 +44,8 @@ urlpatterns = [
     # Views Cashier
     path('cashier/', EnterpriseCashierView.as_view(), name='cashier'),
 
-    # Views Monthyfee
-    path("monthlyfee_update_api/", MonthlyFeePaymentUpdateAPIView.as_view(),
-         name="monthlyfee_update_api"),
-    path("api/monthlyfee/<int:pk>/", MonthlyFeePaymentDetailAPIView.as_view(),
-         name="monthlyfee_detail_api"),
-    path('api/student/inactivate/', StudentInactivationAPIView.as_view(), name='student_inactivate_api'),
+    # Views Cashier
+
     path('flow_cashier/', FlowCashierView.as_view(), name='flow_cashier'),
 
     # Views NFE's

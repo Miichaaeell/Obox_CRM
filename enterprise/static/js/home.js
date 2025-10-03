@@ -21,7 +21,7 @@ function mainPage() {
         this.monthlyfeeId = id;
         this.counterElementId = counterElementId;
 
-        const res = await fetch(`/api/monthlyfee/${id}/`);
+        const res = await fetch(`students/api/monthlyfee/${id}/`);
         if (!res.ok) {
           console.error('Erro ao carregar dados do pagamento');
           return;

@@ -16,10 +16,7 @@ from enterprise.forms import PaymentMethodForm, PlanForm
 from enterprise.models import Bill, PaymentMethod, Plan, StatusBill
 from enterprise.serializers import (
     BillSerializer,
-    MonthlyFeePaymentDetailSerializer,
-    MonthlyFeePaymentUpdateSerializer,
     NFESerializer,
-    StudentInactivationSerializer,
 )
 from students.models import MonthlyFee, Student
 
@@ -65,6 +62,7 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
             'accounts_url': reverse('list_bill'),
             'students_active_url': f"{reverse('list_student')}?filter=ativo",
             'student_inactivate_url': reverse('student_inactivate_api'),
+            "url_detail": reverse("monthlyfee_detail_api", kwargs={'pk': 0}),
         }
         return render(request, 'home.html', context)
 
@@ -297,77 +295,3 @@ class NFEAPIView(APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class MonthlyFeePaymentDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        fee = get_object_or_404(MonthlyFee, pk=pk)
-        serializer = MonthlyFeePaymentDetailSerializer(fee)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class MonthlyFeePaymentUpdateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        monthlyfee_id = request.data.get('monthlyfee_id')
-        if not monthlyfee_id:
-            return Response(
-                {
-                    'success': False,
-                    'message': 'Informe a mensalidade a ser atualizada.',
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        fee = get_object_or_404(MonthlyFee, pk=monthlyfee_id)
-        serializer = MonthlyFeePaymentUpdateSerializer(fee, data=request.data)
-
-        if serializer.is_valid():
-            updated_fee = serializer.save()
-            detail = MonthlyFeePaymentDetailSerializer(updated_fee)
-            return Response(
-                {
-                    'success': True,
-                    'message': 'Pagamento registrado com sucesso.',
-                    'payment': detail.data,
-                }
-            )
-
-        return Response(
-            {
-                'success': False,
-                'errors': serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-
-class StudentInactivationAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        serializer = StudentInactivationSerializer(data=request.data)
-
-        if serializer.is_valid():
-            student = serializer.save()
-            message = f'Aluno {student.name} inativado com sucesso.'
-            return Response(
-                {
-                    'success': True,
-                    'message': message,
-                    'deleted_count': serializer.context.get('deleted_count', 0),
-                },
-                status=status.HTTP_200_OK,
-            )
-
-        return Response(
-            {
-                'success': False,
-                'message': 'Não foi possível inativar o aluno.',
-                'errors': serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )

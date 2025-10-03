@@ -2,8 +2,8 @@ from django.urls import path
 
 from students.views import (
     FrequenceStudentView,
-    MonthlyFeeDeleteView,
-    MonthlyFeeUpdateView,
+    MonthlyFeePaymentDetailAPIView,
+    MonthlyFeePaymentUpdateAPIView,
     StatusStudentCreateView,
     StatusStudentListView,
     StatusStudentUpdateView,
@@ -12,6 +12,7 @@ from students.views import (
     StudentListView,
     StudentUpdateView,
     UploadFileView,
+    StudentInactivationAPIView
 )
 
 
@@ -27,10 +28,12 @@ urlpatterns = [
     path('update_status/<int:pk>/',
          StatusStudentUpdateView.as_view(), name='update_status'),
 
-    path('monthlyfee_update/',
-         MonthlyFeeUpdateView.as_view(), name='monthlyfee_update'),
-    path('monthlyfee_delete/',
-         MonthlyFeeDeleteView.as_view(), name='monthlyfee_delete'),
+    path("monthlyfee_update_api/", MonthlyFeePaymentUpdateAPIView.as_view(),
+         name="monthlyfee_update_api"),
+    path("api/monthlyfee/<int:pk>/", MonthlyFeePaymentDetailAPIView.as_view(),
+         name="monthlyfee_detail_api"),
+    path('api/student/inactivate/', StudentInactivationAPIView.as_view(),
+         name='student_inactivate_api'),
     path('frequence/', FrequenceStudentView.as_view(), name='frequence'),
     path('uploadfile/', UploadFileView.as_view(), name='uploadfile')
 ]
