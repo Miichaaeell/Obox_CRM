@@ -25,6 +25,7 @@ from .serializers import (
     NFESerializer,
     MonthlyFeePaymentDetailSerializer,
     MonthlyFeePaymentUpdateSerializer,
+    StudentInactivationSerializer,
 )
 
 
@@ -68,6 +69,7 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
             'calendar_events': mark_safe(json.dumps(calendar_events)),
             'accounts_url': reverse('list_bill'),
             'students_active_url': f"{reverse('list_student')}?filter=ativo",
+            'student_inactivate_url': reverse('student_inactivate_api'),
         }
         return render(request, 'home.html', context)
 
@@ -342,6 +344,34 @@ class MonthlyFeePaymentUpdateAPIView(APIView):
         return Response(
             {
                 'success': False,
+                'errors': serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class StudentInactivationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = StudentInactivationSerializer(data=request.data)
+
+        if serializer.is_valid():
+            student = serializer.save()
+            message = f'Aluno {student.name} inativado com sucesso.'
+            return Response(
+                {
+                    'success': True,
+                    'message': message,
+                    'deleted_count': serializer.context.get('deleted_count', 0),
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {
+                'success': False,
+                'message': 'Não foi possível inativar o aluno.',
                 'errors': serializer.errors,
             },
             status=status.HTTP_400_BAD_REQUEST,

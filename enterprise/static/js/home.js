@@ -1,7 +1,5 @@
 function mainPage() {
   return {
-    openDeactivateModal: false,
-    monthly_feesID: null,
     paymentModal: {
       open: false,
       monthlyfeeId: null,
@@ -179,6 +177,109 @@ function mainPage() {
           alert('Erro inesperado ao enviar os dados do pagamento.');
         });
       }
+    },
+    deactivateModal: {
+      open: false,
+      feeId: null,
+      studentId: null,
+      counterElementId: null,
+      rowSelector: null,
+      reason: '',
+      error: null,
+
+      show({ feeId, studentId, counterId }) {
+        this.open = true;
+        this.error = null;
+        this.reason = '';
+        this.feeId = feeId;
+        this.studentId = studentId;
+        this.counterElementId = counterId;
+        this.rowSelector = `#fee-row-${feeId}`;
+      },
+
+      close() {
+        this.open = false;
+        this.feeId = null;
+        this.studentId = null;
+        this.counterElementId = null;
+        this.rowSelector = null;
+        this.reason = '';
+        this.error = null;
+      },
+
+      extractError(errors) {
+        if (!errors) {
+          return null;
+        }
+        if (Array.isArray(errors)) {
+          return errors.join(' ');
+        }
+        const first = Object.values(errors)[0];
+        if (Array.isArray(first)) {
+          return first.join(' ');
+        }
+        if (typeof first === 'string') {
+          return first;
+        }
+        return null;
+      },
+
+      submit() {
+        const reasonText = (this.reason || '').trim();
+        if (!reasonText) {
+          this.reason = '';
+          this.error = 'Informe o motivo da inativação.';
+          return;
+        }
+
+        this.reason = reasonText;
+
+        const container = document.getElementById('mainContainer');
+        const url = container.dataset.inactivateUrl;
+        const csrf = container.dataset.csrf;
+
+        this.error = null;
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrf,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            student_id: this.studentId,
+            reason: reasonText,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              if (this.counterElementId) {
+                const counter = document.getElementById(this.counterElementId);
+                if (counter) {
+                  const currentValue = Number.parseInt(counter.textContent, 10) || 0;
+                  counter.textContent = Math.max(0, currentValue - 1);
+                }
+              }
+
+              if (this.rowSelector) {
+                const row = document.querySelector(this.rowSelector);
+                if (row) {
+                  row.remove();
+                }
+              }
+
+              const message = data.message || 'Aluno inativado com sucesso.';
+              this.close();
+              alert(message);
+            } else {
+              this.error = this.extractError(data.errors) || data.message || 'Não foi possível inativar o aluno.';
+            }
+          })
+          .catch(() => {
+            this.error = 'Erro inesperado ao enviar os dados.';
+          });
+      },
     }
   }
 }

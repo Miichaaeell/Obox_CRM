@@ -3,7 +3,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from django.utils import timezone
 from rest_framework import serializers
 
-from students.models import MonthlyFee
+from students.models import MonthlyFee, Student, StatusStudent
 from .models import Bill, PaymentMethod
 
 
@@ -161,3 +161,41 @@ class MonthlyFeePaymentUpdateSerializer(serializers.ModelSerializer):
             return (instance.amount or Decimal('0')) + instance.discount_value
 
         return instance.amount or Decimal('0')
+
+
+class StudentInactivationSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField()
+    reason = serializers.CharField()
+
+    def validate_reason(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError('Informe o motivo da inativação.')
+        return value.strip()
+
+    def validate(self, attrs):
+        student_id = attrs.get('student_id')
+        try:
+            student = Student.objects.select_related('status').get(pk=student_id)
+        except Student.DoesNotExist as exc:
+            raise serializers.ValidationError({'student_id': 'Aluno não encontrado.'}) from exc
+
+        inactive_status = StatusStudent.objects.filter(status__iexact='INATIVO').first()
+        if not inactive_status:
+            raise serializers.ValidationError({'student_id': 'Status inativo não está configurado.'})
+
+        attrs['student'] = student
+        attrs['inactive_status'] = inactive_status
+        return attrs
+
+    def save(self):
+        student = self.validated_data['student']
+        inactive_status = self.validated_data['inactive_status']
+        reason = self.validated_data['reason']
+
+        student.status = inactive_status
+        student.observation = reason
+        student.save(update_fields=['status', 'observation', 'updated_at'])
+
+        deleted_count, _ = MonthlyFee.objects.filter(student=student, paid=False).delete()
+        self.context['deleted_count'] = deleted_count
+        return student

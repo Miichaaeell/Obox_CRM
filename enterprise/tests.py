@@ -33,14 +33,15 @@ class MonthlyFeePaymentAPITests(TestCase):
             duration_months=12
         )
 
-        self.status = StatusStudent.objects.create(status='Ativo')
+        self.status_active = StatusStudent.objects.create(status='Ativo')
+        self.status_inactive = StatusStudent.objects.create(status='Inativo')
 
         self.student = Student.objects.create(
             name='Aluno Teste',
             cpf_cnpj='12345678901',
             date_of_birth=date(2000, 1, 1),
             phone_number='11999999999',
-            status=self.status,
+            status=self.status_active,
             observation='Teste automatizado',
             due_date=5,
             plan=self.plan
@@ -99,3 +100,60 @@ class MonthlyFeePaymentAPITests(TestCase):
         self.assertEqual(self.monthly_fee.discount_value, Decimal('10.00'))
         self.assertEqual(self.monthly_fee.amount, Decimal('90.00'))
         self.assertEqual(self.monthly_fee.quantity_installments, 1)
+
+    def test_inactivate_student_requires_reason(self):
+        url = reverse('student_inactivate_api')
+        response = self.client.post(
+            url,
+            {
+                'student_id': self.student.id,
+                'reason': '   ',
+            },
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertFalse(data.get('success'))
+        self.assertIn('reason', data.get('errors', {}))
+
+    def test_inactivate_student_success(self):
+        MonthlyFee.objects.create(
+            student=self.student,
+            amount=Decimal('80.00'),
+            due_date=date.today(),
+            reference_month='02/2024',
+            paid=False,
+            plan=self.plan
+        )
+        MonthlyFee.objects.create(
+            student=self.student,
+            amount=Decimal('75.00'),
+            due_date=date.today(),
+            reference_month='03/2024',
+            paid=True,
+            plan=self.plan
+        )
+
+        url = reverse('student_inactivate_api')
+        response = self.client.post(
+            url,
+            {
+                'student_id': self.student.id,
+                'reason': 'Aluno solicitou suspensão.',
+            },
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get('success'))
+        self.assertIn('message', data)
+
+        self.student.refresh_from_db()
+        self.assertEqual(self.student.status, self.status_inactive)
+        self.assertEqual(self.student.observation, 'Aluno solicitou suspensão.')
+
+        remaining_fees = MonthlyFee.objects.filter(student=self.student)
+        self.assertEqual(remaining_fees.count(), 1)
+        self.assertTrue(all(fee.paid for fee in remaining_fees))

@@ -13,6 +13,7 @@ from .views import (
     EnterpriseCashierView,
     MonthlyFeePaymentUpdateAPIView,
     MonthlyFeePaymentDetailAPIView,
+    StudentInactivationAPIView,
     FlowCashierView,
     NFESListView,
     NFEAPIView,
@@ -48,6 +49,7 @@ urlpatterns = [
          name="monthlyfee_update_api"),
     path("api/monthlyfee/<int:pk>/", MonthlyFeePaymentDetailAPIView.as_view(),
          name="monthlyfee_detail_api"),
+    path('api/student/inactivate/', StudentInactivationAPIView.as_view(), name='student_inactivate_api'),
     path('flow_cashier/', FlowCashierView.as_view(), name='flow_cashier'),
 
     # Views NFE's
