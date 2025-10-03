@@ -7,5 +7,5 @@ class SalesConfig(AppConfig):
     verbose_name = 'Vendas'
 
     def ready(self):
-        from . import signals
+        from sales import signals
         signals

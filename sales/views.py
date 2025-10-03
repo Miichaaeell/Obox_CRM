@@ -1,10 +1,10 @@
-from django.shortcuts import render
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
-from .models import Product, ProductStock, Intflow, Sale
-from .forms import ProductForm, ProductStockForm, IntflowForm, SaleForm
-from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, ListView, UpdateView
+
+from sales.forms import IntflowForm, ProductForm
+from sales.models import Intflow, Product, ProductStock
 
 
 class ProductListView(LoginRequiredMixin, ListView):

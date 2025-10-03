@@ -1,6 +1,8 @@
-from django import forms
-from .models import StatusStudent, Student, Frequency, History,  MonthlyFee
 from datetime import datetime
+
+from django import forms
+
+from students.models import Frequency, History, MonthlyFee, StatusStudent, Student
 
 
 class StatusStudentForm(forms.ModelForm):

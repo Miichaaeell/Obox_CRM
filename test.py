@@ -1,5 +1,6 @@
-from webmania_client import WebmaniaClient
 from decouple import config
+from webmania_client import WebmaniaClient
+
 
 client = WebmaniaClient(
     bearer_token=config('WEBMANIA_BEARER_TOKEN'),

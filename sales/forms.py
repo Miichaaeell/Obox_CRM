@@ -1,5 +1,6 @@
 from django import forms
-from .models import Product, ProductStock, Intflow, Sale
+
+from sales.models import Intflow, Product, ProductStock, Sale
 
 
 class ProductForm(forms.ModelForm):

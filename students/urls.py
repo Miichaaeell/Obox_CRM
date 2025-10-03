@@ -1,5 +1,19 @@
 from django.urls import path
-from .views import StudentListView, StudentCreateView, StatusStudentListView, StatusStudentCreateView, StatusStudentUpdateView, StudentUpdateView, StudentDetailView, MonthlyFeeUpdateView, MonthlyFeeDeleteView, FrequenceStudentView, UploadFileView
+
+from students.views import (
+    FrequenceStudentView,
+    MonthlyFeeDeleteView,
+    MonthlyFeeUpdateView,
+    StatusStudentCreateView,
+    StatusStudentListView,
+    StatusStudentUpdateView,
+    StudentCreateView,
+    StudentDetailView,
+    StudentListView,
+    StudentUpdateView,
+    UploadFileView,
+)
+
 
 urlpatterns = [
     path('', StudentListView.as_view(), name='list_student'),

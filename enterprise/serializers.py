@@ -3,8 +3,8 @@ from decimal import Decimal, ROUND_HALF_UP
 from django.utils import timezone
 from rest_framework import serializers
 
-from students.models import MonthlyFee, Student, StatusStudent
-from .models import Bill, PaymentMethod
+from enterprise.models import Bill, PaymentMethod
+from students.models import MonthlyFee, StatusStudent, Student
 
 
 class BillSerializer(serializers.ModelSerializer):

@@ -7,5 +7,6 @@ class EnterpriseConfig(AppConfig):
     verbose_name = 'Empresa'
 
     def ready(self):
-        import enterprise.signals
+        from enterprise import signals
+        signals
         return super().ready()

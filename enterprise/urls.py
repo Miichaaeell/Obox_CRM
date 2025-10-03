@@ -1,23 +1,25 @@
 from django.urls import path
-from .views import (
-    EnterpriseHomeView,
-    PaymentMethodListView,
-    PaymentMethodCreateView,
-    PaymentMethodUpdateView,
-    PlanListView,
-    PlanCreateView,
-    PlanUpdateView,
-    BillListView,
+
+from enterprise.views import (
     BillCreateAPIView,
     BillDetailAPIView,
+    BillListView,
     EnterpriseCashierView,
-    MonthlyFeePaymentUpdateAPIView,
-    MonthlyFeePaymentDetailAPIView,
-    StudentInactivationAPIView,
+    EnterpriseHomeView,
     FlowCashierView,
-    NFESListView,
+    MonthlyFeePaymentDetailAPIView,
+    MonthlyFeePaymentUpdateAPIView,
     NFEAPIView,
+    NFESListView,
+    PaymentMethodCreateView,
+    PaymentMethodListView,
+    PaymentMethodUpdateView,
+    PlanCreateView,
+    PlanListView,
+    PlanUpdateView,
+    StudentInactivationAPIView,
 )
+
 
 urlpatterns = [
     path('', EnterpriseHomeView.as_view(), name='home'),

@@ -1,18 +1,26 @@
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
+import json
+from datetime import datetime, timedelta
+
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib import messages
+from django.shortcuts import HttpResponse, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from .models import Student, StatusStudent, History, Frequency, MonthlyFee
-from .forms import StudentForm, StatusStudentForm
-from enterprise.models import Plan, Installments
-from enterprise.models import PaymentMethod
-from datetime import datetime, timedelta
-import json
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    UpdateView,
+    View,
+)
+
 from core.uploadfile import upload_file
+from enterprise.models import Installments, PaymentMethod, Plan
+from students.forms import StatusStudentForm, StudentForm
+from students.models import Frequency, History, MonthlyFee, StatusStudent, Student
+
 
 # Views for Student model
 

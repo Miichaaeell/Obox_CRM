@@ -1,4 +1,5 @@
 from django.db import models
+
 from core.models import TimeStampedModel
 from students.models import Student
 

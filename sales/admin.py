@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Sale, Product, ProductStock, Intflow
+
+from sales.models import Intflow, Product, ProductStock, Sale
+
 
 admin.site.register(Sale)
 admin.site.register(Product)

@@ -1,5 +1,16 @@
 from django import forms
-from .models import Enterprise, StatusBill, TypeBill, Bill,  PaymentMethod, Cashier, Plan, NFSe, Installments
+
+from enterprise.models import (
+    Bill,
+    Cashier,
+    Enterprise,
+    Installments,
+    NFSe,
+    PaymentMethod,
+    Plan,
+    StatusBill,
+    TypeBill,
+)
 
 
 class EnterpriseForm(forms.ModelForm):

@@ -4,11 +4,10 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-
 from rest_framework.test import APIClient
 
 from enterprise.models import PaymentMethod, Plan
-from students.models import StatusStudent, Student, MonthlyFee
+from students.models import MonthlyFee, StatusStudent, Student
 
 
 class MonthlyFeePaymentAPITests(TestCase):

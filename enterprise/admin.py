@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import Enterprise, StatusBill, TypeBill, Bill, PaymentMethod, Cashier, Plan, NFSe, Installments
+
+from enterprise.models import (
+    Bill,
+    Cashier,
+    Enterprise,
+    Installments,
+    NFSe,
+    PaymentMethod,
+    Plan,
+    StatusBill,
+    TypeBill,
+)
+
 
 admin.site.register(Enterprise)
 admin.site.register(StatusBill)

@@ -1,6 +1,7 @@
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import Bill, StatusBill, PaymentMethod
+
+from enterprise.models import Bill, PaymentMethod, StatusBill
 
 
 @receiver(post_save, sender=Bill)

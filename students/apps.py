@@ -7,4 +7,5 @@ class StudentsConfig(AppConfig):
     verbose_name = 'Alunos'
 
     def ready(self):
-        import students.signals
+        from students import signals
+        signals

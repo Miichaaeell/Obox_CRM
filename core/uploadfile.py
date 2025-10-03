@@ -1,7 +1,7 @@
 import pandas as pd
-from pathlib import Path
-from students.models import Student, StatusStudent
+
 from enterprise.models import Plan
+from students.models import StatusStudent, Student
 
 
 def format_cpf(cpf):

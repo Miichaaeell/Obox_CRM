@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Student, StatusStudent, History, Frequency, MonthlyFee
+
+from students.models import Frequency, History, MonthlyFee, StatusStudent, Student
+
 
 admin.site.register(Student)
 admin.site.register(StatusStudent)

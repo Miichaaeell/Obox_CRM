@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Student, History, MonthlyFee
-from datetime import datetime
+
+from students.models import History, MonthlyFee, Student
 
 
 @receiver(post_save, sender=Student)
