@@ -1,19 +1,19 @@
 from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.utils import timezone
 from .models import Student, StatusStudent, History, Frequency, MonthlyFee
 from .forms import StudentForm, StatusStudentForm
 from enterprise.models import Plan, Installments
 from enterprise.models import PaymentMethod
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from core.uploadfile import upload_file
 
-from datetime import datetime
 # Views for Student model
 
 
@@ -23,13 +23,42 @@ class StudentListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        search_query = self.request.GET.get('search', None)
+        queryset = super().get_queryset().select_related('status', 'plan')
+        search_query = self.request.GET.get('search')
         if search_query:
-            queryset = queryset.filter(Q(name__icontains=search_query) |
-                                       Q(cpf_cnpj__icontains=search_query) |
-                                       Q(phone_number__icontains=search_query))
-        return queryset
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                Q(cpf_cnpj__icontains=search_query) |
+                Q(phone_number__icontains=search_query)
+            )
+
+        filter_value = (self.request.GET.get('filter') or '').lower()
+        today = timezone.now().date()
+
+        if filter_value == 'ativo':
+            queryset = queryset.filter(status__status__iexact='ATIVO')
+        elif filter_value == 'inativo':
+            queryset = queryset.filter(status__status__iexact='INATIVO')
+        elif filter_value == 'avencer':
+            upcoming_limit = today + timedelta(days=10)
+            queryset = queryset.filter(
+                monthly_fees__paid=False,
+                monthly_fees__due_date__range=(today, upcoming_limit)
+            )
+        elif filter_value == 'atrasado':
+            queryset = queryset.filter(
+                monthly_fees__paid=False,
+                monthly_fees__due_date__lt=today
+            )
+
+        return queryset.distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_filter'] = self.request.GET.get('filter', 'all') or 'all'
+        context['search_query'] = self.request.GET.get('search', '')
+        context['list_url'] = reverse('list_student')
+        return context
 
 
 class StudentCreateView(LoginRequiredMixin, CreateView):

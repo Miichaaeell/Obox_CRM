@@ -7,7 +7,7 @@
   
 
 {% block content %}
-  <div x-data="{ filter: 'all' }" class="p-6 bg-gray-100 rounded-xl">
+  <div x-data="studentFilters()" class="p-6 bg-gray-100 rounded-xl">
 
   <!-- Linha com botão e input -->
   <div class="flex items-center justify-between mb-4">
@@ -44,33 +44,33 @@
   <div class="flex gap-3">
     <i data-lucide="filter" class="mt-2"></i>
       <div class="inline-flex mb-6 border rounded-lg overflow-hidden">
-        <button @click="filter = 'ativo'"
+        <button @click="applyFilter('ativo')"
                 :class="filter === 'ativo' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
                 class="px-4 py-2 border rounded-l-lg font-medium">
           Ativo
         </button>
-        <button @click="filter = 'inativo'"
+        <button @click="applyFilter('inativo')"
                 :class="filter === 'inativo' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
                 class="px-4 py-2 border font-medium">
           Inativo
         </button>
-        <button @click="filter = 'avencer'"
+        <button @click="applyFilter('avencer')"
                 :class="filter === 'avencer' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
                 class="px-4 py-2 border font-medium">
           A vencer
         </button>
-        <button @click="filter = 'atrasado'"
+        <button @click="applyFilter('atrasado')"
                 :class="filter === 'atrasado' ? 'bg-[#a3a2a2] text-white' : ' bg-white'"
                 class="px-4 py-2 border rounded-r-lg font-medium">
           Atrasado
         </button>
       </div>
       <div class="flex items-center gap-3 mb-6">
-          <form action="{% url 'list_student' %}" method="get" autocomplete="on">
-            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar Aluno"
+          <form @submit.prevent="submitSearch" autocomplete="on">
+            <input type="text" name="search" x-model="searchTerm" placeholder="Buscar Aluno"
                    class="px-3 py-2 border border-[#a3a2a2] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
           </form>
-          <button class="text-sm text-gray-500 hover:underline">Apagar filtros</button>
+          <button @click.prevent="clearFilters" class="text-sm text-gray-500 hover:underline">Apagar filtros</button>
         </div>
   </div>
 
@@ -111,4 +111,37 @@
 </div>
 
 {% endblock content %}
+
+<script>
+function studentFilters() {
+  return {
+    baseUrl: "{{ list_url|escapejs }}",
+    filter: "{{ current_filter|escapejs }}",
+    searchTerm: "{{ search_query|default:''|escapejs }}",
+    applyFilter(value) {
+      this.filter = value;
+      this.navigate();
+    },
+    submitSearch() {
+      this.navigate();
+    },
+    clearFilters() {
+      this.filter = 'all';
+      this.searchTerm = '';
+      this.navigate();
+    },
+    navigate() {
+      const params = new URLSearchParams();
+      if (this.filter && this.filter !== 'all') {
+        params.set('filter', this.filter);
+      }
+      if (this.searchTerm) {
+        params.set('search', this.searchTerm);
+      }
+      const query = params.toString();
+      window.location.href = query ? `${this.baseUrl}?${query}` : this.baseUrl;
+    }
+  }
+}
+</script>
     

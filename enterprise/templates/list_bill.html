@@ -18,8 +18,10 @@
     <div class="flex gap-3">
     <i data-lucide="filter" class="mt-2"></i>
       <div class="flex items-center gap-3 mb-6">
-        {% include 'components/_search.html' with placeholder="Buscar por status" name='list_bill' %}
+        {% include 'components/_search.html' with placeholder="filtrar status ou mes/ano" name='list_bill' %}
+        <a href="{% url 'list_bill' %}" class="text-gray-500 hover:underline w-40 pb-4">Apagar filtros</a>
       </div>
+      
   </div>
   </div>
 

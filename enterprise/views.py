@@ -3,12 +3,13 @@ from datetime import datetime, timedelta
 
 from django.shortcuts import render,  get_object_or_404, redirect
 from django.http import JsonResponse
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 from django.views.generic import View, CreateView, ListView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count, F
+from django.db.models.functions import TruncDate
 from django.utils.safestring import mark_safe
 
 from rest_framework import generics
@@ -73,6 +74,22 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
         date_end = today - timedelta(days=1)
         monthly_fees_overdue = MonthlyFee.objects.filter(
             due_date__range=(date_start, date_end), paid=False)
+        bill_events = (
+            Bill.objects.annotate(
+                event_date=F('due_date'))
+            .values('event_date')
+            .annotate(count=Count('id'))
+            .order_by('event_date')
+        )
+        calendar_events = [
+            {
+                "date": event.get('event_date').isoformat(),
+                "count": event.get('count', 0),
+            }
+            for event in bill_events
+            if event.get('event_date') is not None
+        ]
+
         context = {
             'actives_total': actives_students.count(),
             'actives_students': actives_students,
@@ -82,6 +99,9 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
             'monthly_fees_overdue': monthly_fees_overdue,
             'today': today,
             'payment_methods': mark_safe(json.dumps(list(PaymentMethod.objects.values("id", "method")))),
+            'calendar_events': mark_safe(json.dumps(calendar_events)),
+            'accounts_url': reverse('list_bill'),
+            'students_active_url': f"{reverse('list_student')}?filter=ativo",
         }
         return render(request, 'home.html', context)
 
@@ -206,13 +226,55 @@ class BillListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['status_bill'] = StatusBill.objects.all()
         context['payment_methods'] = PaymentMethod.objects.all()
+        context['current_created_date'] = self.request.GET.get(
+            'created_date', '')
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        status_filter = self.request.GET.get('search')
-        if status_filter:
-            queryset = queryset.filter(status__status__icontains=status_filter)
+        due_date = self.request.GET.get('due_date')
+        search = self.request.GET.get("search", "").strip()
+
+        filters = Q()
+
+        if search:
+            # Tentativa 1: usuário digitou no formato dd/mm/yyyy
+            try:
+                parsed_date = datetime.strptime(search, "%d/%m/%Y").date()
+                filters |= Q(due_date=parsed_date)
+            except ValueError:
+                pass
+
+            # Tentativa 2: usuário digitou no formato yyyy-mm-dd
+            try:
+                parsed_date = datetime.strptime(search, "%Y-%m-%d").date()
+                filters |= Q(due_date=parsed_date)
+            except ValueError:
+                pass
+            try:
+                parsed_month = datetime.strptime(search, "%m/%Y")
+                filters |= Q(due_date__year=parsed_month.year,
+                             due_date__month=parsed_month.month)
+            except ValueError:
+                pass
+
+            try:
+                parsed_month = datetime.strptime(search, "%m/%y")
+                filters |= Q(due_date__year=parsed_month.year,
+                             due_date__month=parsed_month.month)
+            except ValueError:
+                pass
+            # Caso contrário, trate o search como texto (ex: nome, plano etc.)
+            filters |= Q(status__status__icontains=search)
+
+        queryset = Bill.objects.filter(filters)
+        if due_date:
+            try:
+                parsed_date = datetime.strptime(
+                    due_date, "%Y-%m-%d").date()
+                queryset = queryset.filter(due_date=parsed_date)
+            except ValueError:
+                pass
         return queryset
 
 # Views NFE's

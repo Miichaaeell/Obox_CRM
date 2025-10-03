@@ -4,7 +4,11 @@
 {% block title %} Início {% endblock %}
 
 {% block content %}
-<div x-data="mainPage()" class="space-y-6">
+<div x-data="mainPage()"
+    id="mainContainer"
+    data-updateUrl="{% url 'monthlyfee_update_api' %}"
+    data-csrf="{{ csrf_token }}"
+    class="space-y-6">
 
   <!-- Saudação -->
   <h1 class="text-xl font-semibold text-white">Olá, O BOX!</h1>
@@ -13,30 +17,16 @@
     <!-- Coluna esquerda (cards) -->
     <div class="flex-1 space-y-6">
        <!-- Card Ativos -->
-    <div x-data="{ open: false }" class="border border-gray-600 rounded-xl shadow-md p-4">
-      <button @click="open = !open" class="flex justify-between items-center w-full">
+    <div class="border border-gray-600 rounded-xl shadow-md p-4">
+      <button type="button" @click="window.location.href='{{ students_active_url }}'" class="flex justify-between items-center w-full">
         <div class="flex items-center space-x-2">
           <span class="text-green-500 font-semibold text-lg">Contratos ativos</span>
           <span class="text-green-500 text-3xl font-bold">{{ actives_total }}</span>
         </div>
-        <!-- Seta -->
-        <svg x-show="!open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-        <svg x-show="open" x-cloak xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
-      <div x-show="open" x-transition class="mt-4 text-sm text-gray-300">
-        <ul class="space-y-1">
-          
-          {% for active in actives_students %}
-            <li class="flex justify-between"><span>{{ active.name }} - Plano: {{ active.plan.name_plan }}</span> <span></span></li>
-            {% empty %}
-            <li class="text-gray-400">Nenhum contrato ativo.</li>
-          {% endfor %}
-        </ul>
-      </div>
     </div>
 
       <!-- Card A vencer -->
@@ -165,6 +155,10 @@
       <!-- Coluna direita (calendário) -->
   <div class="w-80">
     <div x-data="calendar()" 
+     x-init="$nextTick(() => init())"
+     id="calendarContainer"
+     data-events='{{ calendar_events|default:"[]"|safe }}'
+     data-accounts-url="{{ accounts_url }}"
      class="bg-black text-gray-100 rounded-2xl shadow-xl p-4 border border-gray-700">
   <div class="flex justify-between items-center mb-4">
     <button @click="prevMonth" 
@@ -187,11 +181,9 @@
     </template>
     <template x-for="day in daysInMonth" :key="day">
       <div class="relative">
-        <span class="inline-block w-8 h-8 leading-8 rounded-full cursor-pointer"
-              :class="{
-                'border-b border-red-700 text-white': hasEvent(day),
-                'hover:bg-gray-700': !hasEvent(day)
-              }"
+        <span class="inline-block w-8 h-8 leading-8 rounded-full"
+              :class="hasEvent(day) ? 'cursor-pointer border-b border-red-700 text-white' : 'cursor-default hover:bg-gray-700'"
+              @click="dayClicked(day)"
               x-text="day">
         </span>
         <!-- bolinha indicadora -->
@@ -291,104 +283,7 @@
 
 </div>
 
-<script>
-function mainPage() {
-  return {
-    openDeactivateModal: false,
-    monthly_feesID: null,
-    paymentModal: {
-      open: false,
-      monthlyfeeId: null,
-      feeData: { plan: '', value: '', },
-      paymentMethods: '',
-      selectedMethod: null,
-      cardchange:null,
-
-      async show(id, cardchange) {
-        this.open = true;
-        this.monthlyfeeId = id;
-        this.cardchange = cardchange
-        const res = await fetch(`/api/monthlyfee/${id}/`);
-        const data = await res.json();
-        if (data.paymentMethods) {
-        data.paymentMethods = data.paymentMethods.map(item => ({
-            id: item[0],
-            name: item[1]
-        }));
-        this.feeData = data;
-        console.log(this.feeData);
-    }
-      },
-
-      close() {
-        this.open = false;
-        this.monthlyfeeId = null;
-        this.selectedMethod = null;
-      },
-
-      submitForm() {
-        fetch("{% url 'monthlyfee_update_api' %}", {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            monthlyfee_id: this.monthlyfeeId,
-            payment_method: this.selectedMethod
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            let el_total = document.getElementById(this.cardchange.id);
-            console.log(this.cardchange)
-            el_total.innerHTML = parseInt(el_total.textContent, 10) - 1;
-            document.querySelector(`#fee-row-${this.monthlyfeeId}`).remove();
-            this.close();
-            
-          } else {
-            alert(data.message);
-          }
-        });
-      }
-    }
-  }
-}
-function calendar() {
-  return {
-    currentMonth: new Date().getMonth(),
-    currentYear: new Date().getFullYear(),
-    monthNames: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],
-    events: [5, 12, 20], // dias com "contas a vencer"
-    get daysInMonth() {
-      return new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
-    },
-    get blanks() {
-      return new Date(this.currentYear, this.currentMonth, 1).getDay();
-    },
-    hasEvent(day) {
-      return this.events.includes(day);
-    },
-    prevMonth() {
-      if (this.currentMonth === 0) {
-        this.currentMonth = 11;
-        this.currentYear--;
-      } else {
-        this.currentMonth--;
-      }
-    },
-    nextMonth() {
-      if (this.currentMonth === 11) {
-        this.currentMonth = 0;
-        this.currentYear++;
-      } else {
-        this.currentMonth++;
-      }
-    }
-  }
-}
-</script>
+<script src="{% static 'js/home.js' %}"></script>
 
 
 {% endblock %}

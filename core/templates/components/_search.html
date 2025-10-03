@@ -1,5 +1,6 @@
 <form method="get" action="{% url name %}"
-     class="mb-6 w-full flex flex-col sm:flex-row gap-4 ">
+     class="mb-6 w-full flex flex-col sm:flex-row gap-4 justify-center">
+      <input type="hidden" name="due_date" value="{{ request.GET.due_date|default_if_none:'' }}">
     <!-- Campo de busca -->
         <input
             type="text"
@@ -8,4 +9,5 @@
             placeholder="{{ placeholder }}"                
             class="px-3 py-2 border border-[#a3a2a2] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500""
         >
+       
 </form>
