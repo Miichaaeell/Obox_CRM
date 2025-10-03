@@ -15,7 +15,7 @@
     </div>
      <div>
       <span class="font-semibold">Data de abertura:</span>
-      <span class="font-bold">01/09/2025 - 00h00</span>
+      <span class="font-bold">{{date_start}}</span>
     </div>
    
   </div>
@@ -92,7 +92,7 @@
           <tbody>
            
            {% for bill in bills %}            
-            {% if bill.status.status|lower == 'pago' %}
+            {% if bill.status.status|lower == 'pago' or bill.status.status|lower == 'automático' %}
               <tr>
               <td> {{ bill.due_date|date:'d/m/y' }}</td>
               <td>Saída</td>

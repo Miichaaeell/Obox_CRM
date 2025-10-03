@@ -122,20 +122,21 @@
               </tr>
             </thead>
             <tbody class="">
-              
               {% for monthlyfee in monthlyfees %}
-                <td class="pt-2">{{monthlyfee.reference_month}}</td>
-                <td class="pt-2"><span class="">
-                  {% if monthlyfee.paid %}
-                    <span class="text-green-600">Pago</span>
-                    {% else %}
-                    <span class="text-red-600 font-semibold">Pendente</span>
-                  {% endif %}
-                    </span></td>
-                <td class="pt-2">R$ {{monthlyfee.amount}}</td>
-                <td class="pt-2">{{monthlyfee.due_date|date:"d/m/y"}}</td>
-                <td class="pt-2">{{monthlyfee.plan}}</td>
-                <td class="pt-2">-</td>
+                <tr>
+                  <td class="pt-2">{{monthlyfee.reference_month}}</td>
+                  <td class="pt-2"><span class="">
+                    {% if monthlyfee.paid %}
+                      <span class="text-green-600">Pago</span>
+                      {% else %}
+                      <span class="text-red-600 font-semibold">Pendente</span>
+                    {% endif %}
+                      </span></td>
+                  <td class="pt-2">R$ {{monthlyfee.amount}}</td>
+                  <td class="pt-2">{{monthlyfee.due_date|date:"d/m/y"}}</td>
+                  <td class="pt-2">{{monthlyfee.plan}}</td>
+                  <td class="pt-2">-</td>
+                </tr>
               {% endfor %}
             </tbody>
           </table>

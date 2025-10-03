@@ -115,7 +115,8 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
         month, year = datetime.today().month,  datetime.today().year
         start = f'{year}-{month}-01'
         end = f'{year}-{month}-30'
-        monthlyfees = MonthlyFee.objects.filter(due_date__range=(start, end))
+        monthlyfees = MonthlyFee.objects.filter(
+            due_date__range=(start, end), paid=True)
         total = monthlyfees.aggregate(
             pix=Sum('amount', filter=Q(payment_method__iexact="pix")),
             credito=Sum('amount', filter=Q(payment_method__iexact="crédito")),
@@ -124,8 +125,9 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
                 payment_method__iexact="dinheiro")),
             tot=Sum('amount')
         )
-        bill = Bill.objects.filter(due_date__range=(start, end))
-        pay = bill.filter(status__status__iexact='pago').aggregate(
+        bill = Bill.objects.select_related(
+            'payment_method', 'status').filter(due_date__range=(start, end))
+        pay = bill.filter(Q(status__status__iexact='pago') | Q(payment_method__method__icontains='automatico')).aggregate(
             total_pay=Sum('value'))
         print(pay)
         context = {
@@ -137,6 +139,7 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             'bills': bill if bill else 0,
             'pay': pay['total_pay'] if pay['total_pay'] else 0,
             'monthlyfees': monthlyfees,
+            'date_start': start
         }
         return render(request, 'cashier.html', context)
 
