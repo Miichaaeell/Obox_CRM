@@ -6,7 +6,7 @@
 {% block content %}
 <div x-data="mainPage()"
     id="mainContainer"
-    data-updateUrl="{% url 'monthlyfee_update_api' %}"
+    data-update-url="{% url 'monthlyfee_update_api' %}"
     data-csrf="{{ csrf_token }}"
     class="space-y-6">
 
@@ -64,7 +64,7 @@
                 <td class="px-4 py-2">
                   <!-- Botão Receber -->
                   <button 
-                    @click="paymentModal.show({{ fee.id }}, total_due)"
+                    @click="paymentModal.show({{ fee.id }}, 'total_due')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>
@@ -131,7 +131,7 @@
             <td class="px-4 py-2">
                 <!-- Botão Receber -->
                   <button 
-                    @click="paymentModal.show({{ fee.id }}, total_overdue)"
+                    @click="paymentModal.show({{ fee.id }}, 'total_overdue')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>
@@ -210,40 +210,44 @@
           <!-- Plano -->
           <div>
             <label class="block font-medium">Plano:</label>
-             <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="paymentModal.feeData.plan" readonly>
+             <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="paymentModal.feeData.plan" readonly>
           </div>
             <!-- Valor -->
           <div>
             <label class="block font-medium">Valor:</label>
-            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="paymentModal.feeData.value" readonly>
+            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="paymentModal.formatDecimal(paymentModal.feeData.base_amount)" readonly>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-4 text-sm ">
           <!-- Desconto -->
           <div>
             <label class="block font-medium">Desconto %:</label>
-            <input type="number" step="0.01" min="0"
+            <input type="number" step="0.01" min="0" max="100"
                    placeholder="Ex. 10"
-                   class="w-32 border-b border-gray-300 focus:border-green-500 outline-none bg-transparent">
+                   class="w-32 border-b border-gray-300 focus:border-green-500 outline-none bg-transparent"
+                   x-model.number="paymentModal.feeData.discount_percent"
+                   @input="paymentModal.updateFromPercent()">
           </div>
           <!-- Valor desconto -->
           <div>
           <label class="block font-medium">Valor desconto:</label>
-          <input type="number" name="discount_value" placeholder="Ex. 10"
-            class="w-32 border-b border-gray-400 focus:outline-none">
+          <input type="number" step="0.01" min="0" name="discount_value" placeholder="Ex. 10"
+            class="w-32 border-b border-gray-400 focus:outline-none"
+            x-model.number="paymentModal.feeData.discount_value"
+            @input="paymentModal.updateFromValue()">
         </div>
          <!-- Valor após desconto -->
           <div>
             <label class="block font-medium">Valor após desconto:</label>
-            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " readonly x-model="paymentModal.feeData.value">
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " readonly :value="paymentModal.formatDecimal(paymentModal.feeData.final_amount)">
           </div>
         </div>
 <!-- Metodos de pagamento -->
         <div class="max-w-[600px]">
           <div class="flex flex-wrap justify-evenly p-4">
-            <template x-for="method in paymentModal.feeData.paymentMethods" :key="method.id">
+            <template x-for="method in paymentModal.feeData.payment_methods" :key="method.id">
               <button type="button"
-                @click="paymentModal.selectedMethod = method.id"
+                @click="paymentModal.selectPaymentMethod(method.id)"
                 class="px-4 py-2 rounded-lg text-sm font-medium transition"
                 :class="paymentModal.selectedMethod === method.id 
                   ? 'bg-green-600 text-white' 
@@ -262,12 +266,13 @@
         </div>
         <div>
           <label class="block text-gray-700">Nº de parcelas</label>
-          <input type="text" name="parcelas" value="1x" 
-            class="w-32 border-b border-gray-400 focus:outline-none">
+          <input type="text" name="parcelas" 
+            class="w-32 border-b border-gray-400 focus:outline-none"
+            x-model="paymentModal.feeData.quantity_installments">
         </div>
         <div>
           <label class="block text-gray-700">Valor a receber</label>
-          <input type="text" name="valor_receber" x-model="paymentModal.feeData.value" readonly
+          <input type="text" name="valor_receber" :value="paymentModal.formatDecimal(paymentModal.feeData.final_amount)" readonly
             class="w-32 border-b border-gray-400 focus:outline-none">
         </div>
       </div>

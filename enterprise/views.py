@@ -1,8 +1,7 @@
 import json
 from datetime import datetime, timedelta
 
-from django.shortcuts import render,  get_object_or_404, redirect
-from django.http import JsonResponse
+from django.shortcuts import render,  get_object_or_404
 from django.urls import reverse_lazy, reverse
 
 from django.views.generic import View, CreateView, ListView, UpdateView, TemplateView
@@ -16,50 +15,17 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from students.models import MonthlyFee, Student
 from .models import PaymentMethod, Plan, Bill,  StatusBill
 from .forms import PaymentMethodForm, PlanForm
-from .serializers import BillSerializer, NFESerializer
-
-
-class MonthlyFeeUpdateView(View):
-    def post(self, request, *args, **kwargs):
-        import json
-        data = json.loads(request.body)
-        if not data.get('payment_method'):
-            return JsonResponse({"success": False, "message": 'Não foi selecionado nenhum metodo de pagamento'}, status=400)
-        fee = get_object_or_404(MonthlyFee, pk=data.get("monthlyfee_id"))
-        if fee:
-            try:
-                method = PaymentMethod.objects.get(
-                    pk=data.get('payment_method'))
-                fee.payment_method = str(method.method).upper()
-                fee.paid = True
-                fee.date_paid = datetime.now()
-                fee.save()
-            except Exception as e:
-                print(f'Erro ao atualizar mensalidade -> {e}')
-                return JsonResponse({"success": False, "message": 'Erro ao atualizar mensalidade'}, status=400)
-            return JsonResponse({"success": True})
-
-
-# Endpoint para pegar os dados de uma mensalidade
-
-
-class MonthlyFeeDetailAPI(View):
-    def get(self, request, pk):
-        fee = get_object_or_404(MonthlyFee, pk=pk)
-        payments_methods = list(
-            PaymentMethod.objects.all().values_list('id', 'method'))
-
-        return JsonResponse(
-            {
-                "plan": str(fee.student.plan.name_plan),
-                "value": str(fee.amount),
-                "paymentMethods": payments_methods,
-            }
-        )
+from .serializers import (
+    BillSerializer,
+    NFESerializer,
+    MonthlyFeePaymentDetailSerializer,
+    MonthlyFeePaymentUpdateSerializer,
+)
 
 
 class EnterpriseHomeView(LoginRequiredMixin, View):
@@ -129,7 +95,6 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             'payment_method', 'status').filter(due_date__range=(start, end))
         pay = bill.filter(Q(status__status__iexact='pago') | Q(payment_method__method__icontains='automatico')).aggregate(
             total_pay=Sum('value'))
-        print(pay)
         context = {
             'pix': total['pix'] if total['pix'] else 0,
             'credito': total['credito'] if total['credito'] else 0,
@@ -335,3 +300,49 @@ class NFEAPIView(APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MonthlyFeePaymentDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        fee = get_object_or_404(MonthlyFee, pk=pk)
+        serializer = MonthlyFeePaymentDetailSerializer(fee)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MonthlyFeePaymentUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        monthlyfee_id = request.data.get('monthlyfee_id')
+        if not monthlyfee_id:
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Informe a mensalidade a ser atualizada.',
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        fee = get_object_or_404(MonthlyFee, pk=monthlyfee_id)
+        serializer = MonthlyFeePaymentUpdateSerializer(fee, data=request.data)
+
+        if serializer.is_valid():
+            updated_fee = serializer.save()
+            detail = MonthlyFeePaymentDetailSerializer(updated_fee)
+            return Response(
+                {
+                    'success': True,
+                    'message': 'Pagamento registrado com sucesso.',
+                    'payment': detail.data,
+                }
+            )
+
+        return Response(
+            {
+                'success': False,
+                'errors': serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )

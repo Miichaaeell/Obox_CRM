@@ -1,5 +1,22 @@
 from django.urls import path
-from .views import EnterpriseHomeView, PaymentMethodListView, PaymentMethodCreateView, PaymentMethodUpdateView, PlanListView, PlanCreateView, PlanUpdateView, BillListView, BillCreateAPIView, BillDetailAPIView, EnterpriseCashierView, MonthlyFeeUpdateView, MonthlyFeeDetailAPI, FlowCashierView, NFESListView, NFEAPIView
+from .views import (
+    EnterpriseHomeView,
+    PaymentMethodListView,
+    PaymentMethodCreateView,
+    PaymentMethodUpdateView,
+    PlanListView,
+    PlanCreateView,
+    PlanUpdateView,
+    BillListView,
+    BillCreateAPIView,
+    BillDetailAPIView,
+    EnterpriseCashierView,
+    MonthlyFeePaymentUpdateAPIView,
+    MonthlyFeePaymentDetailAPIView,
+    FlowCashierView,
+    NFESListView,
+    NFEAPIView,
+)
 
 urlpatterns = [
     path('', EnterpriseHomeView.as_view(), name='home'),
@@ -27,9 +44,9 @@ urlpatterns = [
     path('cashier/', EnterpriseCashierView.as_view(), name='cashier'),
 
     # Views Monthyfee
-    path("monthlyfee_update_api/", MonthlyFeeUpdateView.as_view(),
+    path("monthlyfee_update_api/", MonthlyFeePaymentUpdateAPIView.as_view(),
          name="monthlyfee_update_api"),
-    path("api/monthlyfee/<int:pk>/", MonthlyFeeDetailAPI.as_view(),
+    path("api/monthlyfee/<int:pk>/", MonthlyFeePaymentDetailAPIView.as_view(),
          name="monthlyfee_detail_api"),
     path('flow_cashier/', FlowCashierView.as_view(), name='flow_cashier'),
 
