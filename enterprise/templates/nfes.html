@@ -1,5 +1,7 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load format_extras %}
+
 
 {% block title %}
     NFE's
@@ -19,7 +21,7 @@
       <select x-model="reference_month" class="w-48 border-b bg-transparent">
         <option value="">Selecione...</option>
         {% for month in reference_months %}
-          <option value="{{ month }}">{{ month }}</option>
+          <option value="{{ month }}">{{ month|month_name }}</option>
         {% endfor %}
       </select>
   </div>

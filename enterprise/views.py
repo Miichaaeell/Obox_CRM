@@ -223,7 +223,8 @@ class NFESListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        monthlyfees = MonthlyFee.objects.select_related('student', 'plan')
+        monthlyfees = MonthlyFee.objects.select_related(
+            'student', 'plan').filter(paid=True)
         context['monthlyfees'] = monthlyfees
         reference_months = (
             MonthlyFee.objects.order_by('-reference_month')
@@ -256,7 +257,7 @@ class NFEAPIView(APIView):
             description = data['description']
             reference_month = data['reference_month']
 
-            #Criar função para rodar em segundo plano e emitir a nota
+            # Criar função para rodar em segundo plano e emitir a nota
             for student in students:
                 print(
                     f'emitindo nota para {student['id']}, descrição {description},mes de referencia {reference_month} ')
