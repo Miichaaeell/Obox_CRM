@@ -7,7 +7,12 @@
   
 
 {% block content %}
-  <div x-data="studentFilters()" class="p-6 bg-gray-100 rounded-xl">
+  <div x-data="studentFilters()"
+  id="contextData"
+  data-list-url="{{ list_url|escapejs }}"
+  data-filter="{{ current_filter|escapejs }}"
+  data-search="{{ search_query|default:''|escapejs }}"
+  class="p-6 bg-gray-100 rounded-xl">
 
   <!-- Linha com botão e input -->
   <div class="flex items-center justify-between mb-4">
@@ -109,39 +114,8 @@
     {% include 'components/_pagination.html' %}
   </div>
 </div>
-
+<script src="{% static 'js/list_students.js' %}"></script>
 {% endblock content %}
 
-<script>
-function studentFilters() {
-  return {
-    baseUrl: "{{ list_url|escapejs }}",
-    filter: "{{ current_filter|escapejs }}",
-    searchTerm: "{{ search_query|default:''|escapejs }}",
-    applyFilter(value) {
-      this.filter = value;
-      this.navigate();
-    },
-    submitSearch() {
-      this.navigate();
-    },
-    clearFilters() {
-      this.filter = 'all';
-      this.searchTerm = '';
-      this.navigate();
-    },
-    navigate() {
-      const params = new URLSearchParams();
-      if (this.filter && this.filter !== 'all') {
-        params.set('filter', this.filter);
-      }
-      if (this.searchTerm) {
-        params.set('search', this.searchTerm);
-      }
-      const query = params.toString();
-      window.location.href = query ? `${this.baseUrl}?${query}` : this.baseUrl;
-    }
-  }
-}
-</script>
+
     
