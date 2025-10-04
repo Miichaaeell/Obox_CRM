@@ -5,20 +5,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Dashboard{% endblock %}</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  
+    <!-- Plugin Alpine Mask (deve vir depois do Alpine principal) -->
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Alpine.js principal -->
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Ícone da aba -->
   <link rel="shortcut icon" href="{% static 'media/logo/favicon.png' %}" type="image/png">
+
+  <!-- Inicialização global -->
   <script>
+    // Garante que Lucide e Alpine inicializem no momento certo
     document.addEventListener('alpine:init', () => {
+      if (window.AlpineMask) {
         Alpine.plugin(window.AlpineMask);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
         lucide.createIcons();
-    })
+      }
+    });
   </script>
-
-
 </head>
+
 <body x-data="{ open: false }" class="bg-gradient-to-l from-[#aaaaaa] to-[#1F1F1F]">
 
   <!-- Sidebar -->
@@ -38,11 +57,10 @@
       {% include 'components/_header.html' %}
     </header>
 
-    <!-- Conteúdo -->
+    <!-- Conteúdo principal -->
     <main class="pt-20 p-6 flex-1 overflow-y-auto h-[calc(100vh-5rem)]">
       {% block content %}{% endblock %}
     </main>
-
   </div>
 </body>
 </html>
