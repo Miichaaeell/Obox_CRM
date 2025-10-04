@@ -1,0 +1,10 @@
+<div id="modal_delete" x-show="openModalDelete" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-30 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-[900px] p-6 relative ">
+        <h2 class="text-lg font-semibold mb-4">Deseja realmente excluir o registro do aluno(a) {{ obj.name }}?</h2>
+        <div class="flex justify-center gap-5 pt-4">
+            {% csrf_token %}
+            <button @click="openModalDelete = false" class="px-4 py-2 w-32 rounded-lg bg-gray-700 text-white">Cancelar</button>
+            <button @click="deleteStudent({{obj.id}}, '{% url 'student_delete_api' obj.id %}', '{% url 'list_student' %}')" class="px-4 py-2 w-32 rounded-lg bg-red-500 text-white">Excluir</button>
+        </div>
+    </div>
+</div>

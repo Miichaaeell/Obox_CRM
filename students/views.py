@@ -25,6 +25,7 @@ from rest_framework.views import APIView
 from core.uploadfile import upload_file
 from enterprise.models import Installments, PaymentMethod, Plan
 from students.forms import StatusStudentForm, StudentForm
+from students.serializers import StudentSerializer
 from enterprise.serializers import (
     MonthlyFeePaymentDetailSerializer,
     MonthlyFeePaymentUpdateSerializer,
@@ -90,8 +91,6 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         today = datetime.now()
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Aluno'
-        context['sufix_url'] = 'student'
         context['payment_methods'] = PaymentMethod.objects.filter(
             applies_to__icontains='students')
         context['today'] = today
@@ -255,6 +254,8 @@ class UploadFileView(View):
         return redirect('list_student')
 
 
+#Views de API
+
 class MonthlyFeePaymentDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -327,3 +328,7 @@ class StudentInactivationAPIView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+class StudentDestroyAPIView(generics.DestroyAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer

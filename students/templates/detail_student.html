@@ -1,9 +1,9 @@
 {% extends "_base.html" %}
-
+{% load static %}
 {% block title %}Perfil do Aluno{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-6xl mx-auto p-6 space-y-6" x-data="{ tab: 'frequencia' }">
+<div class="w-full max-w-6xl mx-auto p-6 space-y-6" x-data="{ tab: 'frequencia', ...actions() } " >
 
   <!-- Card informações do aluno -->
   <div class="bg-white rounded-2xl shadow p-6 relative">
@@ -33,11 +33,11 @@
     
 
     <!-- Botões de ação -->
-    <div class="absolute top-4 right-4 flex gap-2">
+    <div  class="absolute top-4 right-4 flex gap-2">
       <button class="bg-black text-white p-2 rounded-full hover:bg-gray-800">
         <i data-lucide="pencil"></i>
       </button>
-      <button class="bg-black text-white p-2 rounded-full hover:bg-red-600">
+      <button @click="openModalDelete = true" class="bg-black text-white p-2 rounded-full hover:bg-red-600">
         <i data-lucide="trash"></i>
       </button>
     </div>
@@ -155,9 +155,14 @@
       </div>
     </div>
   </div>
+  <!--MODAL DELETE-->
+{% include 'components/_modal_delete.html' %}
+
 </div>
+
 
 <script>
   lucide.createIcons();
 </script>
+<script src="{% static 'js/detail_students.js' %}"></script>
 {% endblock %}
