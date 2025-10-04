@@ -30,8 +30,6 @@
         <p class="flex flex-col"><strong>Início:</strong> {{ obj.created_at|date:'d \\d\\e F \\d\\e Y'}}</p>
       </div>
     </div>
-    
-
     <!-- Botões de ação -->
     <div  class="absolute top-4 right-4 flex gap-2">
       <button  x-data
@@ -49,6 +47,9 @@
         <i data-lucide="trash"></i>
       </button>
     </div>
+    {% if obj.status.status|lower == 'inativo' %}
+      <button class="absolute bottom-4 right-5 bg-green-500 rounded-lg px-5 text-white text-sm">Ativar</button>
+    {% endif %}
   </div>
 
   <!-- Abas -->
