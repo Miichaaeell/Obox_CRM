@@ -27,15 +27,23 @@
       </div>
       <div>
         <p class="flex flex-col mb-5"><strong>Telefone:</strong> {{ obj.phone_number }}</p>
-        <p class="flex flex-col"><strong>Início:</strong> {{ obj.created_at }}</p>
+        <p class="flex flex-col"><strong>Início:</strong> {{ obj.created_at|date:'d \\d\\e F \\d\\e Y'}}</p>
       </div>
     </div>
     
 
     <!-- Botões de ação -->
     <div  class="absolute top-4 right-4 flex gap-2">
-      <button class="bg-black text-white p-2 rounded-full hover:bg-gray-800">
-        <i data-lucide="pencil"></i>
+      <button  x-data
+        data-id="{{ obj.id }}"
+        data-name="{{ obj.name }}"
+        data-cpf_cnpj="{{ obj.cpf_cnpj }}"
+        data-date_of_birth="{{ obj.date_of_birth|date:'Y-m-d' }}"
+        data-phone_number="{{ obj.phone_number }}"
+        data-url-update="{% url 'student_api' obj.id %}"
+        @click="openUpdate($el.dataset)"
+        class="bg-black text-white p-2 rounded-full hover:bg-gray-600">
+       <i data-lucide="pencil"></i>
       </button>
       <button @click="openModalDelete = true" class="bg-black text-white p-2 rounded-full hover:bg-red-600">
         <i data-lucide="trash"></i>
@@ -149,7 +157,7 @@
           <input type="text" placeholder="Ano" class="px-3 py-1 rounded border border-gray-300 bg-white text-sm">
         </div>
         {% for history in historys %}
-          <p>{{history.created_at|date:"d/m/Y - h:m"}} - {{history.description}}</p>
+          <p>{{history.created_at|date:"d/m/Y"}} - {{history.description}}</p>
         {% endfor %}
           
       </div>
@@ -157,7 +165,8 @@
   </div>
   <!--MODAL DELETE-->
 {% include 'components/_modal_delete.html' %}
-
+<!--MODAL UPDATE-->
+{% include 'components/_modal_update.html' %}
 </div>
 
 

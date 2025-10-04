@@ -128,22 +128,6 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
         return redirect(self.success_url)
 
 
-class StudentUpdateView(LoginRequiredMixin, UpdateView):
-    model = Student
-    form_class = StudentForm
-    template_name = 'components/_create_update.html'
-    context_object_name = 'obj'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Aluno'
-        context['sufix_url'] = 'student'
-        return context
-
-    def get_success_url(self):
-        return reverse_lazy('detail_student', kwargs={'pk': self.object.pk})
-
-
 class StudentDetailView(DetailView):
     model = Student
     template_name = 'detail_student.html'
@@ -329,6 +313,7 @@ class StudentInactivationAPIView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-class StudentDestroyAPIView(generics.DestroyAPIView):
+class StudentRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    

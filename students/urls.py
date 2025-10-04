@@ -9,9 +9,8 @@ from students.views import (
     StatusStudentUpdateView,
     StudentCreateView,
     StudentDetailView,
-    StudentDestroyAPIView,
+    StudentRetriveUpdateDestroyAPIView,
     StudentListView,
-    StudentUpdateView,
     UploadFileView,
     StudentInactivationAPIView
 )
@@ -22,12 +21,10 @@ urlpatterns = [
     # URLS STUDENTS
     path('', StudentListView.as_view(), name='list_student'),
     path('create_student/', StudentCreateView.as_view(), name='create_student'),
-    path('update_student/<int:pk>/',
-         StudentUpdateView.as_view(), name='update_student'),
     path('detail_student/<int:pk>/',
          StudentDetailView.as_view(), name='detail_student'),
-    path('student/delete/<int:pk>/',
-         StudentDestroyAPIView.as_view(), name='student_delete_api'),
+    path('api/v1/<int:pk>/',
+         StudentRetriveUpdateDestroyAPIView.as_view(), name='student_api'),
     path('api/student/inactivate/', StudentInactivationAPIView.as_view(),
          name='student_inactivate_api'),
 
