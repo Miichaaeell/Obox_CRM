@@ -57,7 +57,7 @@ class Frequency(TimeStampedModel, models.Model):
 
 class History(TimeStampedModel, models.Model):
     student = models.ForeignKey(
-        Student, on_delete=models.PROTECT, verbose_name='Aluno', related_name='histories')
+        Student, on_delete=models.CASCADE, verbose_name='Aluno', related_name='histories')
     status = models.ForeignKey(
         StatusStudent, on_delete=models.PROTECT, verbose_name='Status do Aluno')
     description = models.TextField(
