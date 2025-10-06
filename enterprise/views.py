@@ -48,7 +48,6 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
             for event in bill_events
             if event.get('event_date') is not None
         ]
-
         context = {
             'actives_total': actives_students.count(),
             'actives_students': actives_students,
