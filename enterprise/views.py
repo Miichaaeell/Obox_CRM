@@ -87,8 +87,8 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
         )
         bill = Bill.objects.select_related(
             'payment_method', 'status').filter(due_date__range=(start, end))
-        pay = bill.filter(Q(status__status__iexact='pago') | Q(payment_method__method__icontains='automatico'), due_date__lte=datetime.now()).aggregate(
-            total_pay=Sum('value', filter=Q()))
+        pay = bill.filter(Q(status__status__iexact='pago') | Q(payment_method__method__icontains='automatico', due_date__lte=datetime.now().date())).aggregate(
+            total_pay=Sum('value'))
         context = {
             'pix': total['pix'] if total['pix'] else 0,
             'credito': total['credito'] if total['credito'] else 0,

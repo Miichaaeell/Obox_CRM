@@ -1,4 +1,5 @@
 from datetime import datetime
+from dateutil import relativedelta
 from celery import shared_task
 
 from enterprise.models import Bill
@@ -6,8 +7,11 @@ from enterprise.models import Bill
 
 @shared_task
 def create_recurring_bill():
-    bills = Bill.objects.filter(appellant=True)
     year, month = datetime.now().year, datetime.now().month
+    today = datetime.now().date()
+    first_day_this_month = today.replace(day=1)
+    first_day_last_month = first_day_this_month - relativedelta(months=1)
+    bills = Bill.objects.filter(appellant=True, due_date__lt=first_day_this_month, due_date__qte=first_day_last_month)
     create_to_bill = []
     for bill in bills:
         if bill.payment_method.method.lower() == 'deb. automatico':
