@@ -1,9 +1,6 @@
 # Dockerfile
 FROM python:3.13-slim
 
-# Configura variáveis de ambiente
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
 
 # Diretório de trabalho
 WORKDIR /app

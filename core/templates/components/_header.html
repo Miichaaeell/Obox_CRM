@@ -1,7 +1,7 @@
 {% load static %}
-  <div class="flex items-center justify-between w-full">
+  <div class="flex items-center justify-between w-full pt-4 border-b border-gray-400">
     <!-- Campo de pesquisa -->
-    <div class="flex items-center justify-between bg-transparent border-b gap-2 border-gray-400 w-full">
+    <div class="flex items-center justify-between bg-transparent gap-2 w-full">
       <i data-lucide="search" class="text-gray-400 ml-2 "></i>
       <form action="{% url 'list_student' %}" method="get" autocomplete="on" class="w-4/5 border-l border-gray-400">
       <input 
@@ -13,7 +13,7 @@
     </form>
     <!-- Espaço à direita -->
       <i data-lucide="bell" class=" mx-2 text-gray-400"></i>
-      <img src="{% static 'media/logo/logo_obox.png' %}" alt="logo_obox" class="border-l border-gray-400 pl-4 w-[80px] h-[50px]">
+      <img src="{% static 'media/logo/logo_branca.png' %}" alt="logo_obox" class="rounded-full w-[60px] h-[60px]">
       <div class="w-40 text-center ml-2">        
         <h6 class="text-white font-bold ">O BOX TRAINING</h6>
         <a href="" class="text-sm text-gray-200">Configurações</a>

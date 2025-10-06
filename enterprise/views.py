@@ -18,7 +18,7 @@ from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
 )
-from students.models import MonthlyFee, Student
+from students.models import MonthlyFee, Student, Payment
 
 
 class EnterpriseHomeView(LoginRequiredMixin, View):
@@ -75,21 +75,21 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         month, year = datetime.today().month,  datetime.today().year
         start = f'{year}-{month}-01'
-        end = f'{year}-{month}-30'
-        monthlyfees = MonthlyFee.objects.filter(
-            due_date__range=(start, end), paid=True)
-        total = monthlyfees.aggregate(
-            pix=Sum('amount', filter=Q(payment_method__iexact="pix")),
-            credito=Sum('amount', filter=Q(payment_method__iexact="crédito")),
-            debito=Sum('amount', filter=Q(payment_method__iexact="débito")),
-            dinheiro=Sum('amount', filter=Q(
+        end = f'{year}-{month}-31'
+        payments = Payment.objects.filter(
+            created_at__range=(start, end))
+        total = payments.aggregate(
+            pix=Sum('value', filter=Q(payment_method__iexact="pix")),
+            credito=Sum('value', filter=Q(payment_method__iexact="crédito")),
+            debito=Sum('value', filter=Q(payment_method__iexact="débito")),
+            dinheiro=Sum('value', filter=Q(
                 payment_method__iexact="dinheiro")),
-            tot=Sum('amount')
+            tot=Sum('value')
         )
         bill = Bill.objects.select_related(
             'payment_method', 'status').filter(due_date__range=(start, end))
-        pay = bill.filter(Q(status__status__iexact='pago') | Q(payment_method__method__icontains='automatico')).aggregate(
-            total_pay=Sum('value'))
+        pay = bill.filter(Q(status__status__iexact='pago') | Q(payment_method__method__icontains='automatico'), due_date__lte=datetime.now()).aggregate(
+            total_pay=Sum('value', filter=Q()))
         context = {
             'pix': total['pix'] if total['pix'] else 0,
             'credito': total['credito'] if total['credito'] else 0,
@@ -98,8 +98,9 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             'tot': total['tot'] if total['tot'] else 0,
             'bills': bill if bill else 0,
             'pay': pay['total_pay'] if pay['total_pay'] else 0,
-            'monthlyfees': monthlyfees,
-            'date_start': start
+            'payments': payments,
+            'date_start': start,
+            'today': datetime.now().strftime('%d/%m/%y')
         }
         return render(request, 'cashier.html', context)
 

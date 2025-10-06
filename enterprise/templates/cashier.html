@@ -92,7 +92,7 @@
           <tbody>
            
            {% for bill in bills %}            
-            {% if bill.status.status|lower == 'pago' or bill.status.status|lower == 'automático' %}
+            {% if bill.status.status|lower == 'pago' or bill.status.status|lower == 'automático' and bill.due_date|date:'d/m/y' <=  today %}
               <tr>
               <td> {{ bill.due_date|date:'d/m/y' }}</td>
               <td>Saída</td>
@@ -108,24 +108,16 @@
               <td>{{ bill.value }}</td>
             </tr>
             {% endif %}
+            <!--Entradas-->
            {% endfor %}
-           {% for monthlyfee  in monthlyfees %}
-           {% if monthlyfee.paid %}
+           {% for payment  in payments %}
             <tr>
-              <td> {{ monthlyfee.due_date|date:'d/m/y' }}</td>
+              <td> {{ payment.created_at|date:'d/m/y' }}</td>
               <td>Entrada</td>
-              <td>{{ monthlyfee.amount }}</td>
-              <td>{{ monthlyfee.student }}</td>
-              <td>
-              {% if monthlyfee.payment_method %}
-                {{ monthlyfee.payment_method }}
-                {% else %}
-                Em aberto
-              {% endif %}
-                </td>
-              <td>{{ monthlyfee.amount }}</td>
+              <td>{{ payment.value }}</td>
+              <td>{{ payment.montlhyfee.student }}</td>
+              <td>{{ payment.value }}</td>
             </tr>
-           {% endif %}
            {% endfor %}
           </tbody>
         </table>
