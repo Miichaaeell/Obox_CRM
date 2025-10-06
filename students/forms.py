@@ -76,7 +76,7 @@ class MonthlyFeeForm(forms.ModelForm):
     class Meta:
         model = MonthlyFee
         fields = ['student', 'amount', 'due_date',
-                  'reference_month', 'paid', 'payment_method']
+                  'reference_month', 'paid',]
         widgets = {
             'student': forms.Select(attrs={
                 "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
@@ -85,7 +85,5 @@ class MonthlyFeeForm(forms.ModelForm):
             'due_date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-4 py-2 rounded-lg  border border-gray-700 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'}),
             'reference_month': forms.DateInput(attrs={'type': 'month', 'class': 'w-full px-4 py-2 rounded-lg  border border-gray-700 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'}),
             'paid': forms.CheckboxInput(attrs={"class": "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"}),
-            'payment_method': forms.Select(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-            }),
+
         }

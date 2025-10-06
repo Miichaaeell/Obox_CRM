@@ -4,6 +4,7 @@ from students.views import (
     FrequenceStudentView,
     MonthlyFeePaymentDetailAPIView,
     MonthlyFeePaymentUpdateAPIView,
+    PaymentListCreateAPIView,
     StatusStudentCreateView,
     StatusStudentListView,
     StatusStudentUpdateView,
@@ -13,6 +14,7 @@ from students.views import (
     StudentListView,
     UploadFileView,
     StudentInactivationAPIView
+    
 )
 
 
@@ -44,5 +46,9 @@ urlpatterns = [
     path('frequence/', FrequenceStudentView.as_view(), name='frequence'),
 
     # Urls Upload
-    path('uploadfile/', UploadFileView.as_view(), name='uploadfile')
+    path('uploadfile/', UploadFileView.as_view(), name='uploadfile'),
+    
+    #Urls Payment
+    
+    path('payment/api/v1/', PaymentListCreateAPIView.as_view(), name='payment_api' )
 ]

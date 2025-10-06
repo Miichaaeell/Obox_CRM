@@ -26,12 +26,13 @@ from core.uploadfile import upload_file
 from enterprise.models import Installments, PaymentMethod, Plan
 from students.forms import StatusStudentForm, StudentForm
 from students.serializers import StudentSerializer
-from enterprise.serializers import (
+from students.serializers import (
     MonthlyFeePaymentDetailSerializer,
     MonthlyFeePaymentUpdateSerializer,
     StudentInactivationSerializer,
+    PaymentSerializer
 )
-from students.models import Frequency, History, MonthlyFee, StatusStudent, Student
+from students.models import Frequency, History, MonthlyFee, StatusStudent, Student, Payment
 
 
 # Views for Student model
@@ -238,7 +239,7 @@ class UploadFileView(View):
         return redirect('list_student')
 
 
-#Views de API
+# Views de API
 
 class MonthlyFeePaymentDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -313,7 +314,12 @@ class StudentInactivationAPIView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+
 class StudentRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    
+
+
+class PaymentListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Payment
+    serializer_class = PaymentSerializer

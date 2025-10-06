@@ -74,7 +74,9 @@ class History(TimeStampedModel, models.Model):
 
 class MonthlyFee(TimeStampedModel, models.Model):
     student = models.ForeignKey(
-        Student, on_delete=models.PROTECT, verbose_name='Aluno', related_name='monthly_fees')
+        Student, on_delete=models.SET_NULL, verbose_name='Aluno', related_name='monthly_fees', null=True)
+    student_name = models.CharField(
+        verbose_name='Nome do Aluno', max_length=124, null=True, blank=True)
     amount = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='Valor da Mensalidade', help_text='Enter the monthly fee amount')
     due_date = models.DateField(
@@ -83,8 +85,6 @@ class MonthlyFee(TimeStampedModel, models.Model):
         max_length=7, help_text="Format MM/YYYY", verbose_name='Mês de Referência')
     paid = models.BooleanField(
         default=False, verbose_name='Pago', help_text='Indicates if the monthly fee has been paid')
-    payment_method = models.CharField(
-        max_length=100, blank=True, null=True, verbose_name='Método de Pagamento', help_text='Enter the payment method used', default='Not Paid')
     quantity_installments = models.IntegerField(
         verbose_name='Quantidade de parcelas', null=True, blank=True)
     date_paid = models.DateField(verbose_name='Data que realizou o pagamento',
@@ -103,5 +103,20 @@ class MonthlyFee(TimeStampedModel, models.Model):
         verbose_name = 'Mensalidade'
         verbose_name_plural = 'Mensalidades'
         ordering = ['-created_at', 'student']
-        
 
+
+class Payment(TimeStampedModel, models.Model):
+    montlhyfee = models.ForeignKey(
+        MonthlyFee, on_delete=models.PROTECT, verbose_name='mensalidade', related_name='payments')
+    payment_method = models.CharField(
+        max_length=72, verbose_name='Metodo de pagamento')
+    value = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name='Valor do pagamento')
+
+    def __str__(self):
+        return f'Mensalidade {self.montlhyfee.student_name}'
+
+    class Meta:
+        verbose_name = 'Pagamento'
+        verbose_name_plural = 'Pagamentos'
+        ordering = ['-created_at']
