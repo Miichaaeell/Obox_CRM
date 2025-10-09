@@ -1,27 +1,29 @@
 <div id="modal_" x-show="openModalUpdate" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-30 z-50">
 <div class="bg-white rounded-2xl shadow-xl w-full max-w-[900px] p-6 relative ">
-        <div class="font-bold mb-4">Alterar dados do aluno {{obj.name}}:</div>
-            <!--grid dos dados-->
-            <div class="grid grid-cols-3 gap-6 text-sm">      
-                <div>
-                    <p class=""><strong>Nome:</strong></p>
-                    <input type="text" class="mb-5 text-gray-700 w-full border-b border-gray-400 focus:outline-none" x-model="studentData.name">
-                    <p class=""><strong>Data de Nasimento:</strong></p>
-                    <input type="date" name="" id="" class="mb-5 text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="studentData.date_of_birth">
+        <form @submit.prevent="changeStudent()">
+            <div class="font-bold mb-4">Alterar dados do aluno {{obj.name}}:</div>
+                <!--grid dos dados-->
+                <div class="grid grid-cols-3 gap-6 text-sm">
+                    <div>
+                        <p class=""><strong>Nome:</strong></p>
+                        <input type="text" class="mb-5 text-gray-700 w-full border-b border-gray-400 focus:outline-none" x-model="studentData.name" required>
+                        <p class=""><strong>Data de Nascimento:</strong></p>
+                        <input type="date" name="" id="" class="mb-5 text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="studentData.date_of_birth" required>
+                    </div>
+                    <div >
+                        <p class=""><strong>CPF:</strong></p>
+                        <input type="text" class="mb-5 text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="studentData.cpf_cnpj"  x-mask:dynamic="$input.length <= 14 ? '999.999.999-99' : '99.999.999/9999-99'" required>
+                        <p class=""><strong>Telefone:</strong></p>
+                        <input type="text" name="" id="" class="mb-5 text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="studentData.phone_number" x-mask="(99) 9 9999-9999" required>
+                    </div>
                 </div>
-                <div >
-                    <p class=""><strong>CPF:</strong></p>
-                    <input type="text" class="mb-5 text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="studentData.cpf_cnpj"  x-mask:dynamic="$input.length <= 14 ? '999.999.999-99' : '99.999.999/9999-99'">
-                    <p class=""><strong>Telefone:</strong></p>
-                    <input type="text" name="" id="" class="mb-5 text-gray-700 w-32 border-b border-gray-400 focus:outline-none" x-model="studentData.phone_number" x-mask="(99) 9 9999-9999">
+                    <!--Fim do grid dos dados-->
+                {% csrf_token %}
+                <div class="flex justify-center gap-5 mt-5">
+                    <button @click="openModalUpdate = false" class="px-4 py-2 w-32 rounded-lg bg-gray-400 text-black hover:bg-gray-700">Cancelar</button>
+                    <button  class="px-4 py-2 w-32 rounded-lg bg-green-500 text-white hover:bg-green-700" type="submit">Salvar</button>
                 </div>
-            </div>
-                <!--Fim do grid dos dados-->
-            {% csrf_token %}
-            <div class="flex justify-center gap-5 mt-5">
-                <button @click="openModalUpdate = false" class="px-4 py-2 w-32 rounded-lg bg-gray-400 text-black hover:bg-gray-700">Cancelar</button>
-                <button @click="changeStudent()" class="px-4 py-2 w-32 rounded-lg bg-green-500 text-white hover:bg-green-700">Salvar</button>
-            </div>
+        </form>
 
     </div>
 </div>

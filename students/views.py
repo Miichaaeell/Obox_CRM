@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import HttpResponse, redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -100,6 +101,7 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
         context['quantity_installments'] = Installments.objects.all()
         return context
 
+    @transaction.atomic
     def form_valid(self, form):
         today = datetime.now()
         studant_instance = form.save(commit=False)
@@ -108,24 +110,33 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
         studant_instance.due_date = int(today.day)
         studant_instance.observation = str('Novo Aluno')
         studant_instance.save()
-        amount = self.request.POST.get('value_receiver')
+        amount = self.request.POST.get(
+            'value_receiver').replace('R', '').replace('$', '').replace(',', '.')
         discount_percent = self.request.POST.get('percent_discount')
         discount_value = self.request.POST.get('discount_value')
-        payment_method = self.request.POST.get('payment_method')
         quantity_installments = self.request.POST.get('quantity_installments')
-        MonthlyFee.objects.create(
+        monthlyfe = MonthlyFee.objects.create(
             student=studant_instance,
+            student_name=studant_instance.name,
             amount=amount,
             due_date=today,
             reference_month=f'{today.month}/{today.year}',
             paid=True,
-            payment_method=payment_method,
-            quantity_installments=int(quantity_installments.replace('x', '')),
             date_paid=today,
             discount_value=discount_value if discount_value else 0,
             discount_percent=discount_percent if discount_percent else 0,
             plan=studant_instance.plan
         )
+        import json
+        payments_json = self.request.POST.get('payments')
+        payments_data = json.loads(payments_json)
+        payments_create = [Payment(
+            montlhyfee=monthlyfe,
+            payment_method=payment['method'],
+            value=payment['receive_value'],
+            quantity_installments=payment['installments']
+        )for payment in payments_data]
+        Payment.objects.bulk_create(payments_create)
         return redirect(self.success_url)
 
 

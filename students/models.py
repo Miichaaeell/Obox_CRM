@@ -85,8 +85,6 @@ class MonthlyFee(TimeStampedModel, models.Model):
         max_length=7, help_text="Format MM/YYYY", verbose_name='Mês de Referência')
     paid = models.BooleanField(
         default=False, verbose_name='Pago', help_text='Indicates if the monthly fee has been paid')
-    quantity_installments = models.IntegerField(
-        verbose_name='Quantidade de parcelas', null=True, blank=True)
     date_paid = models.DateField(verbose_name='Data que realizou o pagamento',
                                  help_text='Enter the paid date for the monthly fee', null=True, blank=True)
     discount_value = models.DecimalField(
@@ -97,7 +95,7 @@ class MonthlyFee(TimeStampedModel, models.Model):
         'enterprise.Plan', on_delete=models.PROTECT, verbose_name='Plano', related_name='monthlyfees', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.student.name} - {self.amount} - {'Pago' if self.paid else 'Pendente'}"
+        return f"{self.student_name} - {self.amount} - {'Pago' if self.paid else 'Pendente'}"
 
     class Meta:
         verbose_name = 'Mensalidade'
@@ -112,9 +110,11 @@ class Payment(TimeStampedModel, models.Model):
         max_length=72, verbose_name='Metodo de pagamento')
     value = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='Valor do pagamento')
+    quantity_installments = models.IntegerField(
+        verbose_name='Quantidade de parcelas', null=True, blank=True)
 
     def __str__(self):
-        return f'Mensalidade {self.montlhyfee.student_name}'
+        return f'Mensalidade {self.montlhyfee.student.name}'
 
     class Meta:
         verbose_name = 'Pagamento'

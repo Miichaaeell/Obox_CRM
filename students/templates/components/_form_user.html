@@ -20,7 +20,7 @@ data-plans="{{ plans }}">
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 text-sm">        
+        <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">        
             <!-- CPF -->
         <div>
             <label class="block font-medium">CPF:</label>
@@ -28,7 +28,7 @@ data-plans="{{ plans }}">
           </div>
             <!--Data de nascimento -->
             <div>
-            <label class="block font-medium">Data de nascimento:</label>
+            <label class="block font-medium">Data de Nascimento:</label>
             {{form.date_of_birth}}
           </div>
             <!--Telefone-->
@@ -38,10 +38,10 @@ data-plans="{{ plans }}">
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 text-sm">
+        <div class="flex text-sm justify-between w-[86%] " >
                <!--Data da matricula-->
           <div>
-            <label class="block font-medium">Data da Matricula:</label>
+            <label class="block font-medium">Data da Matrícula:</label>
              <input class="" value="{{today|date:'d/m/Y'}}" readonly>
           </div>
           <!-- Plano -->
@@ -52,70 +52,98 @@ data-plans="{{ plans }}">
             <!-- Valor -->
           <div>
             <label class="block font-medium">Valor:</label>
-            <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="value_plan" readonly>
+            <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="value_plan" x-model="plan_price" readonly>
+          </div>
+          <div>
+            <label for="" class="block font-medium">Taxa de Matrícula</label>
+            R$:<input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="registration fee" value="5" readonly >
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-4 text-sm ">
+        <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">
           <!-- Desconto -->
           <div>
             <label class="block font-medium">Desconto %:</label>
-            <input type="number" step="0.01" min="0"
+            <input @input="recalctotal()" type="number" step="any" min="0"
                    placeholder="Ex. 10"
                    class="w-32 border-b border-gray-300 focus:border-green-500 outline-none bg-transparent"
                    id="percent_discount"
-                   name="percent_discount">
+                   name="percent_discount"
+                   x-model="percent_discount">
                    
           </div>
           <!-- Valor desconto -->
           <div>
           <label class="block font-medium">Valor desconto:</label>
-          <input type="number" name="discount_value" placeholder="Ex. 10"
+          <input @input="recalctotal()" type="number" name="discount_value" step="any" placeholder="Ex. 10"
             class="w-32 border-b border-gray-400 focus:outline-none"
-            id="discount_value">
+            id="discount_value" x-model="discount_value">
         </div>
          <!-- Valor após desconto -->
           <div>
             <label class="block font-medium">Valor após desconto:</label>
-            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " id="value_after_discount" readonly>
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " id="value_after_discount" x-model="value_after_discount" name="value_receiver" readonly>
           </div>
         </div>
-<!-- Metodos de pagamento -->
-          <div class="flex flex-wrap justify-evenly p-4 w-4/6" x-data="{selectedOpption: ''}">
-            {% for payment in payment_methods %}
-            <label class="px-4 p-2 border rounded-lg cursor-pointer transition-all duration-200" :class="{' bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm': selectedOpption === '{{payment.method}}', 'bg-gray-800 text-white rounded-lg text-sm':selectedOpption !== '{{payment.method}}'}">
-            <input type="radio" name="payment_method" value="{{payment.method}}" class="sr-only" x-model="selectedOpption" required>{{payment.method}}
-            </label>
-               
-            {% endfor %}
-        </div>
         <div class="grid grid-cols-3 gap-4 mt-8 text-sm">
-        <!-- Dia do pagamento -->
-        <div>
-          <label class="block text-gray-700">Dia do pagamento</label>
-          <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" disabled value="{{today|date:'d'}}">
-        </div>
-        <div>
-          <label class="block text-gray-700">Nº de parcelas</label>
-          <select name="quantity_installments" id="quantity_installments" class="text-gray-700 w-32 bg-transparent border-b border-gray-400 focus:outline-none">
-            
-            {% for installment in quantity_installments %}
-              <option value="{{installment}}">{{installment}}</option>
+      </div>
+      <div>
+        <div class=" w-[220px]" > <!--Adicionar pagamento-->
+          <div @click="dropdown = !dropdown" class="flex justify-between items-center shadow-sm bg-gray-800 p-2 py-2 rounded-lg border text-white font-bold hover:cursor-pointer transition"> 
+            <span class="">Adicionar pagamento</span> 
+            <i data-lucide="chevron-down" class="h-6 w-6"></i>
+          </div> 
+          <ul x-show="dropdown" class="border rounded-lg">
+            {% for payment in payment_methods %}
+              <li 
+              @click="addPayment({{payment.id}}, '{{ payment.method }}')"
+              class="p-1 px-2 hover:bg-gray-800 hover:cursor-pointer transition focus:border-gray-700 focus:ring-2 focus:ring-gray-700 rounded-lg">
+                {{payment.method|title}}
+              </li>
             {% endfor %}
-              
-          </select>
+          </ul>
+        </div> <!-- Fim Adicionar pagamento-->
+        <template x-for="(p, id) in payments" :key="id"> <!--Div de pagamento-->
+           <div class="flex justify-between gap-4 items-center mt-5 w-[70%]"> 
+          <div class="">
+            <span class="border rounded-lg p-2 bg-green-500  px-4" x-text="p.method"></span>
+          </div>
+          <div class="flex flex-col">
+            <label for="">Valor a receber</label>
+            <input @input="validate_value()" type="number" class="border-b" name="receive_value" id="receive_value" step="any" x-model.receive_value="p.receive_value">
+          </div>
+          <div class="flex flex-col">
+            <label for="date_payment">Dia do pagamento</label>
+            <input type="date" name="date_payment" id="date_payment" value="{{today|date:'Y-m-d'}}" x-model="p.date">
+          </div>
+          <div class="flex flex-col">
+            <label for="">N de parcelas</label>
+            <select name="" id="" x-model="p.installments">
+              {% for quantity in quantity_installments %}
+                <option value="{{quantity.id}}">{{quantity}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <button type="button" @click="removePayment(id)">
+          <i data-lucide="trash" class="lucide lucide-trash bg-black text-white rounded-full p-1 w-8 h-8 hover:bg-red-500 hover:cursor-pointer"></i>
+        </button>
+          </div>
         </div>
-        <div>
-          <label class="block text-gray-700">Valor a receber</label>
-          <input type="text" name="value_receiver" id="total_value" readonly
-            class="w-32 border-b border-gray-400 focus:outline-none">
-        </div>
+        </template>
+        <input type="hidden" name="payments" :value="JSON.stringify(payments)">
+        <div id="validate_message" x-show="alert" class="h-[120px] w-[30%] m-auto bg-[#F4F4F4] rounded-lg flex flex-col justify-center items-center mt-5">
+        </div> <!--Mensagem de valor menor-->
       </div>
         <div class="flex gap-6 justify-center">
             <a href="{% url 'list_student' %}" class="px-3 w-32 cursor-pointer py-1 bg-gray-800 text-center text-white rounded-lg text-sm">
            Cancelar
           </a>
           <button type="submit"
-            class="px-3 w-32 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+            class="px-3 w-32 py-1 text-white bg-gray-400 rounded-lg  text-sm" 
+            :class="{
+            'bg-green-500' : validate == true,
+            }"
+            :disabled="!validate">
             Salvar e Receber
           </button>
         </div>
