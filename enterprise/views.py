@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from enterprise.forms import PaymentMethodForm, PlanForm
-from enterprise.models import Bill, PaymentMethod, Plan, StatusBill
+from enterprise.models import Bill, PaymentMethod, Plan, StatusBill, Cashier
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
@@ -79,8 +79,8 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             created_at__range=(start, end))
         total = payments.aggregate(
             pix=Sum('value', filter=Q(payment_method__iexact="pix")),
-            credito=Sum('value', filter=Q(payment_method__iexact="crédito")),
-            debito=Sum('value', filter=Q(payment_method__iexact="débito")),
+            credito=Sum('value', filter=Q(payment_method__iexact="credito")),
+            debito=Sum('value', filter=Q(payment_method__iexact="debito")),
             dinheiro=Sum('value', filter=Q(
                 payment_method__iexact="dinheiro")),
             tot=Sum('value')
@@ -88,7 +88,22 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
         bill = Bill.objects.select_related(
             'payment_method', 'status').filter(due_date__range=(start, end))
         pay = bill.filter(Q(status__status__iexact='pago') | Q(payment_method__method__icontains='automatico', due_date__lte=datetime.now().date())).aggregate(
-            total_pay=Sum('value'))
+            total_pay=Sum('value'),
+            bill_pix=Sum('value', filter=Q(
+                payment_method__method__iexact='pix')),
+            bill_boleto=Sum('value', filter=Q(
+                payment_method__method__iexact='boleto')),
+            bill_automatic=Sum('value', filter=Q(
+                payment_method__method__iexact='automatico')),
+            bill_others=Sum('value', filter=Q(payment_method__method__iexact='credito') | Q(
+                payment_method__method__iexact='debito')),
+            bill_retirada=Sum('value', filter=Q(
+                payment_method__method__iexact=''))
+        )
+        try:
+            last_cashier = Cashier.objects.order_by('-created_at').first()
+        except:
+            last_cashier = None
         context = {
             'pix': total['pix'] if total['pix'] else 0,
             'credito': total['credito'] if total['credito'] else 0,
@@ -96,10 +111,16 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             'dinheiro': total['dinheiro'] if total['dinheiro'] else 0,
             'tot': total['tot'] if total['tot'] else 0,
             'bills': bill if bill else 0,
+            'bill_pix': pay['bill_pix'] if pay['bill_pix'] else 0,
+            'bill_boleto': pay['bill_boleto'] if pay['bill_boleto'] else 0,
+            'bill_automatic': pay['bill_automatic'] if pay['bill_automatic'] else 0,
+            'bill_others': pay['bill_others'] if pay['bill_others'] else 0,
+            'bill_retirada': pay['bill_retirada'] if pay['bill_retirada'] else 0,
             'pay': pay['total_pay'] if pay['total_pay'] else 0,
             'payments': payments,
             'date_start': start,
-            'today': datetime.now().strftime('%d/%m/%y')
+            'today': datetime.now().strftime('%d/%m/%y'),
+            'last_cashier': last_cashier,
         }
         return render(request, 'cashier.html', context)
 

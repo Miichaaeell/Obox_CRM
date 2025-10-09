@@ -39,10 +39,14 @@
 
       <!-- Saídas -->
       <div class="bg-white rounded-xl shadow overflow-hidden">
-        <h3 class="bg-red-600 font-bold text-lg mb-3 p-2">(-) Saídas</h3>
-        <div class="flex p-2 justify-between"><span>Dinheiro em caixa</span><span>R$ 00,00</span></div>
+        <h3 class="bg-red-600 font-bold text-lg mb-2 p-1">(-) Saídas</h3>
+        <div class="flex px-2 justify-between"><span>Pix</span><span>R$ {{bill_pix|floatformat:2}}</span></div>
+        <div class="flex px-2 py-1 justify-between"><span>Boleto</span><span>R$ {{bill_boleto|floatformat:2}}</span></div>
+        <div class="flex px-2 justify-between"><span>Débito Automático</span><span>R$ {{bill_automatic|floatformat:2}}</span></div>
+        <div class="flex px-2 py-1 justify-between"><span>Retiradas</span><span>R$ {{bill_retirada|floatformat:2}}</span></div>
+        <div class="flex px-2 justify-between"><span>Outros</span><span>R$ {{bill_others|floatformat:2}}</span></div>
         <hr class="my-2 border-white/40">
-        <div class="flex p-2 justify-between font-semibold text-lg">
+        <div class="flex px-2 justify-between font-semibold text-lg">
           <span>Total</span><span>R$ {{ pay|floatformat:2 }}</span>
         </div>
       </div>
@@ -51,8 +55,8 @@
       <div class="bg-white rounded-xl shadow  overflow-hidden">
         <h3 class="bg-gray-400 p-2 font-bold text-lg mb-3">Discriminação</h3>
         <div class="flex p-2 justify-between"><span>Saldo anterior</span><span>R$ 00,00</span></div>
-        <div class="flex px-2 justify-between"><span>(+) Entrada</span><span>R$ 00,00</span></div>
-        <div class="flex p-2 justify-between"><span>(-) Saída</span><span>R$ 00,00</span></div>
+        <div class="flex px-2 justify-between"><span>(+) Entrada</span><span>R$  {{ tot|floatformat:2 }}</span></div>
+        <div class="flex p-2 justify-between"><span>(-) Saída</span><span>R$ {{ pay|floatformat:2 }}</span></div>
         <hr class="my-2 border-gray-600/50">
         <div class="flex p-2 justify-between font-bold text-lg">
           <span>Saldo final</span><span>R$ 00,00</span>
@@ -116,6 +120,7 @@
               <td>Entrada</td>
               <td>{{ payment.value }}</td>
               <td>{{ payment.montlhyfee.student }}</td>
+              <td>{{ payment.payment_method|title }}</td>
               <td>{{ payment.value }}</td>
             </tr>
            {% endfor %}
