@@ -56,7 +56,8 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
             'monthly_fees_overdue_total': monthly_fees_overdue.count(),
             'monthly_fees_overdue': monthly_fees_overdue,
             'today': today,
-            'payment_methods': mark_safe(json.dumps(list(PaymentMethod.objects.values("id", "method")))),
+            'payment_methods':  PaymentMethod.objects.filter(
+                applies_to__icontains='students'),
             'calendar_events': mark_safe(json.dumps(calendar_events)),
             'accounts_url': reverse('list_bill'),
             'students_active_url': f"{reverse('list_student')}?filter=ativo",

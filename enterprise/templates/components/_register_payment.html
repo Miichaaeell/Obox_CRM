@@ -1,0 +1,41 @@
+<div x-show="registerModal" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 relative">
+    <h1 class="text-2xl font-bold mb-4">Registrar Pagamento</h1>
+    <div class="mb-4 gap-2"> <!--Informaões-->
+        <p>Nome: <span x-text="paymentModal.feeData.student_name"></span></p>
+        <p>Plano: <span x-text="paymentModal.feeData.plan"></span> - <span x-text="paymentModal.feeData.reference_month"></span></p>
+        <p>Valor total devido: <span x-text="paymentModal.feeData.final_amount.toLocaleString('pt-BR', {style: 'currency', 'currency': 'BRL'})"></span></p>
+    </div>
+    <div class="border rounded-lg border-black p-5">
+        <div class="mb-4">
+            <h2 class="text-xl gap-2 font-bold">Formas de pagamento</h2>
+           <template x-for="payment in payments">
+            <p x-text="payment.method"></p>
+           </template>
+        </div>
+        <div class="flex gap-6 mb-4">
+            <div>
+                <p class="font-bold">
+                Valor pago
+                </p> 
+                <p x-text="paymentModal.feeData.final_amount.toLocaleString('pt-BR', {style: 'currency', 'currency': 'BRL'})"> </p>
+            </div>
+            <div>
+                <p class="font-bold">Data</p>
+                <p>{{today|date:'d-m-Y'}}</p>
+            </div>
+        </div>
+        <div class="bg-gray-800 font-bolder h-[2px] mb-4"></div>
+        <div class="mb-4 gap-2">
+            <template x-for="payment in payments">
+                <p>Recebido: R$ <span x-text="payment.receive_value"></span> (<span  x-text="payment.method"></span>)</p>
+            </template>
+            <p>Status: <span class="text-green-500 font-bold">Pago</span> </p> 
+        </div>
+    </div>
+    <div class="flex items-center mt-4 justify-center gap-4"><!--Bototes-->
+        <button @click="registerModal = false" class="p-2 px-2 bg-gray-800 rounded-lg text-white">Voltar</button>
+        <button @click="submitForm()" class="p-2 bg-green-500 rounded-lg text-white">Confirmar pagamento</button>
+    </div>
+</div>
+</div>

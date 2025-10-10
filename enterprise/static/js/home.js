@@ -1,42 +1,119 @@
 function mainPage() {
   return {
+    formData: {},
+    'dropdown': false,
+    'alert': false,
+    'registerModal': false,
+     payments: [],
+     validate:false,
+     plan_price: '',
+     total:Number(),
+     value_after_discount: '',
+     value_after_discount_numeric:'',
+     discount_value:Number(),
+     percent_discount:Number(),
+     tot:0,
+     
+    addPayment(id, method){
+      this.payments.push({
+        id:id,
+        method: method,
+        installments: '1',
+      }),
+      this.$nextTick(() => {
+        lucide.createIcons();
+      });
+      this.dropdown = false
+      
+      },
+      removePayment(id){
+      this.payments.splice(id, 1)
+      this.$nextTick(() => {
+        lucide.createIcons();
+        this.validate_value();
+      })
+      },
+
+      validate_value(){
+        var message = document.getElementById('validate_message')
+        let total = 0
+        this.payments.forEach(p => {
+          total += Number(p.receive_value)
+        });
+        this.tot = total
+        if (this.tot != 0){
+          diference = Number(this.paymentModal.feeData.final_amount) - Number(this.tot)
+          var button = document.getElementById('button-confirm')
+            message.innerHTML = this.tot < this.paymentModal.feeData.final_amount ? `<p>Valor parcial recebido.</p> <p>Restam ${diference.toLocaleString('pt-BR', {style: 'currency', currency:'BRL'})} a serem pagos.</p>` : ''
+            this.alert = this.tot < this.paymentModal.feeData.final_amount ? true : false
+            this.validate = this.tot < this.paymentModal.feeData.final_amount ? false : true
+
+          }
+        else {
+          this.alert = false
+        }
+        
+      },
+
+    recalcTotal() {
+      let total = this.paymentModal.feeData.base_amount|| 0;
+      if (this.formData.apply_discount) {
+        if (this.formData.percent_discount) {
+          total -= total * (this.formData.percent_discount / 100);
+        }
+        if (this.formData.value_discount) {
+          total -= Number(this.formData.value_discount);
+        }
+        if (this.formData.percent_fine) {
+          total += total * (this.formData.percent_fine / 100);
+        }
+        if (this.formData.value_fine) {
+          total += Number(this.formData.value_fine);
+        }
+      }
+      this.paymentModal.feeData.final_amount = total.toFixed(2);
+    },
+
+
+
     paymentModal: {
       open: false,
       monthlyfeeId: null,
       counterElementId: null,
       feeData: {
+        student_name:'',
         plan: '',
         base_amount: 0,
         final_amount: 0,
+        reference_month:'',
         discount_percent: 0,
         discount_value: 0,
         payment_methods: [],
         quantity_installments: '1x',
         current_payment_method: null,
       },
-      selectedMethod: null,
 
       async show(id, counterElementId) {
         this.open = true;
         this.monthlyfeeId = id;
         this.counterElementId = counterElementId;
+        
 
         const res = await fetch(`students/api/monthlyfee/${id}/`);
         if (!res.ok) {
           console.error('Erro ao carregar dados do pagamento');
           return;
         }
-
+        
         const data = await res.json();
-
+        this.feeData.student_name = data.student_name
         this.feeData.plan = data.plan ?? '';
         this.feeData.base_amount = this.parseNumber(data.base_amount);
+        this.feeData.reference_month = data.reference_month
         this.feeData.discount_percent = this.parseNumber(data.discount_percent);
         this.feeData.discount_value = this.parseNumber(data.discount_value);
         this.feeData.final_amount = this.parseNumber(data.final_amount || data.base_amount);
-        this.feeData.payment_methods = Array.isArray(data.payment_methods) ? data.payment_methods : [];
         this.feeData.quantity_installments = data.quantity_installments ? `${data.quantity_installments}x` : '1x';
-        this.feeData.current_payment_method = data.current_payment_method;
 
         this.selectedMethod = this.resolveSelectedMethod(data.current_payment_method);
         if (!this.selectedMethod && this.feeData.payment_methods.length) {
@@ -48,7 +125,6 @@ function mainPage() {
       close() {
         this.open = false;
         this.monthlyfeeId = null;
-        this.selectedMethod = null;
         this.counterElementId = null;
         this.feeData = {
           plan: '',
@@ -56,9 +132,7 @@ function mainPage() {
           final_amount: 0,
           discount_percent: 0,
           discount_value: 0,
-          payment_methods: [],
           quantity_installments: '1x',
-          current_payment_method: null,
         };
       },
 
@@ -96,20 +170,6 @@ function mainPage() {
         return Number((Math.round((value + Number.EPSILON) * 100) / 100).toFixed(2));
       },
 
-      resolveSelectedMethod(currentName) {
-        if (!currentName) {
-          return null;
-        }
-        const method = this.feeData.payment_methods.find(
-          (item) => item.name.toLowerCase() === String(currentName).toLowerCase(),
-        );
-        return method ? method.id : null;
-      },
-
-      selectPaymentMethod(methodId) {
-        this.selectedMethod = methodId;
-      },
-
       normalizedInstallments() {
         const raw = this.feeData.quantity_installments;
         if (!raw) return null;
@@ -128,14 +188,7 @@ function mainPage() {
         const updateUrl = container.dataset.updateUrl;
         const csrf = container.dataset.csrf;
 
-        if (!this.selectedMethod) {
-          alert('Selecione um método de pagamento.');
-          return;
-        }
-
         const payload = {
-          monthlyfee_id: this.monthlyfeeId,
-          payment_method: this.selectedMethod,
           discount_percent: this.formatDecimal(this.feeData.discount_percent),
           discount_value: this.formatDecimal(this.feeData.discount_value),
           final_amount: this.formatDecimal(this.feeData.final_amount),
