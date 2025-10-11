@@ -4,6 +4,7 @@ function mainPage() {
     'dropdown': false,
     'alert': false,
     'registerModal': false,
+    'paymentModal':false,
      payments: [],
      validate:false,
      plan_price: '',
@@ -13,12 +14,62 @@ function mainPage() {
      discount_value:Number(),
      percent_discount:Number(),
      tot:0,
+     monthlyfeeId: null,
+     counterElementId: null,
+     url_update:'',
+      feeData: {
+        student_name:'',
+        plan: '',
+        base_amount: 0,
+        final_amount: 0,
+        reference_month:'',
+        discount_percent: 0,
+        discount_value: 0,
+      },
+
+    async show(id, counterElementId, url_update) {
+        this.paymentModal = true;
+        this.monthlyfeeId = id;
+        this.counterElementId = counterElementId;
+        this.url_update = url_update        
+        const res = await fetch(`students/api/monthlyfee/${id}/`);
+        if (!res.ok) {
+          console.error('Erro ao carregar dados do pagamento');
+          return;
+        }
+        
+        const data = await res.json();
+        this.feeData.student_name = data.student_name
+        this.feeData.plan = data.plan ?? '';
+        this.feeData.base_amount = this.parseNumber(data.base_amount);
+        this.feeData.reference_month = data.reference_month
+        this.feeData.discount_percent = this.parseNumber(data.discount_percent);
+        this.feeData.discount_value = this.parseNumber(data.discount_value);
+        this.feeData.final_amount = this.parseNumber(data.final_amount || data.base_amount);
+        this.updateFromPercent();
+      },
+
+       close() {
+        this.paymentModal = false;
+        this.monthlyfeeId = null;
+        this.counterElementId = null;
+        this.registerModal = false
+        this.feeData = {
+          plan: '',
+          base_amount: 0,
+          final_amount: 0,
+          discount_percent: 0,
+          discount_value: 0,
+          quantity_installments: '1x',
+        };
+        this.payments = []
+      },
      
     addPayment(id, method){
       this.payments.push({
         id:id,
-        method: method,
-        installments: '1',
+        payment_method: method,
+        quantity_installments: 1 
       }),
       this.$nextTick(() => {
         lucide.createIcons();
@@ -38,25 +89,25 @@ function mainPage() {
         var message = document.getElementById('validate_message')
         let total = 0
         this.payments.forEach(p => {
-          total += Number(p.receive_value)
+          total += Number(p.value)
         });
         this.tot = total
         if (this.tot != 0){
-          diference = Number(this.paymentModal.feeData.final_amount) - Number(this.tot)
+          diference = Number(this.feeData.final_amount) - Number(this.tot)
           var button = document.getElementById('button-confirm')
-            message.innerHTML = this.tot < this.paymentModal.feeData.final_amount ? `<p>Valor parcial recebido.</p> <p>Restam ${diference.toLocaleString('pt-BR', {style: 'currency', currency:'BRL'})} a serem pagos.</p>` : ''
-            this.alert = this.tot < this.paymentModal.feeData.final_amount ? true : false
-            this.validate = this.tot < this.paymentModal.feeData.final_amount ? false : true
+            message.innerHTML = this.tot < this.feeData.final_amount ? `<p>Valor parcial recebido.</p> <p>Restam ${diference.toLocaleString('pt-BR', {style: 'currency', currency:'BRL'})} a serem pagos.</p>` : ''
+            this.alert = this.tot < this.feeData.final_amount ? true : false
+            this.validate = this.tot < this.feeData.final_amount ? false : true
 
           }
         else {
           this.alert = false
+          this.validate = false
         }
-        
       },
 
     recalcTotal() {
-      let total = this.paymentModal.feeData.base_amount|| 0;
+      let total = this.feeData.base_amount|| 0;
       if (this.formData.apply_discount) {
         if (this.formData.percent_discount) {
           total -= total * (this.formData.percent_discount / 100);
@@ -71,70 +122,8 @@ function mainPage() {
           total += Number(this.formData.value_fine);
         }
       }
-      this.paymentModal.feeData.final_amount = total.toFixed(2);
+      this.feeData.final_amount = total.toFixed(2);
     },
-
-
-
-    paymentModal: {
-      open: false,
-      monthlyfeeId: null,
-      counterElementId: null,
-      feeData: {
-        student_name:'',
-        plan: '',
-        base_amount: 0,
-        final_amount: 0,
-        reference_month:'',
-        discount_percent: 0,
-        discount_value: 0,
-        payment_methods: [],
-        quantity_installments: '1x',
-        current_payment_method: null,
-      },
-
-      async show(id, counterElementId) {
-        this.open = true;
-        this.monthlyfeeId = id;
-        this.counterElementId = counterElementId;
-        
-
-        const res = await fetch(`students/api/monthlyfee/${id}/`);
-        if (!res.ok) {
-          console.error('Erro ao carregar dados do pagamento');
-          return;
-        }
-        
-        const data = await res.json();
-        this.feeData.student_name = data.student_name
-        this.feeData.plan = data.plan ?? '';
-        this.feeData.base_amount = this.parseNumber(data.base_amount);
-        this.feeData.reference_month = data.reference_month
-        this.feeData.discount_percent = this.parseNumber(data.discount_percent);
-        this.feeData.discount_value = this.parseNumber(data.discount_value);
-        this.feeData.final_amount = this.parseNumber(data.final_amount || data.base_amount);
-        this.feeData.quantity_installments = data.quantity_installments ? `${data.quantity_installments}x` : '1x';
-
-        this.selectedMethod = this.resolveSelectedMethod(data.current_payment_method);
-        if (!this.selectedMethod && this.feeData.payment_methods.length) {
-          this.selectedMethod = this.feeData.payment_methods[0].id;
-        }
-        this.updateFromPercent();
-      },
-
-      close() {
-        this.open = false;
-        this.monthlyfeeId = null;
-        this.counterElementId = null;
-        this.feeData = {
-          plan: '',
-          base_amount: 0,
-          final_amount: 0,
-          discount_percent: 0,
-          discount_value: 0,
-          quantity_installments: '1x',
-        };
-      },
 
       updateFromPercent() {
         const base = this.parseNumber(this.feeData.base_amount);
@@ -183,54 +172,87 @@ function mainPage() {
         return this.round(this.parseNumber(value)).toFixed(2);
       },
 
-      submitForm() {
-        const container = document.getElementById("mainContainer");
-        const updateUrl = container.dataset.updateUrl;
-        const csrf = container.dataset.csrf;
+   submitForm() {
+  const container = document.getElementById("mainContainer");
+  const csrf = container.dataset.csrf;
 
-        const payload = {
-          discount_percent: this.formatDecimal(this.feeData.discount_percent),
-          discount_value: this.formatDecimal(this.feeData.discount_value),
-          final_amount: this.formatDecimal(this.feeData.final_amount),
-        };
+  const payload = {
+    discount_percent: this.formatDecimal(this.feeData.discount_percent),
+    discount_value: this.formatDecimal(this.feeData.discount_value),
+    amount: this.formatDecimal(this.feeData.final_amount),
+    payments: this.payments,
+  };
 
-        const installments = this.normalizedInstallments();
-        if (installments) {
-          payload.quantity_installments = installments;
+  console.log("📤 Enviando payload:", payload);
+
+  fetch(this.url_update, {
+    method: "PUT",
+    headers: {
+      "X-CSRFToken": csrf,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then(async (res) => {
+      const data = await res.json().catch(() => ({})); // tenta converter em JSON, mesmo em erro
+
+      if (!res.ok) {
+        console.error("❌ Erro HTTP:", res.status, data);
+        let message = "Não foi possível processar o pagamento.";
+
+        // 🔹 tenta mostrar mensagens detalhadas
+        if (data.errors) {
+          message = Object.values(data.errors).flat().join("\n");
+        } else if (data.detail) {
+          message = data.detail;
+        } else if (typeof data === "string") {
+          message = data;
+        } else if (data.message) {
+          message = data.message;
         }
 
-        fetch(updateUrl, {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": csrf,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            if (this.counterElementId) {
-              const counter = document.getElementById(this.counterElementId);
-              if (counter) {
-                const currentValue = Number.parseInt(counter.textContent, 10) || 0;
-                counter.textContent = Math.max(0, currentValue - 1);
-              }
-            }
-            document.querySelector(`#fee-row-${this.monthlyfeeId}`).remove();
-            this.close();
-          } else if (data.errors) {
-            const errorMessages = Object.values(data.errors).flat().join('\n');
-            alert(errorMessages || 'Não foi possível processar o pagamento.');
-          } else {
-            alert(data.message || 'Não foi possível processar o pagamento.');
-          }
-        })
-        .catch(() => {
-          alert('Erro inesperado ao enviar os dados do pagamento.');
-        });
+        alert(message);
+        throw new Error(`HTTP ${res.status}: ${message}`);
       }
-    },
+
+      return data;
+    })
+    .then((data) => {
+      console.log("✅ Resposta OK:", data);
+
+      // 🔹 Verifica flag de sucesso
+      if (data.success || data.id || data.amount) {
+        // Atualiza contador se existir
+        if (this.counterElementId) {
+          const counter = document.getElementById(this.counterElementId);
+          if (counter) {
+            const currentValue = Number.parseInt(counter.textContent, 10) || 0;
+            counter.textContent = Math.max(0, currentValue - 1);
+          }
+        }
+
+        // Remove linha da mensalidade e fecha modal
+        const row = document.querySelector(`#fee-row-${this.monthlyfeeId}`);
+        if (row) row.remove();
+
+        this.close();
+      } else {
+        // Se veio resposta sem success, tenta extrair mensagem
+        const msg =
+          data.message ||
+          "O servidor respondeu, mas sem confirmação de sucesso.";
+        alert(msg);
+      }
+    })
+    .catch((err) => {
+      console.error("💥 Erro inesperado:", err);
+      alert(
+        err.message || "Erro inesperado ao enviar os dados do pagamento."
+      );
+    });
+},
+
+    
     deactivateModal: {
       open: false,
       feeId: null,

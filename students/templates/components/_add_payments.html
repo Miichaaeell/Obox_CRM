@@ -14,25 +14,27 @@
             {% endfor %}
           </ul>
         </div> <!-- Fim Adicionar pagamento-->
-        <template x-for="(p, id, date) in payments" :key="id"> <!--Div de pagamento-->
+        <template x-for="(p, id,) in payments" :key="id"> <!--Div de pagamento-->
            <div class="flex justify-between gap-4 items-center mt-5 w-[80%]"> 
           <div class="">
-            <span class="border rounded-lg p-2 bg-green-500  px-4 block w-40 text-center" x-text="p.method"></span>
+            <span class="border rounded-lg p-2 bg-green-500  px-4 block w-40 text-center" x-text="p.payment_method"></span>
           </div>
           <div class="flex flex-col">
             <label for="">Valor a receber</label>
-            <input @input="validate_value()" type="number" class="border-b" name="receive_value" id="receive_value" step="any" x-model.receive_value="p.receive_value">
+            <input @input="validate_value()" type="number" class="border-b" name="receive_value" id="receive_value" step="any" x-model="p.value">
           </div>
           <div class="flex flex-col">
             <label for="date_payment">Dia do pagamento</label>
-            <input type="date" name="date_payment" id="date_payment" :value="date" x-text="date">
+            <input type="date" name="date_payment" id="date_payment" value="{{today|date:'Y-m-d'}}">
           </div>
           <div class="flex flex-col">
             <label for="">N de parcelas</label>
-            <select name="" id="" x-model="p.installments">
-              {% for quantity in quantity_installments %}
-                <option value="{{quantity.id}}">{{quantity}}</option>
-              {% endfor %}
+            <select name="" id="" x-model.number="p.quantity_installments">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
             </select>
           </div>
           <div>

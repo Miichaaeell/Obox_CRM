@@ -1,21 +1,21 @@
- <div x-show="paymentModal.open" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+ <div x-show="paymentModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-2xl shadow-xl w-[50%] p-6 relative">
-      <button @click="paymentModal.close()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">✕</button>
+      <button @click="close()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">✕</button>
       <h2 class="text-xl font-semibold mb-4">Dados do pagamento</h2>
 
-      <form @submit.prevent="paymentModal.submitForm()" class="space-y-6 gap-8">
-        <input type="hidden" x-model="paymentModal.monthlyfeeId">
+      <form @submit.prevent="submitForm()" class="space-y-6 gap-8">
+        <input type="hidden" x-model="monthlyfeeId">
 
         <div class="grid grid-cols-3 gap-4 text-sm">
           <!-- Plano -->
           <div>
             <label class="block font-medium">Plano:</label>
-             <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="paymentModal.feeData.plan" readonly>
+             <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="feeData.plan" readonly>
           </div>
             <!-- Valor -->
           <div>
             <label class="block font-medium">Valor:</label>
-            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="paymentModal.feeData.base_amount.toLocaleString('pt-BR', {style: 'currency', 'currency': 'BRL'})" readonly>
+            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="feeData.base_amount.toLocaleString('pt-BR', {style: 'currency', 'currency': 'BRL'})" readonly>
           </div>
           <div>
           <label class="block text-gray-700">Dia do pagamento</label>
@@ -29,7 +29,7 @@
         <div class="grid grid-cols-3 gap-4 text-sm ">
           <div x-show="formData.apply_discount">
             <label class="block font-medium">Valor após desconto:</label>
-            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " readonly :value="paymentModal.formatDecimal(paymentModal.feeData.final_amount)">
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " readonly :value="formatDecimal(feeData.final_amount)">
           </div>
         </div>
 <!-- Metodos de pagamento -->
@@ -38,9 +38,9 @@
           <button type="button"
           @click="registerModal = true"
             id="button-confirm"
-            class="px-3 py-1 bg-gray-300 text-white rounded-lg hover:bg-green-700 text-sm"
+            class="px-3 py-1 bg-gray-300 text-white rounded-lg  text-sm"
             :class="{
-            'bg-green-500': validate == true
+            'bg-green-500 hover:bg-green-700': validate == true
             }"
             :disabled="!validate"
             >

@@ -1,8 +1,8 @@
 from decimal import Decimal, ROUND_HALF_UP
+from datetime import datetime
 
-from django.utils import timezone
+from django.db import transaction
 from rest_framework import serializers
-from enterprise.models import PaymentMethod
 from students.models import Student, StatusStudent, MonthlyFee, Payment
 
 
@@ -45,20 +45,37 @@ class MonthlyFeePaymentDetailSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = '__all__'
+        fields = ['payment_method', 'value', 'quantity_installments']
+        read_only_fields = ["monthlyfee", 'id']
 
 
 class MonthlyFeePaymentUpdateSerializer(serializers.ModelSerializer):
-    final_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    payments = PaymentSerializer(many=True, write_only=True, required=True)
 
     class Meta:
         model = MonthlyFee
         fields = (
             'discount_percent',
             'discount_value',
-            'final_amount',
-            'quantity_installments',
+            'amount',
+            'payments',
         )
+
+    def update(self, instance, validated_data):
+        payments = validated_data.pop('payments', [])
+
+        with transaction.atomic():
+            instance = super().update(instance, validated_data)
+            instance.paid = True
+            instance.date_paid = datetime.now().date()
+            instance.save()
+            instance.payments.all().delete()
+            for payment in payments:
+                Payment.objects.create(
+                    montlhyfee=instance,
+                    **payment
+                )
+        return instance
 
 
 class StudentInactivationSerializer(serializers.Serializer):

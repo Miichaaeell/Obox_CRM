@@ -6,7 +6,6 @@
 {% block content %}
 <div x-data="mainPage()"
     id="mainContainer"
-    data-update-url="{% url 'monthlyfee_update_api' %}"
     data-inactivate-url="{{ student_inactivate_url }}"
     data-csrf="{{ csrf_token }}"
     class="space-y-6">
@@ -65,7 +64,7 @@
                 <td class="px-4 py-2">
                   <!-- Botão Receber -->
                   <button 
-                    @click="paymentModal.show({{ fee.id }}, 'total_due')"
+                    @click="show({{ fee.id }}, 'total_due', '{% url 'monthlyfee_update_api' fee.id %}')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>
@@ -132,7 +131,7 @@
             <td class="px-4 py-2">
                 <!-- Botão Receber -->
                   <button 
-                    @click="paymentModal.show({{ fee.id }}, 'total_overdue')"
+                    @click="show({{ fee.id }}, 'total_overdue', '{% url 'monthlyfee_update_api' fee.id %}')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>

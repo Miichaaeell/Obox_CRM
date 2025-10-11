@@ -54,12 +54,12 @@
       <!-- Discriminação -->
       <div class="bg-white rounded-xl shadow  overflow-hidden">
         <h3 class="bg-gray-400 p-2 font-bold text-lg mb-3">Discriminação</h3>
-        <div class="flex p-2 justify-between"><span>Saldo anterior</span><span>R$ 00,00</span></div>
+        <div class="flex p-2 justify-between"><span>Saldo anterior</span><span>RS {{ last_cashier|floatformat:2 }}</span></div>
         <div class="flex px-2 justify-between"><span>(+) Entrada</span><span>R$  {{ tot|floatformat:2 }}</span></div>
         <div class="flex p-2 justify-between"><span>(-) Saída</span><span>R$ {{ pay|floatformat:2 }}</span></div>
         <hr class="my-2 border-gray-600/50">
         <div class="flex p-2 justify-between font-bold text-lg">
-          <span>Saldo final</span><span>R$ 00,00</span>
+          <span>Saldo final</span><span>R$ {{balance}}</span>
         </div>
       </div>
     </div>

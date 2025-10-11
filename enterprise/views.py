@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from enterprise.forms import PaymentMethodForm, PlanForm
-from enterprise.models import Bill, PaymentMethod, Plan, StatusBill, Cashier
+from enterprise.models import Bill, PaymentMethod, Plan, StatusBill, Cashier, Installments
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
@@ -33,6 +33,7 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
         date_end = today - timedelta(days=1)
         monthly_fees_overdue = MonthlyFee.objects.filter(
             due_date__range=(date_start, date_end), paid=False)
+        installments = Installments.objects.all()
         bill_events = (
             Bill.objects.annotate(
                 event_date=F('due_date'))
@@ -63,6 +64,7 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
             'students_active_url': f"{reverse('list_student')}?filter=ativo",
             'student_inactivate_url': reverse('student_inactivate_api'),
             "url_detail": reverse("monthlyfee_detail_api", kwargs={'pk': 0}),
+            'installments': installments,
         }
         return render(request, 'home.html', context)
 
@@ -95,7 +97,7 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             bill_boleto=Sum('value', filter=Q(
                 payment_method__method__iexact='boleto')),
             bill_automatic=Sum('value', filter=Q(
-                payment_method__method__iexact='automatico')),
+                payment_method__method__iexact='deb. automatico')),
             bill_others=Sum('value', filter=Q(payment_method__method__iexact='credito') | Q(
                 payment_method__method__iexact='debito')),
             bill_retirada=Sum('value', filter=Q(
@@ -104,7 +106,11 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
         try:
             last_cashier = Cashier.objects.order_by('-created_at').first()
         except:
-            last_cashier = None
+            ...
+        if last_cashier:
+            balance = last_cashier.balance - pay['total_pay']
+        else:
+            balance = 0 + total['tot'] - pay['total_pay']
         context = {
             'pix': total['pix'] if total['pix'] else 0,
             'credito': total['credito'] if total['credito'] else 0,
@@ -121,7 +127,8 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             'payments': payments,
             'date_start': start,
             'today': datetime.now().strftime('%d/%m/%y'),
-            'last_cashier': last_cashier,
+            'last_cashier': last_cashier if last_cashier else 0,
+            'balance': balance if balance else 0
         }
         return render(request, 'cashier.html', context)
 

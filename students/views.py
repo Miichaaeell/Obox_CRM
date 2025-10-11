@@ -261,41 +261,10 @@ class MonthlyFeePaymentDetailAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class MonthlyFeePaymentUpdateAPIView(APIView):
+class MonthlyFeePaymentUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        monthlyfee_id = request.data.get('monthlyfee_id')
-        if not monthlyfee_id:
-            return Response(
-                {
-                    'success': False,
-                    'message': 'Informe a mensalidade a ser atualizada.',
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        fee = get_object_or_404(MonthlyFee, pk=monthlyfee_id)
-        serializer = MonthlyFeePaymentUpdateSerializer(fee, data=request.data)
-
-        if serializer.is_valid():
-            updated_fee = serializer.save()
-            detail = MonthlyFeePaymentDetailSerializer(updated_fee)
-            return Response(
-                {
-                    'success': True,
-                    'message': 'Pagamento registrado com sucesso.',
-                    'payment': detail.data,
-                }
-            )
-
-        return Response(
-            {
-                'success': False,
-                'errors': serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    queryset = MonthlyFee.objects.all()
+    serializer_class = MonthlyFeePaymentUpdateSerializer
 
 
 class StudentInactivationAPIView(APIView):
