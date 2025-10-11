@@ -16,7 +16,7 @@ function mainPage() {
      tot:0,
      monthlyfeeId: null,
      counterElementId: null,
-     url_update:'',
+     url_api:'',
       feeData: {
         student_name:'',
         plan: '',
@@ -27,12 +27,12 @@ function mainPage() {
         discount_value: 0,
       },
 
-    async show(id, counterElementId, url_update) {
+    async show(id, counterElementId, url_api) {
         this.paymentModal = true;
         this.monthlyfeeId = id;
         this.counterElementId = counterElementId;
-        this.url_update = url_update        
-        const res = await fetch(`students/api/monthlyfee/${id}/`);
+        this.url_api = url_api        
+        const res = await fetch(this.url_api);
         if (!res.ok) {
           console.error('Erro ao carregar dados do pagamento');
           return;
@@ -41,7 +41,7 @@ function mainPage() {
         const data = await res.json();
         this.feeData.student_name = data.student_name
         this.feeData.plan = data.plan ?? '';
-        this.feeData.base_amount = this.parseNumber(data.base_amount);
+        this.feeData.base_amount = this.parseNumber(data.amount);
         this.feeData.reference_month = data.reference_month
         this.feeData.discount_percent = this.parseNumber(data.discount_percent);
         this.feeData.discount_value = this.parseNumber(data.discount_value);
@@ -183,9 +183,7 @@ function mainPage() {
     payments: this.payments,
   };
 
-  console.log("📤 Enviando payload:", payload);
-
-  fetch(this.url_update, {
+  fetch(this.url_api, {
     method: "PUT",
     headers: {
       "X-CSRFToken": csrf,
@@ -218,8 +216,6 @@ function mainPage() {
       return data;
     })
     .then((data) => {
-      console.log("✅ Resposta OK:", data);
-
       // 🔹 Verifica flag de sucesso
       if (data.success || data.id || data.amount) {
         // Atualiza contador se existir
@@ -261,8 +257,10 @@ function mainPage() {
       rowSelector: null,
       reason: '',
       error: null,
+      url: '',
+      statusId:'',
 
-      show({ feeId, studentId, counterId }) {
+      async show({feeId, studentId, counterId, url }) {
         this.open = true;
         this.error = null;
         this.reason = '';
@@ -270,6 +268,15 @@ function mainPage() {
         this.studentId = studentId;
         this.counterElementId = counterId;
         this.rowSelector = `#fee-row-${feeId}`;
+        this.url = url
+        const res = await fetch('students/status/api/v1/')
+        if (!res.ok) {
+          console.error('Erro ao carregar dados do pagamento');
+          return;
+        }
+        const data = await res.json();
+        inactive = data.find(status => status.status == 'Inativo')
+        this.statusId = inactive.id
       },
 
       close() {
@@ -279,56 +286,51 @@ function mainPage() {
         this.counterElementId = null;
         this.rowSelector = null;
         this.reason = '';
-        this.error = null;
-      },
-
-      extractError(errors) {
-        if (!errors) {
-          return null;
-        }
-        if (Array.isArray(errors)) {
-          return errors.join(' ');
-        }
-        const first = Object.values(errors)[0];
-        if (Array.isArray(first)) {
-          return first.join(' ');
-        }
-        if (typeof first === 'string') {
-          return first;
-        }
-        return null;
       },
 
       submit() {
-        const reasonText = (this.reason || '').trim();
-        if (!reasonText) {
-          this.reason = '';
-          this.error = 'Informe o motivo da inativação.';
-          return;
-        }
-
-        this.reason = reasonText;
-
         const container = document.getElementById('mainContainer');
-        const url = container.dataset.inactivateUrl;
         const csrf = container.dataset.csrf;
-
-        this.error = null;
-
-        fetch(url, {
-          method: 'POST',
+        const payload = {
+          observation:this.reason,
+          status:this.statusId,
+          feeid:this.feeId
+        }
+        console.log(payload)
+        fetch(this.url, {
+          method: 'PATCH',
           headers: {
             'X-CSRFToken': csrf,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            student_id: this.studentId,
-            reason: reasonText,
-          }),
+          body: JSON.stringify(payload),
         })
-          .then((res) => res.json())
+          .then(async (res) => {
+            const data = await res.json().catch(() => ({})); // tenta converter em JSON, mesmo em erro
+
+            if (!res.ok) {
+              console.error("❌ Erro HTTP:", res.status, data);
+              let message = "Não foi possível processar o pagamento.";
+
+              // 🔹 tenta mostrar mensagens detalhadas
+              if (data.errors) {
+                message = Object.values(data.errors).flat().join("\n");
+              } else if (data.detail) {
+                message = data.detail;
+              } else if (typeof data === "string") {
+                message = data;
+              } else if (data.message) {
+                message = data.message;
+              }
+
+              alert(message);
+              throw new Error(`HTTP ${res.status}: ${message}`);
+            }
+
+            return data;
+          })
           .then((data) => {
-            if (data.success) {
+            if (data.success || data.id || data.status) {
               if (this.counterElementId) {
                 const counter = document.getElementById(this.counterElementId);
                 if (counter) {
@@ -348,11 +350,11 @@ function mainPage() {
               this.close();
               alert(message);
             } else {
-              this.error = this.extractError(data.errors) || data.message || 'Não foi possível inativar o aluno.';
+              console.log(data)
             }
           })
-          .catch(() => {
-            this.error = 'Erro inesperado ao enviar os dados.';
+          .catch((err) => {
+            console.log(err)
           });
       },
     }

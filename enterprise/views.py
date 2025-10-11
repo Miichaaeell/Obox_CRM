@@ -62,8 +62,6 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
             'calendar_events': mark_safe(json.dumps(calendar_events)),
             'accounts_url': reverse('list_bill'),
             'students_active_url': f"{reverse('list_student')}?filter=ativo",
-            'student_inactivate_url': reverse('student_inactivate_api'),
-            "url_detail": reverse("monthlyfee_detail_api", kwargs={'pk': 0}),
             'installments': installments,
         }
         return render(request, 'home.html', context)

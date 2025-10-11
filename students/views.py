@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import HttpResponse, redirect, render, get_object_or_404
+from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import (
@@ -28,10 +28,9 @@ from enterprise.models import Installments, PaymentMethod, Plan
 from students.forms import StatusStudentForm, StudentForm
 from students.serializers import StudentSerializer
 from students.serializers import (
-    MonthlyFeePaymentDetailSerializer,
-    MonthlyFeePaymentUpdateSerializer,
-    StudentInactivationSerializer,
-    PaymentSerializer
+    MonthlyFeeSerializer,
+    PaymentSerializer,
+    StatusStudentSerializer,
 )
 from students.models import Frequency, History, MonthlyFee, StatusStudent, Student, Payment
 
@@ -206,36 +205,6 @@ class StatusStudentUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class MonthlyFeeUpdateView(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        monthly_fee_id = kwargs.get('pk')
-        monthly_fee = MonthlyFee.objects.get(id=monthly_fee_id)
-        return HttpResponse(f"Marcar mensalidade {monthly_fee} como paga")
-
-    def post(self, request, *args, **kwargs):
-        monthly_fee_id = request.POST.get("monthlyfee_id")
-        payment_method = request.POST.get('method')
-        monthly_fee = MonthlyFee.objects.get(id=monthly_fee_id)
-        monthly_fee.paid = True
-        monthly_fee.payment_method = payment_method
-        monthly_fee.save()
-        return redirect('detail_student', pk=monthly_fee.student.pk)
-
-
-class MonthlyFeeDeleteView(LoginRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        monthly_fee_id = request.POST.get("monthlyfee_id")
-        monthly_fee = MonthlyFee.objects.get(id=monthly_fee_id)
-        student_id = monthly_fee.student
-        History.objects.create(
-            student=student_id,
-            status=student_id.status,
-            description=f'Mensalidade de {monthly_fee.reference_month} no valor de R$ {monthly_fee.amount} cancelada.'
-        )
-        monthly_fee.delete()
-        return redirect('detail_student', pk=student_id.id)
-
-
 class UploadFileView(View):
     def post(self, request):
         file = request.FILES['file']
@@ -252,47 +221,10 @@ class UploadFileView(View):
 
 # Views de API
 
-class MonthlyFeePaymentDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        fee = get_object_or_404(MonthlyFee, pk=pk)
-        serializer = MonthlyFeePaymentDetailSerializer(fee)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class MonthlyFeePaymentUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
+class MonthlyFeeRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = MonthlyFee.objects.all()
-    serializer_class = MonthlyFeePaymentUpdateSerializer
-
-
-class StudentInactivationAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        serializer = StudentInactivationSerializer(data=request.data)
-
-        if serializer.is_valid():
-            student = serializer.save()
-            message = f'Aluno {student.name} inativado com sucesso.'
-            return Response(
-                {
-                    'success': True,
-                    'message': message,
-                    'deleted_count': serializer.context.get('deleted_count', 0),
-                },
-                status=status.HTTP_200_OK,
-            )
-
-        return Response(
-            {
-                'success': False,
-                'message': 'Não foi possível inativar o aluno.',
-                'errors': serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    serializer_class = MonthlyFeeSerializer
 
 
 class StudentRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -301,5 +233,10 @@ class StudentRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class PaymentListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Payment
+    queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+
+
+class StatusStudentListCreateAPIView(generics.ListCreateAPIView):
+    queryset = StatusStudent.objects.all()
+    serializer_class = StatusStudentSerializer

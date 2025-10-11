@@ -6,7 +6,6 @@
 {% block content %}
 <div x-data="mainPage()"
     id="mainContainer"
-    data-inactivate-url="{{ student_inactivate_url }}"
     data-csrf="{{ csrf_token }}"
     class="space-y-6">
 
@@ -64,13 +63,13 @@
                 <td class="px-4 py-2">
                   <!-- Botão Receber -->
                   <button 
-                    @click="show({{ fee.id }}, 'total_due', '{% url 'monthlyfee_update_api' fee.id %}')"
+                    @click="show({{ fee.id }}, 'total_due', '{% url 'monthlyfee_api' fee.id %}')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>
                   <!-- Botão Inativar -->
                   <button 
-                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_due' })" 
+                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_due', url:'{% url 'student_api' fee.student.id %}' })" 
                     class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
                     Inativar
                   </button>
@@ -131,13 +130,13 @@
             <td class="px-4 py-2">
                 <!-- Botão Receber -->
                   <button 
-                    @click="show({{ fee.id }}, 'total_overdue', '{% url 'monthlyfee_update_api' fee.id %}')"
+                    @click="show({{ fee.id }}, 'total_overdue', '{% url 'monthlyfee_api' fee.id %}')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>
                   <!-- Botão Inativar -->
                   <button 
-                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_overdue' })" 
+                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_overdue', url:'{% url 'student_api' fee.student.id %}' })" 
                     class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
                     Inativar
                   </button>
@@ -202,39 +201,7 @@
   {% include 'components/_register_payment.html' %}
 
   <!-- Modal de Inativação -->
-  <div x-show="deactivateModal.open" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-xl w-[520px] p-6 relative">
-      <button @click="deactivateModal.close()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">✕</button>
-      <h2 class="text-xl font-semibold mb-4">Confirmar inativação</h2>
-
-      <form @submit.prevent="deactivateModal.submit()" class="space-y-5">
-        <p class="text-sm text-gray-700">Tem certeza de que deseja inativar este aluno? Informe o motivo para registrar no histórico.</p>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1" for="deactivation-reason">Motivo</label>
-          <textarea id="deactivation-reason" rows="3" required
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-            x-model="deactivateModal.reason" placeholder="Descreva o motivo da inativação"></textarea>
-        </div>
-
-        <template x-if="deactivateModal.error">
-          <p class="text-sm text-red-600" x-text="deactivateModal.error"></p>
-        </template>
-
-        <div class="flex justify-end gap-3">
-          <button type="button" @click="deactivateModal.close()"
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
-            Cancelar
-          </button>
-          <button type="submit"
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700">
-            Confirmar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
+  {% include 'components/_inactive_modal.html' %}
 </div>
 
 <script src="{% static 'js/home.js' %}"></script>

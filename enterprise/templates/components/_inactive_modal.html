@@ -1,0 +1,36 @@
+  <div x-show="deactivateModal.open" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-[520px] p-6 relative">
+      <button @click="deactivateModal.close()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">✕</button>
+      <h2 class="text-xl font-semibold mb-4">Confirmar inativação</h2>
+
+      <form @submit.prevent="deactivateModal.submit()" class="space-y-5">
+        <p class="text-sm text-gray-700">Tem certeza de que deseja inativar este aluno? Informe o motivo para registrar no histórico.</p>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="deactivation-reason">Motivo</label>
+          <textarea id="deactivation-reason" rows="3" required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+            x-model="deactivateModal.reason" placeholder="Descreva o motivo da inativação"></textarea>
+        </div>
+
+        <template x-if="deactivateModal.error">
+          <p class="text-sm text-red-600" x-text="deactivateModal.error"></p>
+        </template>
+
+        <div class="flex justify-end gap-3">
+          <button type="button" @click="deactivateModal.close()"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="px-4 py-2 rounded-lg text-sm bg-gray-300 font-medium text-white"
+            :disabled="!deactivateModal.reason"
+            :class="{
+            'bg-red-600 hover:bg-red-700': deactivateModal.reason != ''
+            }">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
