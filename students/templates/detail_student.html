@@ -48,7 +48,7 @@
       </button>
     </div>
     {% if obj.status.status|lower == 'inativo' %}
-      <button class="absolute bottom-4 right-5 bg-green-500 rounded-lg px-5 text-white text-sm">Ativar</button>
+      <button @click="openActive($el.dataset)" class="absolute bottom-4 right-5 bg-green-500 rounded-lg px-5 text-white text-sm">Ativar</button>
     {% endif %}
   </div>
 
@@ -168,6 +168,7 @@
 {% include 'components/_modal_delete.html' %}
 <!--MODAL UPDATE-->
 {% include 'components/_modal_update.html' %}
+{% include 'components/_active_user.html'%}
 </div>
 
 

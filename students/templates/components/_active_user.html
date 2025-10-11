@@ -1,0 +1,102 @@
+<div x-show="openActiveModal" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-30 z-50">
+<div  class="bg-white rounded-2xl shadow-xl w-full max-w-[900px] p-6 relative "
+id="containerMain"
+data-plans="{{ plans }}">
+        <h2 class="text-xl font-semibold mb-4">{{ title_card }}</h2>        
+      <form class="space-y-6 gap-8" method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+  <div class="bg-red-100 text-red-800 p-2 rounded">
+    {{ form.errors }}
+  </div>
+{% endif %}
+
+        <!--Nome completo-->
+        <div class="gap -4 text-sm"> 
+            <div>
+            <label class="block font-medium">Nome completo:</label>
+            {{form.name}}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">        
+            <!-- CPF -->
+        <div>
+            <label class="block font-medium">CPF:</label>
+             {{form.cpf_cnpj}}
+          </div>
+            <!--Data de nascimento -->
+            <div>
+            <label class="block font-medium">Data de Nascimento:</label>
+            {{form.date_of_birth}}
+          </div>
+            <!--Telefone-->
+         <div>
+            <label class="block font-medium">Telefone:</label>
+            {{form.phone_number}}
+          </div>
+        </div>
+
+        <div class="flex text-sm justify-between w-[86%] " >
+               <!--Data da matricula-->
+          <div>
+            <label class="block font-medium">Data da Matrícula:</label>
+             <input class="" value="{{today|date:'d/m/Y'}}" readonly>
+          </div>
+          <!-- Plano -->
+         <div>
+            <label class="block font-medium">Plano:</label>
+            {{form.plan}}
+          </div>
+            <!-- Valor -->
+          <div>
+            <label class="block font-medium">Valor:</label>
+            <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="value_plan" x-model="plan_price" readonly>
+          </div>
+          <div>
+            <label for="" class="block font-medium">Taxa de Matrícula</label>
+            R$:<input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="registration fee" value="5" readonly >
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">
+          <!-- Desconto -->
+          <div>
+            <label class="block font-medium">Desconto %:</label>
+            <input @input="recalctotal()" type="number" step="any" min="0"
+                   placeholder="Ex. 10"
+                   class="w-32 border-b border-gray-300 focus:border-green-500 outline-none bg-transparent"
+                   id="percent_discount"
+                   name="percent_discount"
+                   x-model="percent_discount">
+                   
+          </div>
+          <!-- Valor desconto -->
+          <div>
+          <label class="block font-medium">Valor desconto:</label>
+          <input @input="recalctotal()" type="number" name="discount_value" step="any" placeholder="Ex. 10"
+            class="w-32 border-b border-gray-400 focus:outline-none"
+            id="discount_value" x-model="discount_value">
+        </div>
+         <!-- Valor após desconto -->
+          <div>
+            <label class="block font-medium">Valor após desconto:</label>
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " id="value_after_discount" x-model="value_after_discount" name="value_receiver" readonly>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8 text-sm">
+      </div>
+        {% include 'components/_add_payments.html' %}
+        <div class="flex gap-6 justify-center">
+           <button type="button" @click="openActiveModal = false" class="px-3 w-32 cursor-pointer py-1 bg-gray-800 text-center text-white rounded-lg text-sm"> Cancelar</button>
+          <button type="submit"
+            class="px-3 w-32 py-1 text-white bg-gray-400 rounded-lg  text-sm" 
+            :class="{
+            'bg-green-500' : validate == true,
+            }"
+            :disabled="!validate">
+            Salvar e Receber
+          </button>
+        </div>
+      </form>
+    </div>
+</div>

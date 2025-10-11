@@ -2,6 +2,7 @@ function actions(){
     return{
         openModalDelete: false,
         openModalUpdate: false,
+        openActiveModal:false,
         studentData:{},
         url:'',
 
@@ -29,6 +30,18 @@ function actions(){
                 phone_number: student.phone_number,
             };
             this.openModalUpdate = true
+        },
+        
+        openActive(student){
+            this.url = student.urlUpdate
+            this.studentData={
+                id:student.id,
+                name: student.name,
+                cpf_cnpj: student.cpf_cnpj,
+                date_of_birth: student.date_of_birth,
+                phone_number: student.phone_number,
+            };
+            this.openActiveModal = true
         },
 
         async changeStudent(){
