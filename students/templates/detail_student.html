@@ -48,7 +48,18 @@
       </button>
     </div>
     {% if obj.status.status|lower == 'inativo' %}
-      <button @click="openActive($el.dataset)" class="absolute bottom-4 right-5 bg-green-500 rounded-lg px-5 text-white text-sm">Ativar</button>
+      <button x-data
+        data-id="{{ obj.id }}"
+        data-name="{{ obj.name|escape }}"
+        data-cpf_cnpj="{{ obj.cpf_cnpj|default_if_none:'' }}"
+        data-date_of_birth="{{ obj.date_of_birth|date:'Y-m-d' }}"
+        data-phone_number="{{ obj.phone_number|default_if_none:'' }}"
+        data-url-update="{% url 'student_api' obj.id %}"
+        data-plan-id="{{ obj.plan.id }}"
+        @click="openActive($el.dataset)"
+        class="absolute bottom-4 right-5 bg-green-500 rounded-lg px-5 text-white text-sm">
+        Ativar
+      </button>
     {% endif %}
   </div>
 

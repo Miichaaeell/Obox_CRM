@@ -156,6 +156,13 @@ class StudentDetailView(DetailView):
         context['frequency'] = Frequency.objects.filter(student=self.object)
         context['monthlyfees'] = MonthlyFee.objects.filter(student=self.object)
         context['payment_methods'] = PaymentMethod.objects.all()
+        context['form'] = StudentForm(instance=self.object)
+        context['plans'] = json.dumps(
+            list(Plan.objects.values('id', 'price')),
+            cls=DjangoJSONEncoder
+        )
+        context['today'] = timezone.now()
+        context['title_card'] = 'Ativar aluno'
         return context
 
 # Views for frequence studant

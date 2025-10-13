@@ -80,7 +80,13 @@
               <button @click="modalupdate({{obj.id}})" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800">
                 <i data-lucide="pencil" class="w-[15px] h-[15px]"></i>
               </button>
-              <button @click="modaldelete({{obj.id}})" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800"><i data-lucide="trash" class="w-[15px] h-[15px]"></i></button>
+              <button x-data
+                data-id="{{ obj.id }}"
+                data-description="{{ obj.description|escape }}"
+                @click="modaldelete($el.dataset)"
+                class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800">
+                <i data-lucide="trash" class="w-[15px] h-[15px]"></i>
+              </button>
             </div>
           </td>
         </tr>
@@ -103,6 +109,5 @@
 <script src="{% static 'js/list_bill.js' %}"></script>
 {% endblock %}
  
-
 
 

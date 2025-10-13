@@ -24,6 +24,10 @@ function formHandler() {
 
     init() {
       this.applyDiscountEnabled(true);
+      const planSelect = this.$el.querySelector('select[name="plan"]');
+      if (planSelect) {
+        this.completeValue({ target: planSelect });
+      }
       this.updateValidation();
     },
 

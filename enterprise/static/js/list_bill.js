@@ -89,7 +89,7 @@ function modalHandler() {
     },
 
     async modalupdate(id) {
-      const res = await fetch(`/bill/api/v1/${id}`);
+      const res = await fetch(`/bill/api/v1/${id}/`);
       const data = await res.json();
       this.formData = data;
       this.mode = 'update';
@@ -108,7 +108,7 @@ function modalHandler() {
     },
 
     async modalstatus(id) {
-      const res = await fetch(`/bill/api/v1/${id}`);
+      const res = await fetch(`/bill/api/v1/${id}/`);
       const data = await res.json();
       this.formData = data;
       this.mode = 'update';
@@ -126,7 +126,20 @@ function modalHandler() {
       this.syncTotals();
     },
 
-    async modaldelete(id) {
+    async modaldelete(target) {
+      const rawId = target && typeof target === 'object' ? target.id : target;
+      const id = Number(rawId);
+      if (!Number.isFinite(id)) {
+        console.error('Identificador de conta inválido:', rawId);
+        return;
+      }
+
+      this.mode = 'delete';
+      this.selectedID = id;
+      this.formData = {
+        description: target && typeof target === 'object' ? target.description : '',
+      };
+
       try {
         const res = await fetch(`/bill/api/v1/${id}/`);
         if (!res.ok) {
@@ -135,10 +148,9 @@ function modalHandler() {
         this.formData = await res.json();
       } catch (error) {
         console.error(error);
-        this.formData = { id };
+        this.formData.id = id;
       }
-      this.mode = 'delete';
-      this.selectedID = id;
+
       this.showDelete = true;
     },
 

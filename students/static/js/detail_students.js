@@ -33,15 +33,18 @@ function actions(){
         },
         
         openActive(student){
-            this.url = student.urlUpdate
-            this.studentData={
-                id:student.id,
-                name: student.name,
-                cpf_cnpj: student.cpf_cnpj,
-                date_of_birth: student.date_of_birth,
-                phone_number: student.phone_number,
-            };
+            this.url = student.urlUpdate || this.url;
             this.openActiveModal = true
+            if (student.planId) {
+                this.$nextTick(() => {
+                    const modalContainer = document.getElementById('containerMain');
+                    const planSelect = modalContainer ? modalContainer.querySelector('select[name="plan"]') : null;
+                    if (planSelect && planSelect.value !== student.planId) {
+                        planSelect.value = student.planId;
+                        planSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            }
         },
 
         async changeStudent(){
