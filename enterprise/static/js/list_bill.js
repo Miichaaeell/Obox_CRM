@@ -139,18 +139,17 @@ function modalHandler() {
       this.formData = {
         description: target && typeof target === 'object' ? target.description : '',
       };
-
+      
       try {
         const res = await fetch(`/bill/api/v1/${id}/`);
-        if (!res.ok) {
-          throw new Error(`Falha ao carregar conta ${id}: ${res.status}`);
-        }
-        this.formData = await res.json();
+        if (!res.ok) throw new Error(`Falha ao carregar conta ${id}: ${res.status}`);
+        const data = await res.json();
+        Object.assign(this.formData, data); // mantém reatividade
+        console.log('Abrindo modal delete:', this.formData);
       } catch (error) {
         console.error(error);
         this.formData.id = id;
-      }
-
+      };
       this.showDelete = true;
     },
 

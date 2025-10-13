@@ -3,7 +3,7 @@
 {% block title %}Perfil do Aluno{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-6xl mx-auto p-6 space-y-6" x-data="{ tab: 'frequencia', ...actions() } " >
+<div class="w-full max-w-6xl mx-auto p-6 space-y-6" x-data="{ tab: 'frequencia', ...actions(), ...mainPage() } " >
 
   <!-- Card informações do aluno -->
   <div class="bg-white rounded-2xl shadow p-6 relative">
@@ -188,4 +188,5 @@
 </script>
 <script src="{% static 'js/detail_students.js' %}"></script>
 <script src="{% static 'js/form_user.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
 {% endblock %}

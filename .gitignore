@@ -38,4 +38,5 @@ AGENTS.md
 celerybeat-schedule
 celerybeat-schedule-shm
 celerybeat-schedule-wal
+celerybeat_data
 data.json

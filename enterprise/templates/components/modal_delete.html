@@ -1,4 +1,4 @@
-<div x-show="showDelete" @click.outside="showDelete = false" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div x-show="showDelete" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100">
 <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 relative">
 <h2 class="text-lg font-semibold mb-4">Deseja realmente deleter a conta <span x-text="formData.description"></span>?</h2>
 <button @click="modalclose()" class="absolute top-3 right-3 text-gray-500 hover:text-black">✖</button>
