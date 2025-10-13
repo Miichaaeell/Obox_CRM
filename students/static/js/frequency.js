@@ -35,6 +35,7 @@
 
       init() {
         this.presentStudentIds = [...new Set((this.presentStudentIds || []).map((id) => Number(id)))];
+        this.scheduleIconRefresh();
       },
 
       get filteredStudents() {
@@ -71,6 +72,7 @@
         } else {
           this.presentStudentIds = this.presentStudentIds.filter((id) => id !== normalizedId);
         }
+        this.scheduleIconRefresh();
       },
 
       async changeDay(delta) {
@@ -95,6 +97,7 @@
           }
           const data = await response.json();
           this.presentStudentIds = (data.present_students || []).map((id) => Number(id));
+          this.scheduleIconRefresh();
         } catch (error) {
           console.error(error);
           this.flashMessage = error.message || 'Erro ao carregar frequência.';
@@ -134,11 +137,21 @@
 
           this.setPresent(student.id, !isPresent);
           this.flashMessage = '';
+          this.scheduleIconRefresh();
         } catch (error) {
           console.error(error);
           this.flashMessage = error.message || 'Não foi possível atualizar a frequência.';
         } finally {
           this.loading = false;
+        }
+      },
+      scheduleIconRefresh() {
+        if (typeof this.$nextTick === 'function') {
+          this.$nextTick(() => {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+              window.lucide.createIcons();
+            }
+          });
         }
       },
     };

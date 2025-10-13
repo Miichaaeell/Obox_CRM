@@ -67,11 +67,11 @@
                             <td class="px-4 py-2 text-sm" x-text="student.name"></td>
                             <td class="px-4 py-2 text-sm">
                                 <button type="button"
-                                        class="text-2xl transition-transform duration-150"
+                                        class="text-2xl transition-transform duration-150 focus:outline-none"
                                         :class="isPresent(student.id) ? 'text-green-500' : 'text-gray-900'"
                                         :disabled="loading"
                                         @click="toggleAttendance(student)">
-                                    👍
+                                    <i data-lucide="thumbs-up"></i>
                                 </button>
                             </td>
                             <td class="px-4 py-2 text-sm" x-text="student.plan"></td>
