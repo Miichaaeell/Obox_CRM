@@ -127,9 +127,16 @@ function modalHandler() {
     },
 
     async modaldelete(id) {
-      const res = await fetch(`/bill/api/v1/${id}`);
-      const data = await res.json();
-      this.formData = data;
+      try {
+        const res = await fetch(`/bill/api/v1/${id}/`);
+        if (!res.ok) {
+          throw new Error(`Falha ao carregar conta ${id}: ${res.status}`);
+        }
+        this.formData = await res.json();
+      } catch (error) {
+        console.error(error);
+        this.formData = { id };
+      }
       this.mode = 'delete';
       this.selectedID = id;
       this.showDelete = true;

@@ -14,23 +14,27 @@ class StudentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
-        try:
-            feeid = validated_data.pop('feeid')
-            print(feeid)
-            status = validated_data.pop('status')
-            print(status)
-            with transaction.atomic():
-                fees = MonthlyFee.objects.filter(student=instance, paid=False)
-                totfees = fees.count()
-                fees.delete()
+        _ = validated_data.pop('feeid', None)
+        status = validated_data.pop('status', None)
 
-                History.objects.create(
-                    student=instance,
-                    status=status,
-                    description=f'{totfees} Mensalidades excluídas'
-                )
+        try:
+            if status:
+                with transaction.atomic():
+                    fees = MonthlyFee.objects.filter(student=instance, paid=False)
+                    totfees = fees.count()
+                    fees.delete()
+
+                    History.objects.create(
+                        student=instance,
+                        status=status,
+                        description=f'{totfees} Mensalidades excluídas'
+                    )
         except Exception as e:
             print(f'Erro no studant serializer {e}')
+
+        if status:
+            validated_data['status'] = status
+
         return super().update(instance, validated_data)
 
 
