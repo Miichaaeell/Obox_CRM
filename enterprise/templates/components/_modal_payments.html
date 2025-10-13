@@ -10,12 +10,12 @@
           <!-- Plano -->
           <div>
             <label class="block font-medium">Plano:</label>
-             <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="feeData.plan" readonly>
+            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="paymentData.planName" readonly>
           </div>
             <!-- Valor -->
           <div>
             <label class="block font-medium">Valor:</label>
-            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="feeData.base_amount.toLocaleString('pt-BR', {style: 'currency', 'currency': 'BRL'})" readonly>
+            <input class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" :value="formatCurrency(paymentData.baseAmount)" readonly>
           </div>
           <div>
           <label class="block text-gray-700">Dia do pagamento</label>
@@ -27,9 +27,9 @@
          {% include 'components/_apply_discount.html' %}
          <!-- Valor após desconto -->
         <div class="grid grid-cols-3 gap-4 text-sm ">
-          <div x-show="formData.apply_discount">
+          <div x-show="discountEnabled">
             <label class="block font-medium">Valor após desconto:</label>
-            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " readonly :value="formatDecimal(feeData.final_amount)">
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " readonly :value="formatDecimal(paymentData.finalAmount)">
           </div>
         </div>
 <!-- Metodos de pagamento -->

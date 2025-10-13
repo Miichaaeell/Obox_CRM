@@ -1,7 +1,8 @@
 <div x-show="openActiveModal" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-30 z-50">
 <div  class="bg-white rounded-2xl shadow-xl w-full max-w-[900px] p-6 relative "
+x-data="formHandler()"
 id="containerMain"
-data-plans="{{ plans }}">
+data-plans="{{ plans|default:'[]' }}">
         <h2 class="text-xl font-semibold mb-4">{{ title_card }}</h2>        
       <form class="space-y-6 gap-8" method="post">
         {% csrf_token %}
@@ -51,36 +52,36 @@ data-plans="{{ plans }}">
             <!-- Valor -->
           <div>
             <label class="block font-medium">Valor:</label>
-            <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="value_plan" x-model="plan_price" readonly>
+            <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="value_plan" :value="formattedPlanPrice()" readonly>
           </div>
           <div>
             <label for="" class="block font-medium">Taxa de Matrícula</label>
-            R$:<input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="registration fee" value="5" readonly >
+            <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="registration_fee" :value="formattedRegistrationFee()" readonly>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">
           <!-- Desconto -->
           <div>
             <label class="block font-medium">Desconto %:</label>
-            <input @input="recalctotal()" type="number" step="any" min="0"
+            <input @input="handlePercentDiscount($event.target.value)" type="number" step="any" min="0"
                    placeholder="Ex. 10"
                    class="w-32 border-b border-gray-300 focus:border-green-500 outline-none bg-transparent"
                    id="percent_discount"
                    name="percent_discount"
-                   x-model="percent_discount">
+                   :value="paymentData.discountPercent">
                    
           </div>
           <!-- Valor desconto -->
           <div>
           <label class="block font-medium">Valor desconto:</label>
-          <input @input="recalctotal()" type="number" name="discount_value" step="any" placeholder="Ex. 10"
+          <input @input="handleDiscountValue($event.target.value)" type="number" name="discount_value" step="any" placeholder="Ex. 10"
             class="w-32 border-b border-gray-400 focus:outline-none"
-            id="discount_value" x-model="discount_value">
+            id="discount_value" :value="paymentData.discountValue">
         </div>
          <!-- Valor após desconto -->
           <div>
             <label class="block font-medium">Valor após desconto:</label>
-            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " id="value_after_discount" x-model="value_after_discount" name="value_receiver" readonly>
+            <input class="text-gray-700 font-semibold w-32 border-b border-gray-400 focus:outline-none " id="value_after_discount" :value="formatCurrency(paymentData.finalAmount)" name="value_receiver" readonly>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-4 mt-8 text-sm">

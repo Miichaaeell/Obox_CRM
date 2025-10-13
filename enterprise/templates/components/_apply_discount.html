@@ -1,18 +1,18 @@
  <div class="space-y-2">
             <div class="flex items-center gap-2">
-              <input type="checkbox" id="active_discount" name="active_discount" x-model="formData.apply_discount" class="h-4 w-4 text-green-500 border-gray-300 rounded" @change="recalcTotal">
+              <input type="checkbox" id="active_discount" name="active_discount" x-model="discountEnabled" class="h-4 w-4 text-green-500 border-gray-300 rounded" @change="applyDiscountEnabled(discountEnabled)">
               <label for="descontoMulta" class="text-sm">Aplicar desconto ou multa</label>
             </div>
-           <div x-show="formData.apply_discount" class="grid grid-cols-2 gap-4">
+           <div x-show="discountEnabled" class="grid grid-cols-2 gap-4">
                 <div class="gap-2">
                   <label class="text-sm block">(-) Desconto</label>
-                  <input type="number" placeholder="%" id="percent_discount" name="percent_discount" x-model="formData.percent_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" >
-                  <input type="number" placeholder="R$" id="value_discount" name="value_discount" x-model="formData.value_discount" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" >
+                  <input type="number" placeholder="%" id="percent_discount" name="percent_discount" class="w-2/3 border-b focus:outline-none" step="any" :value="paymentData.discountPercent" @input="updateDiscountFromPercent($event.target.value)">
+                  <input type="number" placeholder="R$" id="value_discount" name="value_discount" class="w-2/3 border-b focus:outline-none" step="any" :value="paymentData.discountValue" @input="updateDiscountFromValue($event.target.value)">
                 </div>
                 <div class="gap-2">
                   <label class="text-sm block">(+) Multa</label>
-                  <input type="number" placeholder="%" name="percent_fine" id="percent_fine" x-model="formData.percent_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal" >
-                  <input type="number" placeholder="R$" name="value_fine" id="value_fine" x-model="formData.value_fine" class="w-2/3 border-b focus:outline-none" @input="recalcTotal">
+                  <input type="number" placeholder="%" name="percent_fine" id="percent_fine" class="w-2/3 border-b focus:outline-none" step="any" :value="paymentData.finePercent" @input="updateFinePercent($event.target.value)">
+                  <input type="number" placeholder="R$" name="value_fine" id="value_fine" class="w-2/3 border-b focus:outline-none" step="any" :value="paymentData.fineValue" @input="updateFineValue($event.target.value)">
                 </div>
               </div>
           </div>

@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -127,14 +128,17 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
             plan=studant_instance.plan
         )
         import json
-        payments_json = self.request.POST.get('payments')
+        payments_json = self.request.POST.get('payments') or '[]'
         payments_data = json.loads(payments_json)
-        payments_create = [Payment(
-            montlhyfee=monthlyfe,
-            payment_method=payment['method'],
-            value=payment['receive_value'],
-            quantity_installments=payment['installments']
-        )for payment in payments_data]
+        payments_create = [
+            Payment(
+                montlhyfee=monthlyfe,
+                payment_method=payment.get('payment_method') or payment.get('method') or '',
+                value=Decimal(str(payment.get('value') or payment.get('receive_value') or 0)),
+                quantity_installments=int(payment.get('quantity_installments') or payment.get('installments') or 1)
+            )
+            for payment in payments_data
+        ]
         Payment.objects.bulk_create(payments_create)
         return redirect(self.success_url)
 

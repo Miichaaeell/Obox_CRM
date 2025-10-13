@@ -7,7 +7,7 @@
           <ul x-show="dropdown" class="border rounded-lg">
             {% for payment in payment_methods %}
               <li 
-              @click="addPayment({{payment.id}}, '{{ payment.method }}', {{today|date:'Y-m-d'}})"
+              @click="addPayment({{payment.id}}, '{{ payment.method }}', '{{today|date:'Y-m-d'}}')"
               class="p-1 px-2 hover:bg-gray-800 hover:cursor-pointer transition focus:border-gray-700 focus:ring-2 focus:ring-gray-700 rounded-lg">
                 {{payment.method|title}}
               </li>
@@ -21,7 +21,7 @@
           </div>
           <div class="flex flex-col">
             <label for="">Valor a receber</label>
-            <input @input="validate_value()" type="number" class="border-b" name="receive_value" id="receive_value" step="any" x-model="p.value">
+            <input @input="updateValidation()" type="number" class="border-b" name="receive_value" id="receive_value" step="any" x-model="p.value">
           </div>
           <div class="flex flex-col">
             <label for="date_payment">Dia do pagamento</label>
@@ -45,6 +45,7 @@
         </div>
         </template>
         <input type="hidden" name="payments" :value="JSON.stringify(payments)">
-        <div id="validate_message" x-show="alert" class="h-[120px] w-[30%] m-auto bg-[#F4F4F4] rounded-lg flex flex-col justify-center items-center mt-5">
+        <div x-show="alert" class="h-[120px] w-[30%] m-auto bg-[#F4F4F4] rounded-lg flex flex-col justify-center items-center mt-5 text-center px-4">
+          <span x-text="validationMessage"></span>
         </div> <!--Mensagem de valor menor-->
       </div>

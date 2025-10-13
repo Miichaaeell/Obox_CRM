@@ -16,7 +16,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm text-gray-500">Valor inicial:</label>
-              <input type="number" step="any" name="value" id="edit_value" class="font-medium" x-model='formData.value' @input='recalcTotal'>
+              <input type="number" step="any" name="value" id="edit_value" class="font-medium" x-model='formData.value' @input='handleBaseValueChange($event.target.value)'>
             </div>
             <div>
               <label class="block text-sm text-gray-500">Data do pagamento:</label>
@@ -32,25 +32,7 @@
             <label class="text-sm">Tornar recorrente</label>
           </div>
           <!-- Desconto/Multa -->
-          <div class="space-y-2">
-            <div class="flex items-center gap-2">
-              <input type="checkbox" name="apply_discount" id="apply_discount" x-model="formData.apply_discount" class="h-4 w-4 text-green-500 border-gray-300 rounded" @change="recalcTotal">
-              <label class="text-sm">Aplicar desconto ou multa</label>
-            </div>
-            <div class="grid grid-cols-2 gap-4" x-show="formData.apply_discount">
-                <div class="gap-2">
-                  <label class="text-sm block">(-) Desconto</label>
-                  <input type="number" placeholder="%" name="percent_discount" id="percent_discount"  class="w-2/3 border-b focus:outline-none" x-model="formData.percent_discount" @input="recalcTotal">
-                  <input type="number" placeholder="R$" name="value_discount" id="value_discount" class="w-2/3 border-b focus:outline-none" x-model="formData.value_discount" @input="recalcTotal">
-                </div>
-                <div class="gap-2">
-                  <label class="text-sm block">(+) Multa</label>
-                  <input type="number" placeholder="%" name="percent_fine" id="percent_fine" class="w-2/3 border-b focus:outline-none" x-model="formData.percent_fine" @input="recalcTotal">
-                  <input type="number" placeholder="R$" name="value_fine" id="value_fine" class="w-2/3 border-b focus:outline-none" x-model="formData.value_fine" @input="recalcTotal">
-                </div>
-              </div>
-            </div>
-          </div>
+          {% include 'components/_apply_discount.html' %}
           <!-- Total -->
           <div>
             <label class="text-sm">Total a pagar:</label>

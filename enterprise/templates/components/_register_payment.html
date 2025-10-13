@@ -2,15 +2,15 @@
 <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 relative">
     <h1 class="text-2xl font-bold mb-4">Registrar Pagamento</h1>
     <div class="mb-4 gap-2"> <!--Informaões-->
-        <p>Nome: <span x-text="feeData.student_name"></span></p>
-        <p>Plano: <span x-text="feeData.plan"></span> - <span x-text="feeData.reference_month"></span></p>
-        <p>Valor total devido: <span x-text="feeData.final_amount.toLocaleString('pt-BR', {style: 'currency', 'currency': 'BRL'})"></span></p>
+        <p>Nome: <span x-text="paymentData.payerName"></span></p>
+        <p>Plano: <span x-text="paymentData.planName"></span> - <span x-text="paymentData.reference"></span></p>
+        <p>Valor total devido: <span x-text="formatCurrency(paymentData.finalAmount)"></span></p>
     </div>
     <div class="border rounded-lg border-black p-5">
         <div class="mb-4">
             <h2 class="text-xl gap-2 font-bold">Formas de pagamento</h2>
            <template x-for="payment in payments">
-            <p x-text="payment.method"></p>
+            <p x-text="payment.payment_method"></p>
            </template>
         </div>
         <div class="flex gap-6 mb-4">
@@ -18,7 +18,7 @@
                 <p class="font-bold">
                 Valor pago
                 </p> 
-                <p x-text="feeData.final_amount.toLocaleString('pt-BR', {style: 'currency', 'currency': 'BRL'})"> </p>
+                <p x-text="formatCurrency(paymentData.finalAmount)"> </p>
             </div>
             <div>
                 <p class="font-bold">Data</p>
@@ -28,7 +28,7 @@
         <div class="bg-gray-800 font-bolder h-[2px] mb-4"></div>
         <div class="mb-4 gap-2">
             <template x-for="payment in payments">
-                <p>Recebido: R$ <span x-text="formatDecimal(payment.value)"></span> (<span  x-text="payment.payment_method"></span>)</p>
+                <p>Recebido: <span x-text="formatCurrency(payment.value)"></span> (<span  x-text="payment.payment_method"></span>)</p>
             </template>
             <p>Status: <span class="text-green-500 font-bold">Pago</span> </p> 
         </div>
