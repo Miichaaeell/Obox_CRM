@@ -154,7 +154,8 @@ class StudentDetailView(DetailView):
         context['title'] = 'Detalhes'
         context['sufix_url'] = 'student'
         context['historys'] = History.objects.filter(student=self.object)
-        context['frequency'] = Frequency.objects.filter(student=self.object)
+        context['frequency'] = Frequency.objects.filter(
+            student=self.object).order_by('-attendance_date', '-created_at')
         context['monthlyfees'] = MonthlyFee.objects.filter(student=self.object)
         context['payment_methods'] = PaymentMethod.objects.all()
         context['form'] = StudentForm(instance=self.object)

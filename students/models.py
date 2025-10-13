@@ -56,6 +56,7 @@ class Frequency(TimeStampedModel, models.Model):
     class Meta:
         verbose_name = 'Frequência'
         verbose_name_plural = 'Frequências'
+        ordering = ['-attendance_date', '-created_at']
         unique_together = ('student', 'attendance_date')
 
 
