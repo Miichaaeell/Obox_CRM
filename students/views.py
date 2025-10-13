@@ -1,13 +1,13 @@
 import json
 from datetime import datetime, timedelta
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import (
@@ -236,6 +236,179 @@ class MonthlyFeeRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVie
     permission_classes = [IsAuthenticated]
     queryset = MonthlyFee.objects.all()
     serializer_class = MonthlyFeeSerializer
+
+
+class StudentActivateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        student = get_object_or_404(Student, pk=pk)
+        student_payload = request.data.get('student') or {}
+        payment_payload = request.data.get('payment') or {}
+        payments_payload = payment_payload.get('payments') or []
+
+        if not payments_payload:
+            return Response(
+                {'message': 'Adicione ao menos uma forma de pagamento.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        active_status = StatusStudent.objects.filter(
+            status__iexact='ATIVO').first()
+        if not active_status:
+            return Response(
+                {'message': 'Status "ATIVO" não está configurado.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        def to_decimal(value, default='0.00'):
+            try:
+                return Decimal(str(value)).quantize(Decimal('0.01'))
+            except (InvalidOperation, TypeError, ValueError):
+                try:
+                    return Decimal(default).quantize(Decimal('0.01'))
+                except (InvalidOperation, TypeError, ValueError):
+                    return None
+
+        amount = to_decimal(payment_payload.get('amount'))
+        if amount is None or amount <= 0:
+            return Response(
+                {'message': 'Valor total do pagamento inválido.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        discount_percent = to_decimal(
+            payment_payload.get('discount_percent'), default='0.00')
+        discount_value = to_decimal(
+            payment_payload.get('discount_value'), default='0.00')
+        if discount_percent is None or discount_value is None:
+            return Response(
+                {'message': 'Valores de desconto inválidos.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        processed_payments = []
+        for item in payments_payload:
+            method = (item.get('payment_method') or '').strip()
+            if not method:
+                return Response(
+                    {'message': 'Informe o método de pagamento.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            payment_value = to_decimal(item.get('value'))
+            if payment_value is None or payment_value <= 0:
+                return Response(
+                    {'message': f'Valor inválido para o pagamento "{method}".'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            try:
+                installments = int(item.get('quantity_installments') or 1)
+            except (TypeError, ValueError):
+                installments = 1
+            processed_payments.append(
+                (method, payment_value, max(1, installments)))
+
+        total_received = sum(value for _, value, _ in processed_payments)
+        if abs(total_received - amount) > Decimal('0.01'):
+            return Response(
+                {'message': 'A soma dos pagamentos difere do valor devido.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        plan_input = student_payload.get('plan')
+        plan_obj = None
+        if plan_input not in (None, '', 'null'):
+            try:
+                plan_id = int(plan_input)
+            except (TypeError, ValueError):
+                return Response(
+                    {'message': 'Plano informado é inválido.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            plan_obj = Plan.objects.filter(pk=plan_id).first()
+            if not plan_obj:
+                return Response(
+                    {'message': 'Plano informado não foi encontrado.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        date_str = student_payload.get('date_of_birth')
+        birth_date = None
+        clear_birth_date = False
+        if date_str is not None:
+            if date_str == '':
+                clear_birth_date = True
+            else:
+                try:
+                    birth_date = datetime.strptime(
+                        date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    return Response(
+                        {'message': 'Data de nascimento inválida.'},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+        name_value = (student_payload.get('name') or '').strip()
+        cpf_value = student_payload.get('cpf_cnpj')
+        phone_value = student_payload.get('phone_number')
+
+        with transaction.atomic():
+            MonthlyFee.objects.filter(student=student, paid=False).delete()
+
+            if plan_obj:
+                student.plan = plan_obj
+
+            if name_value:
+                student.name = name_value
+
+            if cpf_value:
+                student.cpf_cnpj = cpf_value
+
+            if phone_value is not None:
+                student.phone_number = phone_value
+
+            if date_str is not None:
+                student.date_of_birth = None if clear_birth_date else birth_date
+
+            student.status = active_status
+            student.observation = 'Aluno reativado'
+            student.save()
+
+            MonthlyFee.objects.filter(student=student, paid=False).delete()
+
+            now = timezone.now()
+            monthly_fee = MonthlyFee.objects.create(
+                student=student,
+                student_name=student.name,
+                amount=amount,
+                due_date=now.date(),
+                reference_month=f'{now.month}/{now.year}',
+                paid=True,
+                date_paid=now.date(),
+                discount_value=discount_value,
+                discount_percent=discount_percent,
+                plan=student.plan,
+            )
+
+            Payment.objects.bulk_create([
+                Payment(
+                    montlhyfee=monthly_fee,
+                    payment_method=method,
+                    value=value,
+                    quantity_installments=installments,
+                )
+                for method, value, installments in processed_payments
+            ])
+
+        return Response(
+            {
+                'message': 'Aluno reativado com sucesso.',
+                'monthly_fee_id': monthly_fee.id,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class StudentRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):

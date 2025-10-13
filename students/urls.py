@@ -9,6 +9,7 @@ from students.views import (
     StatusStudentUpdateView,
     StudentCreateView,
     StudentDetailView,
+    StudentActivateAPIView,
     StudentRetriveUpdateDestroyAPIView,
     StudentListView,
     UploadFileView,
@@ -26,6 +27,8 @@ urlpatterns = [
          StudentDetailView.as_view(), name='detail_student'),
     path('api/students/v1/<int:pk>/',
          StudentRetriveUpdateDestroyAPIView.as_view(), name='student_api'),
+    path('api/students/v1/<int:pk>/activate/',
+         StudentActivateAPIView.as_view(), name='student_activate'),
 
     # Urls satus
     path('status', StatusStudentListView.as_view(), name='list_status'),
