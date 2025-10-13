@@ -127,30 +127,47 @@ function modalHandler() {
     },
 
     async modaldelete(target) {
-      const rawId = target && typeof target === 'object' ? target.id : target;
+      const rawId = target?.id ?? target;
       const id = Number(rawId);
       if (!Number.isFinite(id)) {
         console.error('Identificador de conta inválido:', rawId);
         return;
       }
 
+      const description =
+        typeof target === 'object' && target !== null
+          ? target.description || ''
+          : '';
+
       this.mode = 'delete';
       this.selectedID = id;
-      this.formData = {
-        description: target && typeof target === 'object' ? target.description : '',
-      };
-      
+      this.formData = { id, description };
+      this.showModal = false;
+      this.showStatus = false;
+      this.showDelete = true;
+      console.debug('Abrindo modal delete', this.formData);
+
       try {
         const res = await fetch(`/bill/api/v1/${id}/`);
-        if (!res.ok) throw new Error(`Falha ao carregar conta ${id}: ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`Falha ao carregar conta ${id}: ${res.status}`);
+        }
         const data = await res.json();
-        Object.assign(this.formData, data); // mantém reatividade
-        console.log('Abrindo modal delete:', this.formData);
+        this.formData = {
+          ...this.formData,
+          ...data,
+        };
       } catch (error) {
-        console.error(error);
-        this.formData.id = id;
-      };
-      this.showDelete = true;
+        console.error('Erro ao carregar dados da conta.', error);
+      }
+
+      if (typeof this.$nextTick === 'function') {
+        this.$nextTick(() => {
+          if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+          }
+        });
+      }
     },
 
     modalclose() {

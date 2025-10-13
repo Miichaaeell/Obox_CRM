@@ -80,7 +80,7 @@
               <button @click="modalupdate({{obj.id}})" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800">
                 <i data-lucide="pencil" class="w-[15px] h-[15px]"></i>
               </button>
-              <button
+              <button type="button"
                 @click="modaldelete({ id: {{ obj.id }}, description: '{{ obj.description|escapejs }}' })"
                 class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800">
                 <i data-lucide="trash" class="w-[15px] h-[15px]"></i>
@@ -94,17 +94,19 @@
           
       </tbody>
     </table>
+    <!-- =================== Paginação =================== -->
     {% include 'components/_pagination.html' %}
+    <!-- =================== MODAL DELETE =================== -->
+     {% include 'components/modal_delete.html' %}
      <!-- =================== MODAL CRIAR/PAGAMENTO =================== -->
     {% include 'components/modal_create_update_bill.html' %}
     <!-- =================== MODAL EDITAR =================== -->
     {% include 'components/modal_update_status_bill.html' %}
-    <!-- =================== MODAL Delete =================== -->
-    {% include 'components/modal_delete.html' %}
+    
+    <!-- =================== MODAL teste =================== -->
   </div>
 
 
 <script src="{% static 'js/list_bill.js' %}"></script>
 {% endblock %}
  
-
