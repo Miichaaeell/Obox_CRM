@@ -14,6 +14,7 @@ from django.views.generic import (
     CreateView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
     View,
 )
@@ -168,13 +169,35 @@ class StudentDetailView(DetailView):
 # Views for frequence studant
 
 
-class FrequenceStudentView(LoginRequiredMixin, View):
+class FrequenceStudentView(LoginRequiredMixin, TemplateView):
     template_name = 'frequence.html'
-    students = Student.objects.filter(status__status__iexact='ativo')
-    context = {'students': students}
 
-    def get(self, request):
-        return render(request, self.template_name, context=self.context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = timezone.localdate()
+        students_qs = (
+            Student.objects.filter(status__status__iexact='ATIVO')
+            .select_related('plan', 'status')
+            .order_by('name')
+        )
+        present_ids = list(
+            Frequency.objects.filter(attendance_date=today).values_list('student_id', flat=True)
+        )
+        context['initial_data'] = {
+            'currentDate': today.isoformat(),
+            'students': [
+                {
+                    'id': student.id,
+                    'name': student.name,
+                    'plan': student.plan.name_plan if student.plan else '',
+                    'status': student.status.status if student.status else '',
+                }
+                for student in students_qs
+            ],
+            'presentStudents': present_ids,
+            'apiUrl': reverse('frequency_api'),
+        }
+        return context
 
     # Views for StatusStudent model
 
@@ -236,6 +259,80 @@ class MonthlyFeeRetriveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVie
     permission_classes = [IsAuthenticated]
     queryset = MonthlyFee.objects.all()
     serializer_class = MonthlyFeeSerializer
+
+
+class FrequencyAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def _parse_date(self, value):
+        if not value:
+            return timezone.localdate()
+        try:
+            return datetime.strptime(value, '%Y-%m-%d').date()
+        except ValueError:
+            return None
+
+    def get(self, request):
+        date_str = request.query_params.get('date')
+        target_date = self._parse_date(date_str)
+        if target_date is None:
+            return Response({'message': 'Data inválida.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        present = Frequency.objects.filter(attendance_date=target_date)
+        return Response(
+            {
+                'date': target_date.isoformat(),
+                'present_students': list(present.values_list('student_id', flat=True)),
+            }
+        )
+
+    def post(self, request):
+        student_id = request.data.get('student_id')
+        date_str = request.data.get('date')
+        if not student_id:
+            return Response({'message': 'Aluno não informado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_date = self._parse_date(date_str)
+        if target_date is None:
+            return Response({'message': 'Data inválida.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        student = get_object_or_404(Student, pk=student_id)
+
+        frequency, created = Frequency.objects.get_or_create(
+            student=student,
+            attendance_date=target_date,
+        )
+
+        return Response(
+            {
+                'id': frequency.id,
+                'student_id': student.id,
+                'date': target_date.isoformat(),
+                'present': True,
+            },
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+    def delete(self, request):
+        student_id = request.data.get('student_id') or request.query_params.get('student_id')
+        date_str = request.data.get('date') or request.query_params.get('date')
+
+        if not student_id:
+            return Response({'message': 'Aluno não informado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_date = self._parse_date(date_str)
+        if target_date is None:
+            return Response({'message': 'Data inválida.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        deleted, _ = Frequency.objects.filter(
+            student_id=student_id,
+            attendance_date=target_date,
+        ).delete()
+
+        if deleted == 0:
+            return Response({'message': 'Frequência não encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class StudentActivateAPIView(APIView):

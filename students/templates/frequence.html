@@ -1,4 +1,5 @@
 {% extends "_base.html" %}
+{% load static %}
 
 {% block title %}
     Frequência
@@ -6,21 +7,42 @@
     
 
 {% block content %}
+{{ initial_data|json_script:"frequency-data" }}
 <div class="p-6 bg-gray-100 min-h-screen">
-    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow p-6" x-data="{'search' : ''}">
+    <div id="frequencyApp"
+         class="max-w-6xl mx-auto bg-white rounded-xl shadow p-6"
+         x-data="frequencyPage(JSON.parse(document.getElementById('frequency-data').textContent))"
+         x-init="init()">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         <!-- Cabeçalho -->
         <div class="flex items-center justify-between mb-4">
-            <button @click="previousDay()" class="p-2 bg-gray-200 rounded-full hover:bg-gray-300"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-            <h2 class="text-xl font-semibold">Quinta-feira - 18 de Setembro de 2025</h2>
-            <button @click="nextDay()" class="p-2 bg-gray-200 rounded-full hover:bg-gray-300"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+            <button type="button"
+                    @click="changeDay(-1)"
+                    :disabled="loading"
+                    class="p-2 bg-gray-200 rounded-full transition"
+                    :class="loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-300'">
+                <span aria-hidden="true">&lsaquo;</span>
+            </button>
+            <h2 class="text-xl font-semibold" x-text="formattedFullDate"></h2>
+            <button type="button"
+                    @click="changeDay(1)"
+                    :disabled="loading"
+                    class="p-2 bg-gray-200 rounded-full transition"
+                    :class="loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-300'">
+                <span aria-hidden="true">&rsaquo;</span>
+            </button>
         </div>
 
         <!-- Filtro -->
-        <div class="mb-4 flex gap-3">
-            <i data-lucide="filter" class="mt-2"></i>
-            <input type="text" x-model="search" placeholder="Nome" 
-                   class="border border-gray-300 rounded-2xl p-2 w-2/5" />
+        <div class="mb-4 flex gap-3 items-center">
+            <span class="text-gray-500">Filtro</span>
+            <input type="text" x-model="search" placeholder="Nome do aluno" 
+                   class="border border-gray-300 rounded-2xl px-3 py-2 w-full max-w-md" />
         </div>
+
+        <template x-if="flashMessage">
+            <div class="mb-4 rounded-lg border border-yellow-200 bg-yellow-100 px-4 py-2 text-sm text-yellow-900" x-text="flashMessage"></div>
+        </template>
 
         <!-- Tabela -->
         <div class="overflow-x-auto" >
@@ -35,66 +57,38 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-
-                        {% for student in students %}
+                    <template x-if="filteredStudents.length === 0">
                         <tr>
-                            <td class="px-4 py-2 text-sm">{{student.name}}</td>
+                            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">Nenhum aluno encontrado.</td>
+                        </tr>
+                    </template>
+                    <template x-for="student in filteredStudents" :key="student.id">
+                        <tr>
+                            <td class="px-4 py-2 text-sm" x-text="student.name"></td>
                             <td class="px-4 py-2 text-sm">
-                               <i data-lucide="thumbs-up" class="cursor-pointer" id="{{student.id}}" onclick="updatefrequence({{student.id}})"></i>
+                                <button type="button"
+                                        class="text-2xl transition-transform duration-150"
+                                        :class="isPresent(student.id) ? 'text-green-500' : 'text-gray-900'"
+                                        :disabled="loading"
+                                        @click="toggleAttendance(student)">
+                                    👍
+                                </button>
                             </td>
-                            <td class="px-4 py-2 text-sm">{{student.plan}}</td>
-                            <td class="px-4 py-2 text-sm" :class="'{{student.status.status}}' === 'ATIVO' ? 'text-green-500' : 'text-orange-500'"> {{student.status}}</td>
+                            <td class="px-4 py-2 text-sm" x-text="student.plan"></td>
+                            <td class="px-4 py-2 text-sm"
+                                :class="student.status === 'ATIVO' ? 'text-green-500' : 'text-orange-500'"
+                                x-text="student.status"></td>
                             <td class="px-4 py-2 text-sm">
-                                <input type="text" class="border border-gray-300 rounded p-1 w-full" />
+                                <input type="text" class="border border-gray-300 rounded p-1 w-full" placeholder="Observação opcional" />
                             </td>
                         </tr>
-                        {% endfor %}
+                    </template>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Alpine.js data -->
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('attendancePage', () => ({
-            search: '',
-            users: [
-                {id: 1, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 2, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 3, name: 'Nome completo', presenca: true, plano: 'Trimestral', status: 'Ativo', observacao: ''},
-                {id: 4, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 5, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 6, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 7, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 8, name: 'Nome completo', presenca: true, plano: '3x Mensais', status: 'Ativo', observacao: ''},
-                {id: 9, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 10, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'A vencer', observacao: ''},
-                {id: 11, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 12, name: 'Nome completo', presenca: true, plano: '3x Mensais', status: 'Ativo', observacao: ''},
-                {id: 13, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 14, name: 'Nome completo', presenca: true, plano: '5x Mensais', status: 'A vencer', observacao: ''},
-                {id: 15, name: 'Nome completo', presenca: false, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-                {id: 16, name: 'Nome completo', presenca: false, plano: '5x Mensais', status: 'Ativo', observacao: ''},
-            ],
-            filteredUsers() {
-                return this.users.filter(u => u.name.toLowerCase().includes(this.search.toLowerCase()));
-            },
-            previousDay() {
-                // Lógica para ir para o dia anterior
-            },
-            nextDay() {
-                // Lógica para ir para o próximo dia
-            }
-        }))
-    })
-
-    function updatefrequence(student_id){
-        const studant = document.getElementById(student_id)
-        text_green = studant.classList.contains('text-green-600')
-        text_green == false ? studant.classList.add('text-green-600') : studant.classList.remove('text-green-600')
-    }
-</script>
+<script src="{% static 'js/frequency.js' %}"></script>
 
 {% endblock %}

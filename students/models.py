@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from core.models import TimeStampedModel
 
@@ -46,13 +47,16 @@ class Student(TimeStampedModel, models.Model):
 class Frequency(TimeStampedModel, models.Model):
     student = models.ForeignKey(
         Student, on_delete=models.PROTECT, verbose_name='Aluno', related_name='frequencies')
+    attendance_date = models.DateField(
+        verbose_name='Data da Frequência', default=timezone.localdate)
 
     def __str__(self):
-        return self.student.name
+        return f"{self.student.name} - {self.attendance_date}"
 
     class Meta:
         verbose_name = 'Frequência'
         verbose_name_plural = 'Frequências'
+        unique_together = ('student', 'attendance_date')
 
 
 class History(TimeStampedModel, models.Model):

@@ -14,6 +14,7 @@ from students.views import (
     StudentListView,
     UploadFileView,
     StatusStudentListCreateAPIView,
+    FrequencyAPIView,
 
 )
 
@@ -29,6 +30,7 @@ urlpatterns = [
          StudentRetriveUpdateDestroyAPIView.as_view(), name='student_api'),
     path('api/students/v1/<int:pk>/activate/',
          StudentActivateAPIView.as_view(), name='student_activate'),
+    path('frequency/api/v1/', FrequencyAPIView.as_view(), name='frequency_api'),
 
     # Urls satus
     path('status', StatusStudentListView.as_view(), name='list_status'),
