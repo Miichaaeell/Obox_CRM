@@ -40,3 +40,11 @@ celerybeat-schedule-shm
 celerybeat-schedule-wal
 celerybeat_data
 data.json
+
+# Node / Tailwind
+node_modules/
+*.log
+
+# Tailwind build output
+core/static/css/output.css
+static/css/output.css
