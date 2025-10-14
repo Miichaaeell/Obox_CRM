@@ -3,7 +3,8 @@
 {% block title %}Perfil do Aluno{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-6xl mx-auto p-6 space-y-6" x-data="{ tab: 'frequencia', ...actions(), ...mainPage() } " >
+<div class="w-full max-w-6xl mx-auto p-6 space-y-6"
+     x-data="Object.assign({ tab: 'frequencia' }, mainPage(), actions())">
 
   <!-- Card informações do aluno -->
   <div class="bg-white rounded-2xl shadow p-6 relative">
@@ -191,6 +192,7 @@
 <!--MODAL UPDATE-->
 {% include 'components/_modal_update.html' %}
 {% include 'components/_active_user.html'%}
+{% include 'components/_notification_modal.html' %}
 </div>
 
 
@@ -200,4 +202,5 @@
 <script src="{% static 'js/detail_students.js' %}"></script>
 <script src="{% static 'js/form_user.js' %}"></script>
 <script src="{% static 'js/home.js' %}"></script>
+<script src="{% static 'js/notification_modal.js' %}"></script>
 {% endblock %}

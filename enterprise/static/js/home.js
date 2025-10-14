@@ -102,7 +102,13 @@ function mainPage() {
               message = data.message;
             }
 
-            alert(message);
+            if (window.notificationModal) {
+              window.notificationModal.show({
+                title: 'Não foi possível concluir',
+                message,
+              });
+            }
+
             throw new Error(`HTTP ${res.status}: ${message}`);
           }
 
@@ -122,14 +128,22 @@ function mainPage() {
             if (row) row.remove();
 
             this.close();
-          } else {
+          } else if (window.notificationModal) {
             const msg = data.message || 'O servidor respondeu, mas sem confirmação de sucesso.';
-            alert(msg);
+            window.notificationModal.show({
+              title: 'Atenção',
+              message: msg,
+            });
           }
         })
         .catch((err) => {
           console.error('💥 Erro inesperado:', err);
-          alert(err.message || 'Erro inesperado ao enviar os dados do pagamento.');
+          if (window.notificationModal) {
+            window.notificationModal.show({
+              title: 'Erro inesperado',
+              message: err.message || 'Erro inesperado ao enviar os dados do pagamento.',
+            });
+          }
         });
     },
 
@@ -206,7 +220,13 @@ function mainPage() {
                 message = data.message;
               }
 
-              alert(message);
+              if (window.notificationModal) {
+                window.notificationModal.show({
+                  title: 'Não foi possível concluir',
+                  message,
+                });
+              }
+
               throw new Error(`HTTP ${res.status}: ${message}`);
             }
 
@@ -231,7 +251,13 @@ function mainPage() {
 
               const message = data.message || 'Aluno inativado com sucesso.';
               this.close();
-              alert(message);
+              if (window.notificationModal) {
+                window.notificationModal.show({
+                  title: 'Aluno inativado',
+                  message,
+                  primaryLabel: 'Ok',
+                });
+              }
             } else {
               console.log(data);
             }

@@ -103,7 +103,10 @@ function actions(){
             } else{
                 data = response.json()
                 console.log(data)
-                alert('erro ao editar o aluno')                
+                window.notificationModal.show({
+                    title: 'Não foi possível atualizar',
+                    message: 'Erro ao editar o aluno.',
+                });                
             }
         },
     }

@@ -148,7 +148,11 @@ function formHandler() {
         '';
 
       if (!url) {
-        alert('Não foi possível determinar a rota de ativação do aluno.');
+        window.notificationModal.show({
+          title: 'Não foi possível continuar',
+          message: 'Não conseguimos identificar a rota de ativação do aluno.',
+          primaryLabel: 'Entendi',
+        });
         return;
       }
 
@@ -188,37 +192,56 @@ function formHandler() {
 
       this.isSubmitting = true;
 
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrf,
-        },
-        body: JSON.stringify(payload),
-      })
-        .then(async (res) => {
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            const message =
-              data?.message ||
-              data?.detail ||
-              'Não foi possível processar a ativação do aluno.';
+     fetch(url, {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+         'X-CSRFToken': csrf,
+       },
+       body: JSON.stringify(payload),
+     })
+       .then(async (res) => {
+         const data = await res.json().catch(() => ({}));
+         if (!res.ok) {
+           const message =
+             data?.message ||
+             data?.detail ||
+             'Não foi possível processar a ativação do aluno.';
+            if (window.notificationModal) {
+              window.notificationModal.show({
+                title: 'Não foi possível concluir',
+                message,
+                primaryLabel: 'Entendi',
+              });
+            }
             throw new Error(message);
+         }
+         return data;
+       })
+       .then((data) => {
+         this.registerModal = false;
+          if (window.notificationModal) {
+            window.notificationModal.show({
+              title: 'Aluno reativado',
+              message: data?.message || 'O aluno foi reativado com sucesso.',
+              primaryLabel: 'Atualizar página',
+              onPrimary: () => window.location.reload(),
+            });
           }
-          return data;
-        })
-        .then((data) => {
-          this.registerModal = false;
-          alert(data?.message || 'Aluno reativado com sucesso.');
-          window.location.reload();
-        })
-        .catch((error) => {
+       })
+       .catch((error) => {
           console.error(error);
-          alert(error.message || 'Não foi possível processar a ativação do aluno.');
-        })
-        .finally(() => {
-          this.isSubmitting = false;
-        });
+          if (window.notificationModal) {
+            window.notificationModal.show({
+              title: 'Não foi possível concluir',
+              message: error.message || 'Não conseguimos processar a ativação do aluno.',
+              primaryLabel: 'Entendi',
+            });
+          }
+       })
+       .finally(() => {
+         this.isSubmitting = false;
+       });
     },
   };
 }

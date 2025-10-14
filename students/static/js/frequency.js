@@ -83,7 +83,7 @@
         await this.fetchAttendance();
       },
 
-      async fetchAttendance() {
+     async fetchAttendance() {
         if (!this.apiUrl) {
           console.error('URL da API de frequência não configurada.');
           return;
@@ -101,6 +101,12 @@
         } catch (error) {
           console.error(error);
           this.flashMessage = error.message || 'Erro ao carregar frequência.';
+          if (window.notificationModal) {
+            window.notificationModal.show({
+              title: 'Erro ao carregar',
+              message: error.message || 'Não foi possível carregar a frequência.',
+            });
+          }
         } finally {
           this.loading = false;
         }
@@ -141,6 +147,12 @@
         } catch (error) {
           console.error(error);
           this.flashMessage = error.message || 'Não foi possível atualizar a frequência.';
+          if (window.notificationModal) {
+            window.notificationModal.show({
+              title: 'Não foi possível atualizar',
+              message: error.message || 'Não conseguimos atualizar a frequência.',
+            });
+          }
         } finally {
           this.loading = false;
         }

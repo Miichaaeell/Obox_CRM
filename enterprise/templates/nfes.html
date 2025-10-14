@@ -115,22 +115,11 @@
     </div>
   </div>
 
-  <!-- Modal Notificação-->
-   <div 
-    x-show="showModalNotification" 
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-  >
-    <div class="bg-white p-6 rounded-lg w-96">
-      <h2 class="text-xl font-bold mb-4" x-text="notification"></h2>
-      <div class="flex justify-end gap-2 mt-4">
-        <button @click="closeNotification()" class="px-4 py-2 bg-gray-300 rounded">Fechar</button>
-
-      </div>
-    </div>
-  </div>
+  {% include 'components/_notification_modal.html' %}
 
 </div>
 
 <script src="{% static 'js/nfes.js' %}"></script>
+<script src="{% static 'js/notification_modal.js' %}"></script>
 
 {% endblock content %}

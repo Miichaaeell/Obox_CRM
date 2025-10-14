@@ -7,8 +7,6 @@ function nfeHandler() {
     student_filter: '',
     rows: [],
     showModalEmitir: false,
-    showModalNotification: false,
-    notification: '',
 
     init() {
       this.rows = Array.from(this.$el.querySelectorAll('[data-nfe-row]'));
@@ -74,27 +72,19 @@ function nfeHandler() {
 
     openModalEmitir() {
       if (this.reference_month.length === 0) {
-        this.notification = "Selecione o mês de referência"
-        this.showModalNotification =  true;
+        window.notificationModal.show({
+          title: 'Selecione o mês de referência',
+          message: 'Informe o mês de competência antes de continuar.',
+        });
         return;
       } else if (this.selected.length === 0) {
-        this.notification = "Selecione pelo menos 1 aluno"
-        this.showModalNotification =  true;
+        window.notificationModal.show({
+          title: 'Selecione alunos',
+          message: 'Escolha ao menos um aluno para emitir a nota.',
+        });
         return;
       }
       this.showModalEmitir = true;
-    },
-
-    closeNotification(){
-        
-        if (this.notification === 'Solicitação de emissão enviada com Sucesso!'){
-            this.selected = [];
-            this.description = "";
-            this.reference_month = "";
-            window.location.reload()
-        } else {
-            this.showModalNotification =  false;
-        }
     },
 
     async emitir() {
@@ -104,8 +94,10 @@ function nfeHandler() {
         reference_month: this.reference_month
       };
       if (this.description.length === 0){
-        this.notification = "Preencha o campo Descrição"
-        this.showModalNotification =  true;
+        window.notificationModal.show({
+          title: 'Descrição obrigatória',
+          message: 'Preencha a descrição da nota fiscal.',
+        });
         return;
       }
       else {
@@ -122,20 +114,28 @@ function nfeHandler() {
 
         if (response.ok) {
           this.showModalEmitir = false;
-          this.notification = "Solicitação de emissão enviada com Sucesso!"
-          this.showModalNotification =  true;
-          
+          window.notificationModal.show({
+            title: 'Solicitação enviada',
+            message: 'Solicitação de emissão enviada com sucesso!',
+            primaryLabel: 'Atualizar página',
+            onPrimary: () => window.location.reload(),
+          });
+
         } else {
-            data = await response.json()
-            msg = JSON.stringify(data)
-            this.notification = msg;
-            this.showModalNotification =  true;
-          
+            const data = await response.json().catch(() => ({}));
+            const msg = data.message || JSON.stringify(data) || 'Erro ao enviar a solicitação.';
+            window.notificationModal.show({
+              title: 'Não foi possível concluir',
+              message: msg,
+            });
+
         }
       } catch (err) {
         console.error(err);
-        this.notification = 'Erro de conexão';
-        this.showModalNotification =  true;
+        window.notificationModal.show({
+          title: 'Erro de conexão',
+          message: 'Não foi possível enviar a solicitação de emissão.',
+        });
       }
       }
     }
