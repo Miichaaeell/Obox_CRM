@@ -59,9 +59,9 @@
       </thead>
       <tbody>
         {% for monthlyfee in monthlyfees %}
-          <tr data-nfe-row data-plan="{{ monthlyfee.plan|default_if_none:'' }}" data-student="{{ monthlyfee.student.name }}" data-month="{{ monthlyfee.reference_month }}">
+          <tr data-nfe-row data-plan="{{ monthlyfee.plan|default_if_none:'' }}" data-student="{{ monthlyfee.student_name}}" data-month="{{ monthlyfee.reference_month }}">
             <td>{{monthlyfee.due_date|date:'d/m/Y'}}</td>
-            <td>{{monthlyfee.student}}</td>
+            <td>{{monthlyfee.student_name}}</td>
             <td>{{monthlyfee.amount}}</td>
             <td>{{monthlyfee.plan}}</td>
             <td>{{monthlyfee.payment_method}}</td>
