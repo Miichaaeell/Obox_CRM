@@ -2,23 +2,51 @@ function CashierHandler(){
     return {
         ModalCloseCashier:false,
         withdrawal:false,
-        withdrawalValue:0.00,
+        withdrawalValue:Number(),
         referenceMonth:null,
-        totalCashier:0.00,
+        ValueCashier:Number(),
+        totalCashier:Number(),
+
     
     startclosecashier(){
-        this.referenceMonth = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        const date = new Date()
+        date.setMonth(date.getMonth() - 1)
+        this.referenceMonth= date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         this.ModalCloseCashier = true;
     
     },
     flowclosecashier(){
-        this.ModalCloseCashier = false;
-        
-        notificationModal.show({
-            title:'Fechamento do Caixa',
-            message:'Caixa Fechado com sucesso!'
-        })
+        this.ValueCashier = PaymentFlow.parseNumber(this.ValueCashier);
+        if(this.withdrawal){
+            this.withdrawalValue = PaymentFlow.parseNumber(this.withdrawalValue);
+            this.totalCashier = this.ValueCashier - this.withdrawalValue;
+            if(this.totalCashier < 0){
+                notificationModal.show({
+                    title:'Erro ao fechar caixa',
+                    message:'O valor do caixa não pode ser negativo!'
+                })
+            }else{
+                this.ModalCloseCashier = false;
+                // Logica da API para fechar o caixa
+
+                notificationModal.show({
+                    title:'Fechamento do Caixa',
+                    message:'Caixa Fechado com sucesso! Saldo final: R$ '+PaymentFlow.formatCurrency(this.totalCashier)+ ' Retirada: '+PaymentFlow.formatCurrency(this.withdrawalValue)+' Referente ao mês: '+this.referenceMonth
+                    })
+            }
+        }else{
+            this.ModalCloseCashier = false;
+            this.totalCashier = this.ValueCashier;
+            // logica da API para fechar o caixa
+
+            notificationModal.show({
+                title:'Fechamento do Caixa',
+                message:'Caixa Fechado com sucesso! Saldo final: R$ '+PaymentFlow.formatCurrency(this.totalCashier)+ ' Retirada: '+PaymentFlow.formatCurrency(this.withdrawalValue)+' Referente ao mês: '+this.referenceMonth
+                })
+        }
     }
+
+        
 
     }
 }

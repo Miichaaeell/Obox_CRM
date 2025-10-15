@@ -1,6 +1,6 @@
-<div x-show="ModalCloseCashier" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" x-transition>
-
-    <div @click.outside="ModalCloseCashier = false" class="bg-white w-2/5 rounded-3xl shadow-2xl p-4 flex flex-col gap-3" >
+<div x-show="ModalCloseCashier" @keydown.escape.window="ModalCloseCashier = false" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40" x-transition>
+    {% load l10n %}
+    <div class="bg-white w-2/5 rounded-3xl shadow-2xl p-4 flex flex-col gap-3" >
         <h1>Deseja realmente fechar o caixa?</h1>
         <div class="grid grid-cols-2">
             <div class="w-40">
@@ -13,7 +13,11 @@
             </div>
             <div class="w-40">
                 <p>Valor total em caixa:</p>
-                <p class="border-b" x-text="totalCashier"></p>
+                <p class="border-b"
+                x-init="ValueCashier = '{{ balance|floatformat:2 }}'"
+                x-text="PaymentFlow.formatCurrency(ValueCashier)">
+                </p>
+
             </div>
         </div>
         <div>
@@ -22,11 +26,11 @@
         </div>
         <div x-show="withdrawal">
             <p>Retirada:</p>
-            <input type="number" step="any" placeholder="R$:" class="border-b" x-model="withdrawalValue">
+            <input x-mask:dynamic="$money($input, '.')" placeholder="R$:" class="border-b" x-model="withdrawalValue">
         </div>
         <div class="flex justify-center gap-6">
-            <button type="button" @click="ModalCloseCashier = false" class="bg-gray-500 border rounded-2xl shadow-gray-600 shadow-2xl w-40 p-2 hover:bg-gray-300 hover:cursor-pointer">Cancelar</button>
-            <button type="button" @click="flowclosecashier" class="bg-green-500 rounded-2xl shadow-2xl shadow-gray-600 w-40 p-2 hover:bg-green-900 hover:cursor-pointer">Fechar Caixa</button>
+            <button type="button" @click="ModalCloseCashier = false" class="bg-gray-300 border rounded-2xl shadow-gray-600 shadow-2xl w-40 p-2 hover:bg-gray-500 hover:cursor-pointer">Cancelar</button>
+            <button type="button" @click="flowclosecashier" class="bg-green-500 rounded-2xl shadow-2xl shadow-gray-600 w-40 p-2 hover:bg-green-700 hover:cursor-pointer">Fechar Caixa</button>
         </div>
 
     </div>

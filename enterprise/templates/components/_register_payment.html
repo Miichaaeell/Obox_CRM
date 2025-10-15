@@ -1,4 +1,4 @@
-<div x-show="registerModal" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div x-show="registerModal" x-transition class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 relative">
     <h1 class="text-2xl font-bold mb-4">Registrar Pagamento</h1>
     <div class="mb-4 gap-2"> <!--Informaões-->
@@ -34,8 +34,8 @@
         </div>
     </div>
     <div class="flex items-center mt-4 justify-center gap-4"><!--Bototes-->
-        <button @click="registerModal = false" class="p-2 px-2 bg-gray-800 rounded-lg text-white">Voltar</button>
-        <button @click="submitForm()" class="p-2 bg-green-500 rounded-lg text-white">Confirmar pagamento</button>
+        <button @click="close" class="p-2 px-2 bg-gray-800 rounded-lg text-white hover:cursor-pointer">Voltar</button>
+        <button @click="submitForm()" class="p-2 bg-green-500 rounded-lg text-white hover:cursor-pointer">Confirmar pagamento</button>
     </div>
 </div>
 </div>

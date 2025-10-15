@@ -1,5 +1,6 @@
 <div x-data="notificationModalComponent()"
      x-show="open"
+     @keydown.escape.window="close()"
      x-cloak
      x-transition.opacity
      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
