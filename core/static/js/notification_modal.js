@@ -84,5 +84,8 @@ function notificationModalComponent() {
     handleSecondary() {
       window.notificationModal.secondary();
     },
+    close(){
+      this.open = false;
+    }
   };
 }

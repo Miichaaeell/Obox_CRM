@@ -7,133 +7,134 @@
     
 
 {% block content %}
-  <!-- Header -->
-  <div class="w-full max-w-6xl mb-6 flex gap-4 text-white">
-    <div>
-      <span class="font-semibold">Situação:</span>
-      <span class="text-green-400">Aberto</span>
+  <div x-data="CashierHandler()">
+    <!-- Header -->
+    <div class="w-full max-w-6xl mb-6 flex gap-4 text-white" >
+      <div>
+        <span class="font-semibold">Situação:</span>
+        <span class="text-green-400">Aberto</span>
+      </div>
+       <div>
+        <span class="font-semibold">Data de abertura:</span>
+        <span class="font-bold">{{date_start}}</span>
+      </div>
+    
     </div>
-     <div>
-      <span class="font-semibold">Data de abertura:</span>
-      <span class="font-bold">{{date_start}}</span>
-    </div>
-   
-  </div>
-
-  <div class="w-full max-w-6xl grid grid-cols-4 gap-4">
-
-    <!-- Coluna da esquerda: Cards -->
-    <div class="col-span-1 flex flex-col gap-4">
-      <!-- Entradas -->
-      <div class="bg-white rounded-xl shadow overflow-hidden">
-        <h3 class="font-bold text-lg mb-3 bg-green-600 w-100 p-3" >(+ ) Entradas</h3>
-        <div class="flex px-3 py-1 justify-between"><span>Pix</span><span>R$ {{ pix|floatformat:2 }}</span></div>
-        <div class="flex px-3 justify-between"><span>C. Crédito</span><span>R$ {{ credito|floatformat:2 }}</span></div>
-        <div class="flex px-3 py-1 justify-between"><span>C. Débito</span><span>R$ {{ debito|floatformat:2 }}</span></div>
-        <div class="flex px-3 justify-between"><span>Dinheiro</span><span>R$ {{ dinheiro|floatformat:2 }}</span></div>
-        <hr class="my-2 border-white/40">
-        <div class="flex px-3 py-2 justify-between font-semibold text-lg">
-          <span>Total</span><span>R$ {{ tot|floatformat:2 }}</span>
+    <div class="w-full max-w-6xl grid grid-cols-4 gap-4">
+      <!-- Coluna da esquerda: Cards -->
+      <div class="col-span-1 flex flex-col gap-4">
+        <!-- Entradas -->
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+          <h3 class="font-bold text-lg mb-3 bg-green-600 w-100 p-3" >(+ ) Entradas</h3>
+          <div class="flex px-3 py-1 justify-between"><span>Pix</span><span>R$ {{ pix|floatformat:2 }}</span></div>
+          <div class="flex px-3 justify-between"><span>C. Crédito</span><span>R$ {{ credito|floatformat:2 }}</span></div>
+          <div class="flex px-3 py-1 justify-between"><span>C. Débito</span><span>R$ {{ debito|floatformat:2 }}</span></div>
+          <div class="flex px-3 justify-between"><span>Dinheiro</span><span>R$ {{ dinheiro|floatformat:2 }}</span></div>
+          <hr class="my-2 border-white/40">
+          <div class="flex px-3 py-2 justify-between font-semibold text-lg">
+            <span>Total</span><span>R$ {{ tot|floatformat:2 }}</span>
+          </div>
+        </div>
+        <!-- Saídas -->
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+          <h3 class="bg-red-600 font-bold text-lg mb-2 p-1">(-) Saídas</h3>
+          <div class="flex px-2 justify-between"><span>Pix</span><span>R$ {{bill_pix|floatformat:2}}</span></div>
+          <div class="flex px-2 py-1 justify-between"><span>Boleto</span><span>R$ {{bill_boleto|floatformat:2}}</span></div>
+          <div class="flex px-2 justify-between"><span>Débito Automático</span><span>R$ {{bill_automatic|floatformat:2}}</span></div>
+          <div class="flex px-2 py-1 justify-between"><span>Retiradas</span><span>R$ {{bill_retirada|floatformat:2}}</span></div>
+          <div class="flex px-2 justify-between"><span>Outros</span><span>R$ {{bill_others|floatformat:2}}</span></div>
+          <hr class="my-2 border-white/40">
+          <div class="flex px-2 justify-between font-semibold text-lg">
+            <span>Total</span><span>R$ {{ pay|floatformat:2 }}</span>
+          </div>
+        </div>
+        <!-- Discriminação -->
+        <div class="bg-white rounded-xl shadow  overflow-hidden">
+          <h3 class="bg-gray-400 p-2 font-bold text-lg mb-3">Discriminação</h3>
+          <div class="flex p-2 justify-between"><span>Saldo anterior</span><span>RS {{ last_cashier|floatformat:2 }}</span></div>
+          <div class="flex px-2 justify-between"><span>(+) Entrada</span><span>R$  {{ tot|floatformat:2 }}</span></div>
+          <div class="flex p-2 justify-between"><span>(-) Saída</span><span>R$ {{ pay|floatformat:2 }}</span></div>
+          <hr class="my-2 border-gray-600/50">
+          <div class="flex p-2 justify-between font-bold text-lg">
+            <span>Saldo final</span><span>R$ {{balance}}</span>
+          </div>
         </div>
       </div>
-
-      <!-- Saídas -->
-      <div class="bg-white rounded-xl shadow overflow-hidden">
-        <h3 class="bg-red-600 font-bold text-lg mb-2 p-1">(-) Saídas</h3>
-        <div class="flex px-2 justify-between"><span>Pix</span><span>R$ {{bill_pix|floatformat:2}}</span></div>
-        <div class="flex px-2 py-1 justify-between"><span>Boleto</span><span>R$ {{bill_boleto|floatformat:2}}</span></div>
-        <div class="flex px-2 justify-between"><span>Débito Automático</span><span>R$ {{bill_automatic|floatformat:2}}</span></div>
-        <div class="flex px-2 py-1 justify-between"><span>Retiradas</span><span>R$ {{bill_retirada|floatformat:2}}</span></div>
-        <div class="flex px-2 justify-between"><span>Outros</span><span>R$ {{bill_others|floatformat:2}}</span></div>
-        <hr class="my-2 border-white/40">
-        <div class="flex px-2 justify-between font-semibold text-lg">
-          <span>Total</span><span>R$ {{ pay|floatformat:2 }}</span>
+      <!-- Coluna da direita: Tabela -->
+      <div class="col-span-3 bg-white rounded-2xl shadow-xl p-6 flex flex-col">
+        <!-- Filtros -->
+        <div class="flex items-center gap-4 mb-4">
+          <button class="p-2 border rounded hover:bg-gray-100">
+            <!-- Icone filtro -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v6l-4-2v-4L3 6V4z"/>
+            </svg>
+          </button>
+          <button class="px-3 py-1 border rounded-lg bg-gray-100">Entrada</button>
+          <button class="px-3 py-1 border rounded-lg bg-gray-100">Saída</button>
+          <input type="date" class="px-2 py-1 border rounded-lg">
+          <button class="text-gray-500 hover:underline">Apagar filtros</button>
         </div>
-      </div>
-
-      <!-- Discriminação -->
-      <div class="bg-white rounded-xl shadow  overflow-hidden">
-        <h3 class="bg-gray-400 p-2 font-bold text-lg mb-3">Discriminação</h3>
-        <div class="flex p-2 justify-between"><span>Saldo anterior</span><span>RS {{ last_cashier|floatformat:2 }}</span></div>
-        <div class="flex px-2 justify-between"><span>(+) Entrada</span><span>R$  {{ tot|floatformat:2 }}</span></div>
-        <div class="flex p-2 justify-between"><span>(-) Saída</span><span>R$ {{ pay|floatformat:2 }}</span></div>
-        <hr class="my-2 border-gray-600/50">
-        <div class="flex p-2 justify-between font-bold text-lg">
-          <span>Saldo final</span><span>R$ {{balance}}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Coluna da direita: Tabela -->
-    <div class="col-span-3 bg-white rounded-2xl shadow-xl p-6 flex flex-col">
-      <!-- Filtros -->
-      <div class="flex items-center gap-4 mb-4">
-        <button class="p-2 border rounded hover:bg-gray-100">
-          <!-- Icone filtro -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v6l-4-2v-4L3 6V4z"/>
-          </svg>
-        </button>
-        <button class="px-3 py-1 border rounded-lg bg-gray-100">Entrada</button>
-        <button class="px-3 py-1 border rounded-lg bg-gray-100">Saída</button>
-        <input type="date" class="px-2 py-1 border rounded-lg">
-        <button class="text-gray-500 hover:underline">Apagar filtros</button>
-      </div>
-
-      <!-- Tabela -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm border-collapse">
-          <thead>
-            <tr class="border-b">
-              <th class="text-left py-2 px-3 border-l">Data</th>
-              <th class="text-left py-2 px-3 border-l">Tipo</th>
-              <th class="text-left py-2 px-3 border-l">Valor</th>
-              <th class="text-left py-2 px-3 border-l">Descrição</th>
-              <th class="text-left py-2 px-3 border-l">Formato</th>
-              <th class="text-left py-2 px-3 border-l">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-           
-           {% for bill in bills %}            
-            {% if bill.status.status|lower == 'pago' or bill.status.status|lower == 'automático' and bill.due_date|date:'d/m/y' <=  today %}
-              <tr>
-              <td> {{ bill.due_date|date:'d/m/y' }}</td>
-              <td>Saída</td>
-              <td>{{ bill.value }}</td>
-              <td>{{ bill.description }}</td>
-              <td>
-              {% if bill.payment_method %}
-                {{ bill.payment_method }}
-                {% else %}
-                Em aberto
+        <!-- Tabela -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="border-b">
+                <th class="text-left py-2 px-3 border-l">Data</th>
+                <th class="text-left py-2 px-3 border-l">Tipo</th>
+                <th class="text-left py-2 px-3 border-l">Valor</th>
+                <th class="text-left py-2 px-3 border-l">Descrição</th>
+                <th class="text-left py-2 px-3 border-l">Formato</th>
+                <th class="text-left py-2 px-3 border-l">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+    
+             {% for bill in bills %}
+              {% if bill.status.status|lower == 'pago' or bill.status.status|lower == 'automático' and bill.due_date|date:'d/m/y' <=  today %}
+                <tr>
+                <td> {{ bill.due_date|date:'d/m/y' }}</td>
+                <td>Saída</td>
+                <td>{{ bill.value }}</td>
+                <td>{{ bill.description }}</td>
+                <td>
+                {% if bill.payment_method %}
+                  {{ bill.payment_method }}
+                  {% else %}
+                  Em aberto
+                {% endif %}
+                  </td>
+                <td>{{ bill.value }}</td>
+              </tr>
               {% endif %}
-                </td>
-              <td>{{ bill.value }}</td>
-            </tr>
-            {% endif %}
-            <!--Entradas-->
-           {% endfor %}
-           {% for payment  in payments %}
-            <tr>
-              <td> {{ payment.created_at|date:'d/m/y' }}</td>
-              <td>Entrada</td>
-              <td>{{ payment.value }}</td>
-              <td>{{ payment.montlhyfee.student_name }}</td>
-              <td>{{ payment.payment_method|title }}</td>
-              <td>{{ payment.value }}</td>
-            </tr>
-           {% endfor %}
-          </tbody>
-        </table>
+              <!--Entradas-->
+             {% endfor %}
+             {% for payment  in payments %}
+              <tr>
+                <td> {{ payment.created_at|date:'d/m/y' }}</td>
+                <td>Entrada</td>
+                <td>{{ payment.value }}</td>
+                <td>{{ payment.montlhyfee.student_name }}</td>
+                <td>{{ payment.payment_method|title }}</td>
+                <td>{{ payment.value }}</td>
+              </tr>
+             {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+    <!-- Rodapé -->
+    <div class="w-full max-w-6xl flex justify-end gap-4 mt-6">
+      <a href="{% url 'flow_cashier' %}"><button class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg">Acessar fluxo</button></a>
+      <button @click="startclosecashier" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:cursor-pointer" >Fechar caixa</button>
+    </div>
+    <!--MODAIS-->
+    {% include 'components/_notification_modal.html' %}
+    {% include 'components/_modal_close_cashier.html' %}
   </div>
 
-  <!-- Rodapé -->
-  <div class="w-full max-w-6xl flex justify-end gap-4 mt-6">
-    <a href="{% url 'flow_cashier' %}"><button class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg">Acessar fluxo</button></a>
-    <button class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Fechar caixa</button>
-  </div>
+  <script src="{% static 'js/notification_modal.js' %}"></script>
+   <script src="{% static 'js/cashier.js' %}"></script>
 {% endblock content %}
     
