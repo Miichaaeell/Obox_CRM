@@ -23,3 +23,26 @@ def month_name(value):
         return f"{meses[month-1]}/{year}"
     except Exception:
         return value
+
+    
+@register.filter
+def calculate_lucrativity(receit, despes):
+    """Calcula a lucratividade como (receit - despes) / receit * 100."""
+    try:
+        receit = float(receit)
+        despes = float(despes)
+        if receit == 0:
+            return "0.00"
+        lucrativity = ((receit - despes) / receit) * 100
+        return f"{lucrativity:.2f}"
+    except (ValueError, TypeError):
+        return "0.00"
+    
+@register.filter
+def subtract(value, arg):
+    """Subtrai arg de value."""
+    try:
+        result = float(value) - float(arg)
+        return f'{result:.2f}'
+    except (ValueError, TypeError):
+        return 0

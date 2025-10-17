@@ -71,6 +71,14 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
 
 class FlowCashierView(LoginRequiredMixin, TemplateView):
     template_name = 'flow_cashier.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cashiers = Cashier.objects.all().order_by('-created_at')
+        context['cashiers'] = cashiers
+        
+        return context
+    
 
 
 class EnterpriseCashierView(LoginRequiredMixin, View):
@@ -172,7 +180,7 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
                 last_cashier.status = 'closed'
                 last_cashier.date_closing = datetime.now()
                 last_cashier.total_incomes = context['total_incomes']
-                last_cashier.total_expenses = context['total_expenses']
+                last_cashier.total_expenses = context['total_expenses'] + withdrawalValue
                 last_cashier.closing_balance = closing_balance
                 last_cashier.income_pix = context['income_pix']
                 last_cashier.income_credit = context['income_credit']

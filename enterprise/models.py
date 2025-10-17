@@ -153,7 +153,7 @@ class Cashier(TimeStampedModel, models.Model):
         ordering = ['-date_closing']
 
     def __str__(self):
-        return f"Caixa {self.created_at.strftime('%d/%B/%Y')}"
+        return f"{self.created_at.strftime('%d/%m/%Y')}"
 
 
 class Plan(TimeStampedModel, models.Model):

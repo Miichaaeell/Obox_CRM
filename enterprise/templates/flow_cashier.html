@@ -1,5 +1,5 @@
 {% extends "_base.html" %}
-
+{% load format_extras %}
 {% block title %}Fluxo de Caixa{% endblock %}
 
 {% block content %}
@@ -15,6 +15,7 @@
       <span class="font-semibold">Data de abertura:</span>
       <span class="font-bold">01/09/2025 - 00h00</span>
     </div>
+    {{title}}
   </div>
 
   <!-- Card principal -->
@@ -24,123 +25,80 @@
         <thead>
           <tr class="border-b ">
             <th class="text-left py-2 px-3 font-semibold">Fluxo de Caixa</th>
-            <th class="px-3 py-2">Jan</th>
-            <th class="px-3 py-2">Fev</th>
-            <th class="px-3 py-2">Mar</th>
-            <th class="px-3 py-2">Abr</th>
-            <th class="px-3 py-2">Mai</th>
-            <th class="px-3 py-2">Jun</th>
-            <th class="px-3 py-2">Jul</th>
-            <th class="px-3 py-2">Ago</th>
+            {% for cashier in cashiers %}
+              {% if cashier.status == 'closed' %}
+                <td class="px-3 py-2">{{cashier.created_at|date:'d-M-Y'}}</td>
+              {% endif %}
+            {% endfor %}
           </tr>
         </thead>
         <tbody class="text-gray-200">
           <tr class="">
-            <td class="px-3 py-2">Saldo Inicial</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
+            <th class="px-3 py-2 text-left ">Saldo Inicial</th>
+            {% for cashier in cashiers %}
+              {% if cashier.status == 'closed' %}
+                <td class="px-3 py-2">R$ {{cashier.opening_balance|floatformat:2}}</td>
+              {% endif %}
+            {% endfor %}
+            
           </tr>
           <tr >
-            <td class="px-3 py-2">Receitas</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
+            <th class="px-3 py-2 text-left ">Receitas</th>
+            {% for cashier in cashiers %}
+              {% if cashier.status == 'closed' %}
+                <td class="px-3 py-2">R$ {{cashier.total_incomes|floatformat:2}}</td>
+              {% endif %}
+            {% endfor %}
+            
           </tr>
           <tr >
-            <td class="px-3 py-2">Despesas</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
+            <th class="px-3 py-2 text-left ">Despesas</th>
+            {% for cashier in cashiers %}
+              
+              {% if cashier.status == 'closed' %}
+                <td class="px-3 py-2">R$ {{cashier.total_expenses|floatformat:2}}</td>
+              {% endif %}
+            {% endfor %}
+            
           </tr>
           <tr >
-            <td class="px-3 py-2">Lucro/Prejuízo</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
+            <th class="px-3 py-2 text-left ">Lucro/Prejuízo</th>
+            {% for cashier in cashiers %}
+              
+              {% if cashier.status == 'closed' %}
+                <td class="px-3 py-2">R$ {{cashier.total_incomes|subtract:cashier.total_expenses}}</td>
+              {% endif %}
+            {% endfor %}
+           
           </tr>
           <tr>
-            <td class="px-3 py-2">Acumulado</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
-            <td class="px-3 py-2">R$ 00.000,00</td>
+            <th class="px-3 py-2 text-left ">Acumulado</th>
+            {% for cashier in cashiers %}
+              
+              {% if cashier.status == 'closed' %}
+                <td class="px-3 py-2">R$ {{cashier.closing_balance|floatformat:2}}</td>
+              {% endif %}
+            {% endfor %}
+            
           </tr>
           <tr >
-            <td class="px-3 py-2">Lucratividade</td>
-            <td class="px-3 py-2">00,0%</td>
-            <td class="px-3 py-2">00,0%</td>
-            <td class="px-3 py-2">00,0%</td>
-            <td class="px-3 py-2">00,0%</td>
-            <td class="px-3 py-2">00,0%</td>
-            <td class="px-3 py-2">00,0%</td>
-            <td class="px-3 py-2">00,0%</td>
-            <td class="px-3 py-2">00,0%</td>
+            <th class="px-3 py-2 text-left ">Lucratividade</th>
+            {% for cashier in cashiers %}
+              
+              {% if cashier.status == 'closed' %}
+                <td class="px-3 py-2">{{cashier.total_incomes|calculate_lucrativity:cashier.total_expenses}} %</td>
+              {% endif %}
+            {% endfor %}
+            
           </tr>
           <!-- linha dos botões -->
           <tr>
             <td class="px-3 py-2"></td>
             <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
-                Download ⬇️
-              </button>
-            </td>
-            <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
-                Download ⬇️
-              </button>
-            </td>
-            <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
-                Download ⬇️
-              </button>
-            </td>
-            <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
-                Download ⬇️
-              </button>
-            </td>
-            <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
-                Download ⬇️
-              </button>
-            </td>
-            <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
-                Download ⬇️
-              </button>
-            </td>
-            <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
-                Download ⬇️
-              </button>
-            </td>
-            <td class="px-3 py-2">
-              <button class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1">
+              <button @click="notificationModal.show({
+              title: 'Download do Fluxo de Caixa',
+              message: 'O download do fluxo de caixa está em construção.',
+              })" class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1 hover:bg-green-700 hover:scale-105 transition-transform hover:shadow-lg hover:cursor-pointer">
                 Download ⬇️
               </button>
             </td>
@@ -156,4 +114,5 @@
     </div>
   </div>
 </div>
+{% include 'components/_notification_modal.html' %}
 {% endblock %}
