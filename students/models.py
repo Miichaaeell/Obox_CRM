@@ -117,9 +117,11 @@ class Payment(TimeStampedModel, models.Model):
         max_digits=10, decimal_places=2, verbose_name='Valor do pagamento')
     quantity_installments = models.IntegerField(
         verbose_name='Quantidade de parcelas', null=True, blank=True)
+    cashier = models.ForeignKey(
+        'enterprise.Cashier', on_delete=models.SET_NULL, blank=True, null=True, related_name='payments')
 
     def __str__(self):
-        return f'Mensalidade {self.montlhyfee.student.name}'
+        return f'Mensalidade {self.montlhyfee.student_name}'
 
     class Meta:
         verbose_name = 'Pagamento'

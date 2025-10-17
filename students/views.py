@@ -134,9 +134,12 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
         payments_create = [
             Payment(
                 montlhyfee=monthlyfe,
-                payment_method=payment.get('payment_method') or payment.get('method') or '',
-                value=Decimal(str(payment.get('value') or payment.get('receive_value') or 0)),
-                quantity_installments=int(payment.get('quantity_installments') or payment.get('installments') or 1)
+                payment_method=payment.get(
+                    'payment_method') or payment.get('method') or '',
+                value=Decimal(
+                    str(payment.get('value') or payment.get('receive_value') or 0)),
+                quantity_installments=int(payment.get(
+                    'quantity_installments') or payment.get('installments') or 1)
             )
             for payment in payments_data
         ]
@@ -182,7 +185,8 @@ class FrequenceStudentView(LoginRequiredMixin, TemplateView):
             .order_by('name')
         )
         present_ids = list(
-            Frequency.objects.filter(attendance_date=today).values_list('student_id', flat=True)
+            Frequency.objects.filter(attendance_date=today).values_list(
+                'student_id', flat=True)
         )
         context['initial_data'] = {
             'currentDate': today.isoformat(),
@@ -242,15 +246,20 @@ class StatusStudentUpdateView(LoginRequiredMixin, UpdateView):
 
 class UploadFileView(View):
     def post(self, request):
-        file = request.FILES['file']
-        response = upload_file(file)
-        match response['status_code']:
-            case '201':
-                messages.success(request, response['message'])
-            case '422':
-                messages.error(request, response['message'])
-            case '400':
-                messages.error(request, response['message'])
+        try:
+            file = request.FILES['file']
+            response = upload_file(file)
+            match response['status_code']:
+                case '201':
+                    messages.success(request, response['message'])
+                case '422':
+                    messages.error(request, response['message'])
+                case '400':
+                    messages.error(request, response['message'])
+        except KeyError:
+            messages.error(request, 'Nenhum arquivo foi selecionado')
+        except Exception as e:
+            messages.error(request, f'Erro ao enviar o arquivo: {str(e)}')
         return redirect('list_student')
 
 
@@ -315,7 +324,8 @@ class FrequencyAPIView(APIView):
         )
 
     def delete(self, request):
-        student_id = request.data.get('student_id') or request.query_params.get('student_id')
+        student_id = request.data.get(
+            'student_id') or request.query_params.get('student_id')
         date_str = request.data.get('date') or request.query_params.get('date')
 
         if not student_id:

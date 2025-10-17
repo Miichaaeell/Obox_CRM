@@ -2,7 +2,6 @@ from django import forms
 
 from enterprise.models import (
     Bill,
-    Cashier,
     Enterprise,
     Installments,
     NFSe,
@@ -103,20 +102,6 @@ class PaymentMethodForm(forms.ModelForm):
         fields = ['method']
         widgets = {
             'method': forms.TextInput(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-            }),
-        }
-
-
-class CashierForm(forms.ModelForm):
-    class Meta:
-        model = Cashier
-        fields = ['description', 'balance']
-        widgets = {
-            'description': forms.TextInput(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-            }),
-            'balance': forms.NumberInput(attrs={
                 "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
             }),
         }

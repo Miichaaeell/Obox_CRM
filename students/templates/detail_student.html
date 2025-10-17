@@ -150,7 +150,7 @@
                 <th class="pl-2 border-gray-500 border-r">Valor</th>
                 <th class="pl-2 border-gray-500 border-r">Vencimento</th>
                 <th class="pl-2 border-gray-500 border-r">Plano</th>
-                <th class="pl-a">Observação</th>
+                <th class="pl-a">Data do pagamento</th>
               </tr>
             </thead>
             <tbody class="">
@@ -167,7 +167,7 @@
                   <td class="pt-2">R$ {{monthlyfee.amount}}</td>
                   <td class="pt-2">{{monthlyfee.due_date|date:"d/m/y"}}</td>
                   <td class="pt-2">{{monthlyfee.plan}}</td>
-                  <td class="pt-2">-</td>
+                  <td class="pt-2">{{monthlyfee.date_paid}}</td>
                 </tr>
               {% endfor %}
             </tbody>

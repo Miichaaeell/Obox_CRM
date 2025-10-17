@@ -3,9 +3,9 @@
     <div class="bg-white w-2/5 rounded-3xl shadow-2xl p-4 flex flex-col gap-3" >
         <h1>Deseja realmente fechar o caixa?</h1>
         <div class="grid grid-cols-2">
-            <div class="w-40">
+            <div class="w-44">
                 <p>
-                    Mês de fechamento:
+                   Data do fechamento:
                 </p>
                 <p class="border-b" x-text="referenceMonth">
                    
@@ -14,7 +14,7 @@
             <div class="w-40">
                 <p>Valor total em caixa:</p>
                 <p class="border-b"
-                x-init="ValueCashier = '{{ balance|floatformat:2 }}'"
+                x-init="ValueCashier = '{{ closing_balance|floatformat:2 }}'"
                 x-text="PaymentFlow.formatCurrency(ValueCashier)">
                 </p>
 

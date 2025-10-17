@@ -1,7 +1,7 @@
 from django.db import models
 
 from core.models import TimeStampedModel
-from students.models import Student
+from students.models import Student, Payment
 
 
 class Enterprise(TimeStampedModel, models.Model):
@@ -95,6 +95,8 @@ class Bill(TimeStampedModel, models.Model):
         max_digits=5, decimal_places=4, verbose_name='Porcentagem da multa', default=0)
     total_value = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='valor', blank=True, null=True)
+    cashier = models.ForeignKey(
+        'Cashier', on_delete=models.SET_NULL, blank=True, null=True, related_name='bills')
 
     def __str__(self):
         return self.description
@@ -106,18 +108,52 @@ class Bill(TimeStampedModel, models.Model):
 
 
 class Cashier(TimeStampedModel, models.Model):
-    description = models.TextField(
-        blank=True, null=True, verbose_name='descrição')
-    balance = models.DecimalField(
-        max_digits=10, decimal_places=2, verbose_name='saldo')
+    STATUS_CHOICES = [
+        ('open', 'Aberto'),
+        ('closed', 'Fechado'),
+    ]
+    status = models.CharField(
+        max_length=7, choices=STATUS_CHOICES, default='open')
+    date_closing = models.DateTimeField(unique=True, null=True, blank=True)
 
-    def __str__(self):
-        return self.balance
+    opening_balance = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    total_incomes = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    total_expenses = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    closing_balance = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+
+    income_pix = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    income_credit = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    income_debit = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    income_cash = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+
+    expense_pix = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    expense_boleto = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    expense_automatic = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    expense_others = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    expense_withdrawal = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+
+    notes = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'Caixa'
         verbose_name_plural = 'Caixas'
-        ordering = ['-created_at']
+        ordering = ['-date_closing']
+
+    def __str__(self):
+        return f"Caixa {self.created_at.strftime('%d/%B/%Y')}"
 
 
 class Plan(TimeStampedModel, models.Model):
