@@ -76,8 +76,28 @@ class FlowCashierView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         cashiers = Cashier.objects.all().order_by('-created_at')
         context['cashiers'] = cashiers
+        context['url_download'] = reverse('download_cashier')
         
         return context
+    
+class DownloadCashierFlowView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        cashier_id = request.GET.get('pk')
+        try:
+            cashier = Cashier.objects.get(id=cashier_id)
+        except Cashier.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'title': 'Erro no Download',
+                'message': 'Caixa não encontrado.'
+            }, status=404)
+        response = JsonResponse({
+            'status': 'success',
+            'title': 'Download do Relatório',
+            'message': f'Relatório do caixa {cashier} baixado com sucesso!'
+        }, status=200)
+
+        return response
     
 
 

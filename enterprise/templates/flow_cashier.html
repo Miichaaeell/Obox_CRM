@@ -98,7 +98,7 @@
             {% for cashier in cashiers %}
               {% if cashier.status == 'closed' %}
              <td class="px-3 py-2">
-              <button @click="donwloadRelatorio({{cashier.id}})" class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1 hover:bg-green-700 hover:scale-105 transition-transform hover:shadow-lg hover:cursor-pointer">
+              <button @click="donwloadRelatorio({{cashier.id}}, {{url_download}})"  class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1 hover:bg-green-700 hover:scale-105 transition-transform hover:shadow-lg hover:cursor-pointer">
                 Download ⬇️
               </button>
             </td>

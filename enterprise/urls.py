@@ -4,6 +4,7 @@ from enterprise.views import (
     BillCreateAPIView,
     BillDetailAPIView,
     BillListView,
+    DownloadCashierFlowView,
     EnterpriseCashierView,
     EnterpriseHomeView,
     FlowCashierView,
@@ -43,6 +44,8 @@ urlpatterns = [
          BillDetailAPIView.as_view(), name='detail_bill'),
     # Views Cashier
     path('cashier/', EnterpriseCashierView.as_view(), name='cashier'),
+    path('donwload_cashier/',
+         DownloadCashierFlowView.as_view(), name='download_cashier'),
 
     # Views Cashier
 
