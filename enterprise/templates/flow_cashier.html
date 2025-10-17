@@ -1,9 +1,10 @@
 {% extends "_base.html" %}
 {% load format_extras %}
+{% load static %}
 {% block title %}Fluxo de Caixa{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-7xl mx-auto p-6">
+<div class="w-full max-w-7xl mx-auto p-6" x-data="flowCashier()">
 
   <!-- Header -->
   <div class="flex gap-5 text-white mb-4">
@@ -94,14 +95,15 @@
           <!-- linha dos botões -->
           <tr>
             <td class="px-3 py-2"></td>
-            <td class="px-3 py-2">
-              <button @click="notificationModal.show({
-              title: 'Download do Fluxo de Caixa',
-              message: 'O download do fluxo de caixa está em construção.',
-              })" class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1 hover:bg-green-700 hover:scale-105 transition-transform hover:shadow-lg hover:cursor-pointer">
+            {% for cashier in cashiers %}
+              {% if cashier.status == 'closed' %}
+             <td class="px-3 py-2">
+              <button @click="donwloadRelatorio({{cashier.id}})" class="px-3 py-1 bg-green-600 rounded text-white text-xs flex items-center gap-1 hover:bg-green-700 hover:scale-105 transition-transform hover:shadow-lg hover:cursor-pointer">
                 Download ⬇️
               </button>
             </td>
+              {% endif %}
+            {% endfor %}
           </tr>
         </tbody>
       </table>
@@ -115,4 +117,5 @@
   </div>
 </div>
 {% include 'components/_notification_modal.html' %}
+<script src="{% static 'js/flow_cashier.js' %}"></script>
 {% endblock %}
