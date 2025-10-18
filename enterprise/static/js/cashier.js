@@ -6,6 +6,7 @@ function CashierHandler(){
         referenceMonth:null,
         ValueCashier:Number(),
         totalCashier:Number(),
+        
 
     
     startclosecashier(){

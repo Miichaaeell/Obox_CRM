@@ -1,12 +1,10 @@
 function flowCashier() {
   return {
     url:'',
+    'snipped':false,
 
     donwloadRelatorio(id, url){
-      notificationModal.show({
-        title: 'Baixando relatório',
-        message: 'Por favor, aguarde enquanto o relatório está sendo preparado para download...',
-      })
+      this.snipped = true;
         fetch(url+'?pk='+id, {
           method:'GET',
           headers: {
@@ -44,7 +42,7 @@ function flowCashier() {
               title: 'Erro ao baixar o relatório',
               message: error.message,
               })
-        }).finally(()=> notificationModal.close())
+        }).finally(()=> this.snipped = false);
     
         
     },
