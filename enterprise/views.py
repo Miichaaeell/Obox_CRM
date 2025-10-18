@@ -1,6 +1,7 @@
+from io import BytesIO
 import json
-from datetime import datetime, timedelta, date
-from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
+
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, F, Q, Sum
@@ -8,7 +9,7 @@ from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -85,20 +86,68 @@ class DownloadCashierFlowView(LoginRequiredMixin, View):
         cashier_id = request.GET.get('pk')
         try:
             cashier = Cashier.objects.get(id=cashier_id)
+            import pandas as pd
+            cashier_data = {
+                'status': [cashier.get_status_display()],
+                'Valor inicial':[cashier.opening_balance],
+                'Total de entradas': [cashier.total_incomes],
+                'Total de saídas': [cashier.total_expenses],
+                'Valor final': [cashier.closing_balance],
+                'Data de abertura': [cashier.created_at],
+                'Data de fechamento': [cashier.date_closing],
+                'Retirada': [cashier.expense_withdrawal],
+                'Entradas via Pix': [cashier.income_pix],
+                'Entradas via Crédito': [cashier.income_credit],
+                'Entradas via Débito': [cashier.income_debit],
+                'Entradas via Dinheiro': [cashier.income_cash],
+                'Saídas via Pix': [cashier.expense_pix],
+                'Saídas via Boleto': [cashier.expense_boleto],
+                'Saídas via Débito Automático': [cashier.expense_automatic],
+                'Outras Saídas': [cashier.expense_others],
+            }
+            cashier_df = pd.DataFrame(cashier_data)
+            payments_qs = cashier.payments.all().select_related('montlhyfee')
+            payments_df = pd.DataFrame(list(payments_qs.values(
+                'montlhyfee__student_name',
+                'payment_method',
+                'value',
+                'quantity_installments',
+            )))
+            bills_qs = cashier.bills.all().select_related('payment_method__method','status__status')
+            bills_df = pd.DataFrame(list(bills_qs.values(
+                'description',
+                'due_date',
+                'date_payment',
+                'value',
+                'payment_method__method',
+                'status__status',
+                'appellant',
+                'apply_discount',
+                'value_discount',
+                'percent_discount',
+                'value_fine',
+                'percent_fine',
+                'total_value',
+            )))
+            buffer = BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                for df in [cashier_df, bills_df, payments_df]:
+                    for col in df.select_dtypes(include=['datetimetz']).columns:
+                        df[col] = df[col].dt.tz_localize(None)
+                cashier_df.to_excel(writer, index=False, sheet_name='Resumo do Caixa')
+                payments_df.to_excel(writer, index=False, sheet_name='Pagamentos')
+                bills_df.to_excel(writer, index=False, sheet_name='Contas')
+                
+            buffer.seek(0)
+            file_name = f'Fluxo_de_caixa_{cashier.created_at.strftime("%d-%m-%Y")}.xlsx'
+            return FileResponse(buffer, as_attachment=True, filename=file_name)
+        
         except Cashier.DoesNotExist:
             return JsonResponse({
                 'status': 'error',
                 'title': 'Erro no Download',
                 'message': 'Caixa não encontrado.'
             }, status=404)
-        response = JsonResponse({
-            'status': 'success',
-            'title': 'Download do Relatório',
-            'message': f'Relatório do caixa {cashier} baixado com sucesso!'
-        }, status=200)
-
-        return response
-    
 
 
 class EnterpriseCashierView(LoginRequiredMixin, View):

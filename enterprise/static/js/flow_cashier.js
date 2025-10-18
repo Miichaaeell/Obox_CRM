@@ -9,6 +9,7 @@ function flowCashier() {
             'Content-Type':'application/json',
         }}).then(response => response.json())
         .then(data => {
+          console.log(data);
             notificationModal.show({
               title: data.title,
               message: data.message,
