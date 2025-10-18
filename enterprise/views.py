@@ -80,173 +80,130 @@ class FlowCashierView(LoginRequiredMixin, TemplateView):
         context['url_download'] = reverse('download_cashier')
         
         return context
-    
-from io import BytesIO
-from datetime import datetime
+
+
 import pandas as pd
-from django.http import FileResponse, JsonResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views import View
-from openpyxl.styles import Alignment, Font
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 
 class DownloadCashierFlowView(LoginRequiredMixin, View):
-    """Gera relatório XLSX completo do caixa (resumo, contas e pagamentos)."""
+    """Gera relatório do fechamento de caixa em uma única aba formatada."""
 
-    # === Helpers reutilizáveis ===
-    def remove_timezone(self, df):
-        for col in df.columns:
-            if pd.api.types.is_datetime64_any_dtype(df[col]):
-                df[col] = pd.to_datetime(df[col]).dt.tz_localize(None)
-            else:
-                df[col] = df[col].apply(
-                    lambda v: v.replace(tzinfo=None) if isinstance(v, datetime) and getattr(v, 'tzinfo', None) else v
-                )
-        return df
-
-    def autofit(self, ws):
-        for col in ws.columns:
-            width = max(len(str(cell.value)) if cell.value else 0 for cell in col)
-            ws.column_dimensions[get_column_letter(col[0].column)].width = min(max(width + 2, 12), 60)
-
-    def format_header(self, ws):
-        for cell in ws[1]:
-            cell.font = Font(bold=True)
-            cell.alignment = Alignment(horizontal='center', vertical='center')
-
-    # === View principal ===
     def get(self, request, *args, **kwargs):
         cashier_id = request.GET.get("pk")
         try:
             cashier = Cashier.objects.get(id=cashier_id)
         except Cashier.DoesNotExist:
-            return JsonResponse({"status": "error", "message": "Caixa não encontrado."}, status=404)
+            return JsonResponse({
+                "status": "error",
+                "message": "Caixa não encontrado."
+            }, status=404)
 
-        # ---------- 🧾 Montagem dos DataFrames ----------
-        # Resumo
-        resumo = [
-            ("Status", cashier.get_status_display()),
-            ("Valor inicial", cashier.opening_balance),
-            ("Total de entradas", cashier.total_incomes),
-            ("Total de saídas", cashier.total_expenses),
-            ("Valor final", cashier.closing_balance),
-            ("Data de abertura", cashier.created_at),
-            ("Data de fechamento", cashier.date_closing),
-            ("Retirada", cashier.expense_withdrawal),
-            ("Entradas via Pix", cashier.income_pix),
-            ("Entradas via Crédito", cashier.income_credit),
-            ("Entradas via Débito", cashier.income_debit),
-            ("Entradas via Dinheiro", cashier.income_cash),
-            ("Saídas via Pix", cashier.expense_pix),
-            ("Saídas via Boleto", cashier.expense_boleto),
-            ("Saídas via Débito Automático", cashier.expense_automatic),
-            ("Outras Saídas", cashier.expense_others),
+        # === CONFIGURAÇÕES DO EXCEL ===
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Fechamento de Caixa"
+        ws.sheet_view.showGridLines = False
+
+        bold = Font(bold=True)
+        header_fill = PatternFill("solid", fgColor="d9d9d9")
+        green_fill = PatternFill("solid", fgColor="d8e4bc")
+        red_fill = PatternFill("solid", fgColor="f4cccc")
+        thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
+                             top=Side(style="thin"), bottom=Side(style="thin"))
+
+        # === CABEÇALHO ===
+        ws.merge_cells("A1:B1")
+        ws["A1"] = "Fechamento de Caixa"
+        ws["A1"].font = Font(size=14, bold=True)
+        ws["A1"].alignment = Alignment(horizontal="center")
+        ws["A1"].fill = header_fill
+
+        ws["A2"], ws["B2"] = "Situação", cashier.get_status_display()
+        ws["A3"], ws["B3"] = "Data de abertura", cashier.created_at.strftime("%d/%m/%Y")
+        ws["D2"], ws["E2"] = "Data de fechamento", cashier.date_closing.strftime("%d/%m/%Y") if cashier.date_closing else ""
+
+        # === ENTRADAS ===
+        ws["A5"] = "Entradas"
+        ws["A5"].font = Font(bold=True, color="006100")
+        entries = [
+            ("Valor total", cashier.total_incomes or 0),
+            ("Dinheiro", cashier.income_cash or 0),
+            ("Crédito", cashier.income_credit or 0),
+            ("Débito", cashier.income_debit or 0),
+            ("Pix", cashier.income_pix or 0),
         ]
-        cashier_df = pd.DataFrame(resumo, columns=["Resumo do Caixa", f"Fechado em {cashier.date_closing:%d/%m/%Y}"])
+        for i, (label, val) in enumerate(entries, start=6):
+            ws[f"A{i}"], ws[f"B{i}"] = label, val
+            ws[f"B{i}"].number_format = "R$ #,##0.00"
 
-        # Pagamentos
-        payments_df = pd.DataFrame(list(cashier.payments.values(
-            "montlhyfee__student_name", "payment_method", "value", "quantity_installments"
-        )))
-        payments_df.rename(columns={
-            "montlhyfee__student_name": "Aluno",
-            "payment_method": "Método de pagamento",
-            "value": "Valor",
-            "quantity_installments": "Parcelas",
-        }, inplace=True)
+        # === SAÍDAS ===
+        ws["A12"] = "Saídas"
+        ws["A12"].font = Font(bold=True, color="9c0006")
+        ws["A13"], ws["B13"] = "Valor total", cashier.total_expenses or 0
+        ws["B13"].number_format = "R$ #,##0.00"
 
-        # Contas
-        bills_df = pd.DataFrame(list(cashier.bills.values(
-            "description", "due_date", "date_payment", "value",
-            "payment_method__method", "status__status", "appellant",
-            "apply_discount", "value_discount", "percent_discount",
-            "value_fine", "percent_fine", "total_value"
-        )))
-        bills_df.rename(columns={
-            "description": "Descrição",
-            "due_date": "Vencimento",
-            "date_payment": "Data de Pagamento",
-            "value": "Valor Base",
-            "payment_method__method": "Método de Pagamento",
-            "status__status": "Status",
-            "appellant": "Recorrente",
-            "apply_discount": "Tem Desconto",
-            "value_discount": "Valor Desconto",
-            "percent_discount": "% Desconto",
-            "value_fine": "Valor Multa",
-            "percent_fine": "% Multa",
-            "total_value": "Valor Total",
-        }, inplace=True)
-        bills_df = bills_df.set_index("Descrição").T
-        bills_df.index.name = "Conta"
+        # === SALDO ===
+        ws["A15"] = "Saldo total"
+        ws["A15"].font = bold
+        ws["B15"] = (cashier.total_incomes or 0) - (cashier.total_expenses or 0)
+        ws["B15"].number_format = "R$ #,##0.00"
+        ws["B15"].font = bold
 
-        # Remove timezones
-        cashier_df, bills_df, payments_df = (
-            self.remove_timezone(cashier_df),
-            self.remove_timezone(bills_df),
-            self.remove_timezone(payments_df),
-        )
+        # === MOVIMENTOS ===
+        start_row = 17
+        ws[f"A{start_row}"] = "Movimentos"
+        ws[f"A{start_row}"].font = Font(bold=True, color="1f4e78")
 
-        # ---------- 💾 Criação e formatação do Excel ----------
+        headers = ["Data", "Descrição", "Origem", "Método de pagamento", "Valor", "Tipo"]
+        for col, header in enumerate(headers, start=1):
+            c = ws.cell(row=start_row + 1, column=col, value=header)
+            c.font = bold
+            c.alignment = Alignment(horizontal="center")
+            c.fill = header_fill
+            c.border = thin_border
+
+        row = start_row + 2
+
+        # === PAGAMENTOS (Entradas) ===
+        for p in cashier.payments.select_related("montlhyfee"):
+            ws.cell(row=row, column=1, value=p.created_at.strftime("%d/%m/%Y %H:%M"))
+            ws.cell(row=row, column=2, value=getattr(p.montlhyfee, "student_name", ""))
+            ws.cell(row=row, column=3, value="Contas a receber")
+            ws.cell(row=row, column=4, value=p.payment_method)
+            ws.cell(row=row, column=5, value=p.value).number_format = "R$ #,##0.00"
+            ws.cell(row=row, column=6, value="Entrada")
+            row += 1
+
+        # === BILLS (Saídas) ===
+        for b in cashier.bills.select_related("payment_method"):
+            ws.cell(row=row, column=1, value=b.date_payment.strftime("%d/%m/%Y") if b.date_payment else "")
+            ws.cell(row=row, column=2, value=b.description)
+            ws.cell(row=row, column=3, value="Contas a pagar")
+            ws.cell(row=row, column=4, value=b.payment_method.method if b.payment_method else "")
+            ws.cell(row=row, column=5, value=b.value).number_format = "R$ #,##0.00"
+            ws.cell(row=row, column=6, value="Saída")
+            row += 1
+
+        # === FORMATAÇÃO FINAL ===
+        for col in range(1, len(headers) + 1):
+            ws.column_dimensions[get_column_letter(col)].width = 20
+
+        # Bordas
+        for r in range(start_row + 2, row):
+            for c in range(1, len(headers) + 1):
+                ws.cell(row=r, column=c).border = thin_border
+                ws.cell(row=r, column=c).alignment = Alignment(vertical="center")
+
+        # === RETORNO ===
         buffer = BytesIO()
-        money_fmt, percent_numfmt, date_fmt, datetime_fmt = "#,##0.00", "0.0000", "DD/MM/YYYY", "DD/MM/YYYY HH:MM"
-
-        with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-            cashier_df.to_excel(writer, index=False, sheet_name="Resumo do Caixa")
-            bills_df.to_excel(writer, index=True, sheet_name="Contas")
-            payments_df.to_excel(writer, index=False, sheet_name="Pagamentos")
-
-            wb = writer.book
-
-            # === Resumo ===
-            ws = wb["Resumo do Caixa"]
-            self.format_header(ws)
-            for row in range(2, ws.max_row + 1):
-                campo = (ws[f"A{row}"].value or "").lower()
-                cell = ws[f"B{row}"]
-                if "data" in campo:
-                    cell.number_format = datetime_fmt
-                elif any(x in campo for x in ["valor", "entrada", "saída", "retirada"]):
-                    cell.number_format = money_fmt
-                    cell.alignment = Alignment(horizontal="right")
-            self.autofit(ws)
-
-            # === Contas ===
-            ws = wb["Contas"]
-            self.format_header(ws)
-            money_rows = {"Valor Base", "Valor Desconto", "Valor Multa", "Valor Total"}
-            percent_rows = {"% Desconto", "% Multa"}
-            date_rows = {"Vencimento", "Data de Pagamento"}
-            for row in range(2, ws.max_row + 1):
-                rotulo = ws[f"A{row}"].value
-                for col in range(2, ws.max_column + 1):
-                    c = ws.cell(row=row, column=col)
-                    if rotulo in date_rows:
-                        c.number_format = date_fmt
-                    elif rotulo in money_rows:
-                        c.number_format = money_fmt
-                        c.alignment = Alignment(horizontal="right")
-                    elif rotulo in percent_rows:
-                        c.number_format = percent_numfmt
-            self.autofit(ws)
-
-            # === Pagamentos ===
-            ws = wb["Pagamentos"]
-            self.format_header(ws)
-            headers = {cell.value: cell.column for cell in ws[1]}
-            if "Valor" in headers:
-                for r in range(2, ws.max_row + 1):
-                    c = ws.cell(row=r, column=headers["Valor"])
-                    c.number_format = money_fmt
-                    c.alignment = Alignment(horizontal="right")
-            self.autofit(ws)
-
+        wb.save(buffer)
         buffer.seek(0)
-        filename = f"Fluxo_de_caixa_{cashier.created_at:%d-%m-%Y}.xlsx"
-        return FileResponse(buffer, as_attachment=True, filename=filename,
-                            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
+        file_name = f"Fechamento_de_Caixa_{cashier.date_closing:%d-%m-%Y}.xlsx"
+        return FileResponse(buffer, as_attachment=True, filename=file_name, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
 class EnterpriseCashierView(LoginRequiredMixin, View):
