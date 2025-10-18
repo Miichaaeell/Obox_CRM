@@ -121,7 +121,7 @@ class Payment(TimeStampedModel, models.Model):
         'enterprise.Cashier', on_delete=models.SET_NULL, blank=True, null=True, related_name='payments')
 
     def __str__(self):
-        return f'Mensalidade {self.montlhyfee.student_name}'
+        return f'{self.montlhyfee.student_name}'
 
     class Meta:
         verbose_name = 'Pagamento'
