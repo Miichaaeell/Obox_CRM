@@ -122,3 +122,113 @@ def close_cashier(context, withdrawalValue, closing_balance):
         return JsonResponse({'status': 'success', 'title': 'Fechamento do Caixa', 'message': f'Caixa fechado com sucesso! Saldo final R${closing_balance}, Retirado: R${withdrawalValue}'}, status=200)
     except Exception as e:
         return JsonResponse({'status': 'error', 'title': 'Erro ao fechar Caixa', 'message': str(e)}, status=400)
+
+    
+from io import BytesIO
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+
+    
+def create_file_xlsx_cashier(cashier):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Fechamento de Caixa"
+    ws.sheet_view.showGridLines = False
+    bold = Font(bold=True)
+    header_fill = PatternFill("solid", fgColor="d9d9d9")
+    green_fill = PatternFill("solid", fgColor="d8e4bc")
+    red_fill = PatternFill("solid", fgColor="f4cccc")
+    thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
+                         top=Side(style="thin"), bottom=Side(style="thin"))
+
+      # === CABEÇALHO ===
+    ws.merge_cells("A1:B1")
+    ws["A1"] = "Fechamento de Caixa"
+    ws["A1"].font = Font(size=14, bold=True)
+    ws["A1"].alignment = Alignment(horizontal="center")
+    ws["A1"].fill = header_fill
+
+    ws["A2"], ws["B2"] = "Situação", cashier.get_status_display()
+    ws["A3"], ws["B3"] = "Data de abertura", cashier.created_at.strftime("%d/%m/%Y")
+    ws["D2"], ws["E2"] = "Data de fechamento", cashier.date_closing.strftime("%d/%m/%Y") if cashier.date_closing else ""
+
+        # === ENTRADAS ===
+    ws["A5"] = "Entradas"
+    ws["A5"].font = Font(bold=True, color="006100")
+    entries = [
+            ("Valor total", cashier.total_incomes or 0),
+            ("Dinheiro", cashier.income_cash or 0),
+            ("Crédito", cashier.income_credit or 0),
+            ("Débito", cashier.income_debit or 0),
+            ("Pix", cashier.income_pix or 0),
+        ]
+    for i, (label, val) in enumerate(entries, start=6):
+            ws[f"A{i}"], ws[f"B{i}"] = label, val
+            ws[f"B{i}"].number_format = "R$ #,##0.00"
+
+        # === SAÍDAS ===
+    ws["A12"] = "Saídas"
+    ws["A12"].font = Font(bold=True, color="9c0006")
+    ws["A13"], ws["B13"] = "Valor total", cashier.total_expenses or 0
+    ws["B13"].number_format = "R$ #,##0.00"
+
+        # === SALDO ===
+    ws["A15"] = "Saldo total"
+    ws["A15"].font = bold
+    ws["B15"] = (cashier.total_incomes or 0) - (cashier.total_expenses or 0)
+    ws["B15"].number_format = "R$ #,##0.00"
+    ws["B15"].font = bold
+
+        # === MOVIMENTOS ===
+    start_row = 17
+    ws[f"A{start_row}"] = "Movimentos"
+    ws[f"A{start_row}"].font = Font(bold=True, color="1f4e78")
+
+    headers = ["Data", "Descrição", "Origem", "Método de pagamento", "Valor", "Tipo"]
+    for col, header in enumerate(headers, start=1):
+        c = ws.cell(row=start_row + 1, column=col, value=header)
+        c.font = bold
+        c.alignment = Alignment(horizontal="center")
+        c.fill = header_fill
+        c.border = thin_border
+
+    row = start_row + 2
+
+        # === PAGAMENTOS (Entradas) ===
+    for p in cashier.payments.select_related("montlhyfee"):
+        ws.cell(row=row, column=1, value=p.created_at.strftime("%d/%m/%Y %H:%M"))
+        ws.cell(row=row, column=2, value=getattr(p.montlhyfee, "student_name", ""))
+        ws.cell(row=row, column=3, value="Contas a receber")
+        ws.cell(row=row, column=4, value=p.payment_method)
+        ws.cell(row=row, column=5, value=p.value).number_format = "R$ #,##0.00"
+        ws.cell(row=row, column=6, value="Entrada")
+        row += 1
+
+        # === BILLS (Saídas) ===
+    for b in cashier.bills.select_related("payment_method"):
+            ws.cell(row=row, column=1, value=b.date_payment.strftime("%d/%m/%Y") if b.date_payment else "")
+            ws.cell(row=row, column=2, value=b.description)
+            ws.cell(row=row, column=3, value="Contas a pagar")
+            ws.cell(row=row, column=4, value=b.payment_method.method if b.payment_method else "")
+            ws.cell(row=row, column=5, value=b.value).number_format = "R$ #,##0.00"
+            ws.cell(row=row, column=6, value="Saída")
+            row += 1
+
+        # === FORMATAÇÃO FINAL ===
+    for col in range(1, len(headers) + 1):
+            ws.column_dimensions[get_column_letter(col)].width = 20
+
+        # Bordas
+    for r in range(start_row + 2, row):
+            for c in range(1, len(headers) + 1):
+                ws.cell(row=r, column=c).border = thin_border
+                ws.cell(row=r, column=c).alignment = Alignment(vertical="center")
+
+        # === RETORNO ===
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    file_name = f"Fechamento_de_Caixa_{cashier.date_closing:%d-%m-%Y}.xlsx"
+    
+    return (buffer, file_name)
