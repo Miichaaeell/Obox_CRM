@@ -13,7 +13,7 @@
   <!-- Menu -->
   <nav class="flex flex-col h-full items-stretch mt-4 space-y-2">
     <a href="{% url 'home' %}" class="flex items-center gap-3 p-3 hover:bg-gray-700">
-      <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+      <i data-lucide="home" class="w-5 h-5"></i>
       <span x-show="open">Inicio</span>
     </a>
 
@@ -50,9 +50,6 @@
         <a href="{% url 'nfes' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded">
           <i data-lucide="file-text" class="w-4 h-4"></i> NFSe
         </a>
-        <a href="{% url 'list_payment_method' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded">
-          <i data-lucide="wallet-cards" class="w-4 h-4"></i> Formas de pagamento
-        </a>
       </div>
 
       <!-- Quando sidebar fechado (popover à direita) -->
@@ -72,9 +69,6 @@
         <a href="{% url 'nfes' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded">
           <i data-lucide="file-text" class="w-4 h-4"></i> NFSe
         </a>
-        <a href="{% url 'list_payment_method' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded">
-          <i data-lucide="wallet-cards" class="w-4 h-4"></i> Formas de pagamento
-        </a>
       </div>
     </div>
      <a href="{% url 'list_plan' %}" class="flex items-center gap-3 p-3 hover:bg-gray-700">
@@ -89,16 +83,6 @@
     <a href="{% url 'list_stock' %}" class="flex items-center gap-3 p-3 hover:bg-gray-700">
       <i data-lucide="boxes" class="w-5 h-5"></i>
       <span x-show="open">Estoque</span>
-    </a>
-    <a href="{% url 'list_product' %}" 
-     class="flex items-center px-4 py-2 hover:bg-gray-700 rounded-md">
-    <i data-lucide="package" class="w-5 h-5"></i>
-    <span x-show="open" class="ml-3">Produtos</span>
-    </a>
-   
-     <a href="{% url 'list_status' %}" class="flex items-center gap-3 p-3 hover:bg-gray-700">
-      <i data-lucide="flag" class="w-5 h-5"></i>
-      <span x-show="open">Status</span>
     </a>
      <a href="{% url 'logout' %}"
      class="flex items-center absolute bottom-1 px-4 py-2 hover:bg-gray-700 rounded-lg transition-colors">
