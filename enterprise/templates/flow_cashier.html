@@ -5,30 +5,16 @@
 
 {% block content %}
 <div class="w-full max-w-7xl mx-auto p-6" x-data="flowCashier()">
-
-  <!-- Header -->
-  <div class="flex gap-5 text-white mb-4">
-    <div>
-      <span class="font-semibold">Situação:</span>
-      <span class="text-green-400">Aberto</span>
-    </div>
-    <div>
-      <span class="font-semibold">Data de abertura:</span>
-      <span class="font-bold">01/09/2025 - 00h00</span>
-    </div>
-    {{title}}
-  </div>
-
   <!-- Card principal -->
   <div class="bg-transparent rounded-3xl shadow-xl border-2 border-black p-4">
     <div class="overflow-x-auto">
-      <table class="w-full text-sm text-white border-none">
+      <table class="table-auto min-w-max text-sm text-white border-none">
         <thead>
           <tr class="border-b ">
             <th class="text-left py-2 px-3 font-semibold">Fluxo de Caixa</th>
             {% for cashier in cashiers %}
               {% if cashier.status == 'closed' %}
-                <td class="px-3 py-2">{{cashier.date_closing|date:'d-M-Y'}}</td>
+                <th class="px-3 py-2 text-left">{{cashier.date_closing|date:'d-M-Y'}}</th>
               {% endif %}
             {% endfor %}
           </tr>

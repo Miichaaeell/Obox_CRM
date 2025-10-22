@@ -128,7 +128,6 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
             discount_percent=discount_percent if discount_percent else 0,
             plan=studant_instance.plan
         )
-        import json
         payments_json = self.request.POST.get('payments') or '[]'
         payments_data = json.loads(payments_json)
         payments_create = [

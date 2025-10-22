@@ -24,8 +24,6 @@ from enterprise.serializers import (
 from students.models import MonthlyFee
 
 
-
-
 class EnterpriseHomeView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         context = get_context_homeview()
@@ -44,7 +42,6 @@ class FlowCashierView(LoginRequiredMixin, TemplateView):
 
 
 class DownloadCashierFlowView(LoginRequiredMixin, View):
-    """Gera relatório do fechamento de caixa em uma única aba formatada."""
 
     def get(self, request, *args, **kwargs):
         cashier_id = request.GET.get("pk")
@@ -74,7 +71,6 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
             context = get_context_cashier_data()
             withdrawalValue = int(data.get('withdrawalValue', 0))
             closing_balance = int(data.get('closing_balance', 0))
-            print(f'{withdrawalValue} desconto e fechamento {closing_balance}')
             response = close_cashier(context, withdrawalValue, closing_balance)
             return response
         elif action == 'create':
