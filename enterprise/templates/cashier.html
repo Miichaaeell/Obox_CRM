@@ -81,10 +81,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 7v6l-4-2v-4L3 6V4z"/>
             </svg>
           </button>
-          <button class="px-3 py-1 border rounded-lg bg-gray-100">Entrada</button>
-          <button class="px-3 py-1 border rounded-lg bg-gray-100">Saída</button>
-          <input type="date" class="px-2 py-1 border rounded-lg">
-          <button class="text-gray-500 hover:underline">Apagar filtros</button>
+          <button @click="entries = true, exits=false" class="px-3 py-1 border rounded-lg bg-gray-100 hover:cursor-pointer hover:bg-gray-400">Entrada</button>
+          <button @click="entries = false, exits=true" class="px-3 py-1 border rounded-lg bg-gray-100 hover:cursor-pointer hover:bg-gray-400">Saída</button>
+          <button @click="entries = true, exits=true" class="text-gray-500 hover:underline hover:cursor-pointer">Apagar filtros</button>
         </div>
         <!-- Tabela -->
         <div class="overflow-x-auto">
@@ -102,7 +101,7 @@
             <tbody>
     
              {% for bill in bills %}
-                <tr>
+                <tr x-show="exits">
                 <td> {{ bill.due_date|date:'d/m/y' }}</td>
                 <td>Saída</td>
                 <td>{{ bill.value }}</td>
@@ -119,7 +118,7 @@
               <!--Entradas-->
              {% endfor %}
              {% for payment  in payments %}
-              <tr>
+              <tr x-show="entries">
                 <td> {{ payment.created_at|date:'d/m/y' }}</td>
                 <td>Entrada</td>
                 <td>{{ payment.value }}</td>
