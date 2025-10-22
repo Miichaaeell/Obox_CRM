@@ -1,12 +1,12 @@
 import json
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, F, Q, Sum
+from django.db.models import  Q
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.utils.safestring import mark_safe
+
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
 from django.http import JsonResponse, FileResponse
 
@@ -14,63 +14,21 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-
-
-from core. functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier
+from core. functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
 from enterprise.forms import PaymentMethodForm, PlanForm
-from enterprise.models import Bill, PaymentMethod, Plan, StatusBill, Cashier, Installments
+from enterprise.models import Bill, PaymentMethod, Plan, StatusBill, Cashier
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
 )
-from students.models import MonthlyFee, Student, Payment
+from students.models import MonthlyFee
 
 
 
 
 class EnterpriseHomeView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        today = datetime.now()
-        actives_students = Student.objects.filter(
-            status__status__iexact='Ativo')
-        end_date = today+timedelta(days=10)
-        monthly_fees_due = MonthlyFee.objects.filter(
-            due_date__range=(today, end_date), paid=False)
-        date_start = today - timedelta(days=10)
-        date_end = today - timedelta(days=1)
-        monthly_fees_overdue = MonthlyFee.objects.filter(
-            due_date__range=(date_start, date_end), paid=False)
-        installments = Installments.objects.all()
-        bill_events = (
-            Bill.objects.annotate(
-                event_date=F('due_date'))
-            .values('event_date')
-            .annotate(count=Count('id'))
-            .order_by('event_date')
-        )
-        calendar_events = [
-            {
-                "date": event.get('event_date').isoformat(),
-                "count": event.get('count', 0),
-            }
-            for event in bill_events
-            if event.get('event_date') is not None
-        ]
-        context = {
-            'actives_total': actives_students.count(),
-            'actives_students': actives_students,
-            'monthly_fees_due_total': monthly_fees_due.count(),
-            'monthly_fees_due': monthly_fees_due,
-            'monthly_fees_overdue_total': monthly_fees_overdue.count(),
-            'monthly_fees_overdue': monthly_fees_overdue,
-            'today': today,
-            'payment_methods':  PaymentMethod.objects.filter(
-                applies_to__icontains='students'),
-            'calendar_events': mark_safe(json.dumps(calendar_events)),
-            'accounts_url': reverse('list_bill'),
-            'students_active_url': f"{reverse('list_student')}?filter=ativo",
-            'installments': installments,
-        }
+        context = get_context_homeview()
         return render(request, 'home.html', context)
 
 
@@ -82,10 +40,7 @@ class FlowCashierView(LoginRequiredMixin, TemplateView):
         cashiers = Cashier.objects.all().order_by('-created_at')
         context['cashiers'] = cashiers
         context['url_download'] = reverse('download_cashier')
-        
         return context
-
-
 
 
 class DownloadCashierFlowView(LoginRequiredMixin, View):
@@ -104,11 +59,6 @@ class DownloadCashierFlowView(LoginRequiredMixin, View):
                 "status": "error",
                 "message": "Caixa não encontrado."
             }, status=404)
-
-        # === CONFIGURAÇÕES DO EXCEL ===
-       
-
-        
 
 
 class EnterpriseCashierView(LoginRequiredMixin, View):
