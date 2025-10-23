@@ -223,7 +223,7 @@ class NFESListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         monthlyfees = MonthlyFee.objects.select_related(
-            'student', 'plan').filter(paid=True)
+            'student', 'plan').prefetch_related( 'payments').filter(paid=True)
         context['monthlyfees'] = monthlyfees
         reference_months = (
             MonthlyFee.objects.order_by('-reference_month')

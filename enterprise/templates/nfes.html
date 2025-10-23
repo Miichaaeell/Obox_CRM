@@ -51,8 +51,8 @@
           <th class="text-left py-2 px-3 w-32">Data</th>
           <th class="text-left py-2 px-3 border-l border-gray-500">Nome</th>
           <th class="text-left py-2 px-3 w-32 border-l border-gray-500">Valor</th>
-          <th class="text-left py-2 px-3 border-l border-gray-500">Descrição</th>
-          <th class="text-left py-2 px-3 w-40 border-l border-gray-500">Formato</th>
+          <th class="text-left py-2 px-3 w-40 border-l border-gray-500">Descrição</th>
+          <th class="text-left py-2 px-3 w-80 border-l border-gray-500">Formato</th>
           <th class="text-left py-2 px-3 w-32 border-l border-gray-500">Subtotal</th>
           <th class="text-left py-2 px-3 w-32 border-l border-gray-500">NF</th>
         </tr>
@@ -61,10 +61,14 @@
         {% for monthlyfee in monthlyfees %}
           <tr data-nfe-row data-plan="{{ monthlyfee.plan|default_if_none:'' }}" data-student="{{ monthlyfee.student_name}}" data-month="{{ monthlyfee.reference_month }}">
             <td>{{monthlyfee.due_date|date:'d/m/Y'}}</td>
-            <td>{{monthlyfee.student_name}}</td>
+            <td>{{monthlyfee.student|default:monthlyfee.student}}</td>
             <td>{{monthlyfee.amount}}</td>
             <td>{{monthlyfee.plan}}</td>
-            <td>{{monthlyfee.payment_method}}</td>
+            <td>
+            {% for payment in monthlyfee.payments.all %}
+              {{payment}}
+            {% endfor %}
+              </td>
             <td>{{monthlyfee.amount}}</td>
             <td>
               <input 
