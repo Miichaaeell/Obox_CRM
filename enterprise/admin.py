@@ -8,6 +8,7 @@ from enterprise.models import (
     NFSe,
     PaymentMethod,
     Plan,
+    Services,
     StatusBill,
     TypeBill,
 )
@@ -22,3 +23,4 @@ admin.site.register(NFSe)
 admin.site.register(Cashier)
 admin.site.register(Plan)
 admin.site.register(Installments)
+admin.site.register(Services)

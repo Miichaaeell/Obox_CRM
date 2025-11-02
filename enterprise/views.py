@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 
 from core. functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
 from enterprise.forms import PaymentMethodForm, PlanForm
-from enterprise.models import Bill, PaymentMethod, Plan, StatusBill, Cashier
+from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Services, StatusBill
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
@@ -34,7 +34,8 @@ class EnterpriseSettingsView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['plans'] = Plan.objects.all().only('name_plan','price', 'duration_months')
+        context['plans'] = Plan.objects.all().only('name_plan', 'price', 'duration_months')
+        context['services'] = Services.objects.all().only('service', 'price')
         return context
     
 

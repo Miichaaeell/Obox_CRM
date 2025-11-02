@@ -71,14 +71,14 @@
                 </div>
                 <div class="mt-5 my-5">
                     <h2 class="font-semibold">Serviços</h2>
-                    {% for plan in plans %}
+                    {% for service in services %}
                         <div class="grid grid-cols-3 mb-2 p-2 text-sm w-[70%]">
                             <p class="items-center">
-                                <br><span class="font-semibold">{{plan.name_plan}}</span>
+                                <br><span class="font-semibold">{{service.service}}</span>
                             </p>
                             <p>
                                 <span class="font-semibold">Valor:</span> <br>
-                                <span> R$ {{plan.price}}</span>
+                                <span> R$ {{service.price}}</span>
                             </p>
                             <p>
                                 <br>
