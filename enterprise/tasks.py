@@ -1,8 +1,8 @@
 from datetime import datetime
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from celery import shared_task
 
-from enterprise.models import Bill
+from enterprise.models import Bill, StatusBill
 
 
 @shared_task
@@ -11,7 +11,7 @@ def create_recurring_bill():
     today = datetime.now().date()
     first_day_this_month = today.replace(day=1)
     first_day_last_month = first_day_this_month - relativedelta(months=1)
-    bills = Bill.objects.filter(appellant=True, due_date__lt=first_day_this_month, due_date__qte=first_day_last_month)
+    bills = Bill.objects.filter(appellant=True, due_date__lt=first_day_this_month, due_date__gte=first_day_last_month)
     create_to_bill = []
     for bill in bills:
         if bill.payment_method.method.lower() == 'deb. automatico':
@@ -32,13 +32,16 @@ def create_recurring_bill():
                     total_value=bill.total_value,
                 ))
         else:
+            status_pendente, _ = StatusBill.objects.get_or_create(status__icontains='pendente')
             create_to_bill.append(
                 Bill(
                     description=bill.description,
                     value=bill.value,
                     due_date=f'{year}-{month}-{bill.due_date.day}',
-                    status=bill.status,
+                    status=status_pendente,
                     payment_method=bill.payment_method,
                     appellant=bill.appellant,
                 ))
     Bill.objects.bulk_create(create_to_bill)
+
+    return f'Create {len(create_to_bill)} bills'

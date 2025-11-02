@@ -12,7 +12,6 @@ def verify_payment_method(sender, instance, created, **Kwargs):
         status_automatic = StatusBill.objects.filter(
             status__icontains='AUTOMÁTICO').first()
         if instance.payment_method == method_automatico:
-            print('tudo automatico')
             instance.date_payment = instance.due_date
             instance.status = status_automatic
             instance.save()

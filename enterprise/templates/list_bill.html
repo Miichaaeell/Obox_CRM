@@ -62,7 +62,7 @@
           {% endif %}
              </td>
           <td class="px-4 py-3">
-            <button @click="modalstatus({{obj.id}})" class="p-2 rounded-lg w-32 text-white font-semibold" :class="{
+            <button @click="modalstatus({{obj.id}})" class="p-2 rounded-lg w-32 text-white font-semibold hover:cursor-pointer" :class="{
             'bg-green-500' : '{{obj.status.status}}' == 'PAGO',
             'bg-red-500' : '{{obj.status.status}}' == 'ATRASADO',
             'bg-[#F65F0B]': '{{obj.status.status}}' == 'AGENDADO',
@@ -77,12 +77,12 @@
               Não            
           {% endif %}
             <div>
-              <button @click="modalupdate({{obj.id}})" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800">
+              <button @click="modalupdate({{obj.id}})" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800 hover:cursor-pointer">
                 <i data-lucide="pencil" class="w-[15px] h-[15px]"></i>
               </button>
               <button type="button"
                 @click="modaldelete({ id: {{ obj.id }}, description: '{{ obj.description|escapejs }}' })"
-                class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800">
+                class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800 hover:cursor-pointer">
                 <i data-lucide="trash" class="w-[15px] h-[15px]"></i>
               </button>
             </div>
