@@ -29,6 +29,14 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
         context = get_context_homeview()
         return render(request, 'home.html', context)
 
+class EnterpriseSettingsView(LoginRequiredMixin, TemplateView):
+    template_name= 'settings.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['plans'] = Plan.objects.all().only('name_plan','price', 'duration_months')
+        return context
+    
 
 class FlowCashierView(LoginRequiredMixin, TemplateView):
     template_name = 'flow_cashier.html'

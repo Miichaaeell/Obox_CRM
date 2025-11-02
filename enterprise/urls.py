@@ -7,6 +7,7 @@ from enterprise.views import (
     DownloadCashierFlowView,
     EnterpriseCashierView,
     EnterpriseHomeView,
+    EnterpriseSettingsView,
     FlowCashierView,
     NFEAPIView,
     NFESListView,
@@ -22,6 +23,7 @@ from enterprise.views import (
 
 urlpatterns = [
     path('', EnterpriseHomeView.as_view(), name='home'),
+    path('settings/', EnterpriseSettingsView.as_view(), name='settings'),
 
     # Views Payment
 
