@@ -92,7 +92,7 @@
                 </div>
              </div>
              <!--Criar plano-->
-             <div x-show="menu == 'create-plan'">
+             <div x-show="menu == 'create-plan'" data-url="{{url_plan}}" id="create_plan">
                     <h2 class="font-semibold mb-5">Criar Plano</h2>
                     <form class="flex flex-col gap-3" @submit.prevent="SubmitForm()">
                         {% csrf_token %}

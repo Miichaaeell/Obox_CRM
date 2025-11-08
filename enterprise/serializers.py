@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from enterprise.models import Bill
+from enterprise.models import Bill, Plan
 
 
 class BillSerializer(serializers.ModelSerializer):
@@ -16,3 +16,9 @@ class NFESerializer(serializers.Serializer):
     )
     description = serializers.CharField()
     reference_month = serializers.CharField()
+    
+    
+class PlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = '__all__'

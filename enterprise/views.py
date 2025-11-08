@@ -20,6 +20,7 @@ from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Services, Stat
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
+    PlanSerializer
 )
 from students.models import MonthlyFee
 
@@ -36,6 +37,7 @@ class EnterpriseSettingsView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['plans'] = Plan.objects.all().only('name_plan', 'price', 'duration_months')
         context['services'] = Services.objects.all().only('service', 'price')
+        context['url_plan'] = reverse('plan_api')
         return context
     
 
@@ -124,45 +126,7 @@ class PaymentMethodUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class PlanListView(LoginRequiredMixin, ListView):
-    model = Plan
-    template_name = 'components/_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Planos'
-        context['sufix_url'] = 'plan'
-        return context
-
-
-class PlanCreateView(LoginRequiredMixin, CreateView):
-    model = Plan
-    form_class = PlanForm
-    template_name = 'components/_create_update.html'
-    success_url = reverse_lazy('list_plan')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Plano'
-        context['sufix_url'] = 'plan'
-        return context
-
-
-class PlanUpdateView(LoginRequiredMixin, UpdateView):
-    model = Plan
-    form_class = PlanForm
-    template_name = 'components/_create_update.html'
-    success_url = reverse_lazy('list_plan')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Plano'
-        context['sufix_url'] = 'plan'
-        return context
-
     # Views for Bill
-
-
 class BillListView(LoginRequiredMixin, ListView):
     model = Bill
     template_name = 'list_bill.html'
@@ -252,6 +216,11 @@ class BillDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class BillCreateAPIView(generics.ListCreateAPIView):
     queryset = Bill.objects.all()
     serializer_class = BillSerializer
+
+class CreateListPlanAPIView(generics.ListCreateAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializer
+
 
 
 class NFEAPIView(APIView):
