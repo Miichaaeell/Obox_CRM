@@ -221,7 +221,10 @@ class CreateListPlanAPIView(generics.ListCreateAPIView):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
 
-
+class RetriveUpdateDestroyPlanAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializer
+    
 
 class NFEAPIView(APIView):
     def post(self, request, *args, **kwargs):

@@ -9,6 +9,7 @@
 
 {% block content %}
    <div class="w-full max-w-6xl mx-auto h-[700px] bg-white rounded-2xl shadow-xl p-6 mt-10" x-data="SettingsHandler()">
+    {% csrf_token %}
     <h1 class="font-semibold text-lg mb-4">Configurações</h1>
     
     <div class="flex h-[90%]">
@@ -63,7 +64,7 @@
                                 <br>
                                 <button class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800 hover:cursor-pointer">
                                 <i data-lucide="pencil" class="w-[15px] h-[15px]"></i></button>
-                            <button type="button" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800 hover:cursor-pointer">
+                            <button type="button" @click="DeletePlan('{{url_plan}}{{plan.id}}')" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800 hover:cursor-pointer">
                                 <i data-lucide="trash" class="w-[15px] h-[15px]"></i></button>
                             </p>
                         </div>
@@ -95,7 +96,6 @@
              <div x-show="menu == 'create-plan'" data-url="{{url_plan}}" id="create_plan">
                     <h2 class="font-semibold mb-5">Criar Plano</h2>
                     <form class="flex flex-col gap-3" @submit.prevent="SubmitForm()">
-                        {% csrf_token %}
                         <div>
                             <label class="font-semibold" for="name">Nome do plano:</label><br>
                             <input type="text" name="name" id="name" class="border-b w-[90%]" x-model="formData.name_plan" placeholder="Nome do plano">

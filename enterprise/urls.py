@@ -15,6 +15,7 @@ from enterprise.views import (
     PaymentMethodListView,
     PaymentMethodUpdateView,
     CreateListPlanAPIView,
+    RetriveUpdateDestroyPlanAPIView,
 )
 
 
@@ -33,6 +34,7 @@ urlpatterns = [
 
     # Views Plan
     path('plan/api/v1/',CreateListPlanAPIView.as_view(), name='plan_api'),
+    path('plan/api/v1/<int:pk>', RetriveUpdateDestroyPlanAPIView.as_view(), name='plan_api'),
 
     # Views Bill
     path('bill_list/', BillListView.as_view(), name='list_bill'),

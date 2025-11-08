@@ -4,7 +4,6 @@ function SettingsHandler(){
         formData:{},
 
         async SubmitForm(){
-            console.log(this.formData)
             const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value
             const headers = {
                 'Content-Type': 'application/json',
@@ -19,9 +18,24 @@ function SettingsHandler(){
             if(!response.ok){
                 console.log('Erro ao realizar o fetch para a API')
             }else{
-                data = await response.json()
-                console.log(data)
-                setTimeout(function(){location.reload()}, 5000)
+                location.reload()
+            }
+        },
+
+        async DeletePlan(url){
+            const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf,
+            }
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers:headers,
+            })
+            if(!response.ok){
+                console.log('Erro ao tentar deletar o plano')
+            }else{
+                location.reload()
             }
         }
     }
