@@ -16,7 +16,7 @@
         <aside class="w-1/4 pr-4  border-r-2 border-black/50">
             <nav class="flex flex-col gap-2 text-sm text-gray-800 justify-start items-start">
             <button @click="menu = 'nfs' " type="button" id="nfs" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'nfs'}">Emissão Fiscal</button>
-            <button type="button" @click="menu = 'plans' " id="plans" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'plans'}">Planos e Serviços</button>
+            <button type="button" @click="menu = 'plans' " id="plans" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'plans' | menu == 'create-plan' | menu == 'create-service'}">Planos e Serviços</button>
             <button type="button" @click="menu = 'payments' " id="payments" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'payments'}">Formas de Pagamento</button>
             </nav>
         </aside>
@@ -41,8 +41,8 @@
             <!-- Planos -->
              <div x-show="menu == 'plans'">
                 <div class="flex gap-5 text-white mb-5">
-                    <button class="bg-green-500 flex justify-around w-44 p-1 rounded-lg">Novo plano <i data-lucide="plus" class="w-5 h-5"></i></button>
-                    <button class="bg-green-500 flex justify-around w-44 p-1 rounded-lg">Novo Serviço <i data-lucide="plus" class="w-5 h-5"></i></button>
+                    <button @click="menu = 'create-plan'" class="bg-green-500 flex justify-around w-44 p-1 rounded-lg hover:cursor-pointer">Novo plano <i data-lucide="plus" class="w-5 h-5"></i></button>
+                    <button @click="menu = 'create-service'" class="bg-green-500 flex justify-around w-44 p-1 rounded-lg hover:cursor-pointer">Novo Serviço <i data-lucide="plus" class="w-5 h-5"></i></button>
                 </div>
                 <div class="my-5">
                 <h2 class="font-semibold">Planos</h2>
@@ -91,9 +91,66 @@
                     {% endfor %}
                 </div>
              </div>
+             <!--Criar plano-->
+             <div x-show="menu == 'create-plan'">
+                    <h2 class="font-semibold mb-5">Criar Plano</h2>
+                    <form class="flex flex-col gap-3" @submit.prevent="SubmitForm()">
+                        {% csrf_token %}
+                        <div>
+                            <label class="font-semibold" for="name">Nome do plano:</label><br>
+                            <input type="text" name="name" id="name" class="border-b w-[90%]" x-model="formData.name_plan" placeholder="Nome do plano">
+                        </div>
+                        <div>
+                            <label class="font-semibold" for="description">Descrição:</label><br>
+                            <textarea name="description" id="description" x-model="formData.description" class="border rounded-2xl w-[90%] min-h-[100px] p-2"></textarea>
+                        </div>
+                        <div>
+                            <label class="font-semibold" for="price">Valor:</label><br>
+                            <input type="number" name="price" id="price" x-model="formData.price" class="border-b">
+                        </div>
+                        <div>
+                            <label class="font-semibold" for="duration">Duração</label><br>
+                            <input type="number" x-model="formData.duration_months" class="border-b w-[40px] mr-3">
+                            <select name="duration" id="duration" class="border-b p-0.5">
+                                <option value="mes">Mês</option>
+                            </select>
+                        </div>
+
+                    <div class="mt-5 flex gap-5">
+                        <button type="button" @click="menu = 'plans'" class="rounded-lg bg-[#D9D9D9] p-1 w-40 border cursor-pointer">Cancelar</button>
+                        <button type="submit" class="rounded-lg bg-[#059F5A] text-white p-1 w-40 border border-black cursor-pointer" >Salvar</button>
+                    </div>
+                    </form>
+                </div>
+                <!--Criar Serviço -->
+                <div x-show="menu == 'create-service'">
+                    <h2 class="font-semibold mb-5">Criar Serviço</h2>
+                    <form action="" class="flex flex-col gap-3" @submit.prevent="SubmitForm()">
+                        <div>
+                            <label class="font-semibold" for="name">Descrição:</label><br>
+                            <input type="text" x-model="formData.service" name="name" id="name" class="border-b w-[90%]" placeholder="Ex: Taxa matrícula">
+                        </div>
+                        <div>
+                            <label class="font-semibold" for="price">Valor:</label><br>
+                            <input type="number" x-model="formData.price" name="price" id="price" class="border-b w-44" placeholder="Ex. 5">
+                        </div>
+                        <div>
+                            <label class="font-semibold" for="duration">Categoria de receita</label><br>
+                            <select name="duration" x-model="formData.category" id="duration" class="border-b w-44">
+                                <option>Vendas</option>
+                                <option>Compras</option>
+                            </select>
+                        </div>
+
+                    <div class="mt-5 flex gap-5">
+                        <button type="button" @click="menu = 'plans'" class="rounded-lg bg-[#D9D9D9] p-1 w-40 border cursor-pointer">Cancelar</button>
+                        <button type="submit" class="rounded-lg bg-[#059F5A] text-white p-1 w-40 border border-black cursor-pointer" >Salvar</button>
+                    </div>
+                    </form>
+                </div>
              <!-- Metodos de Pagamento -->
              <div x-show="menu == 'payments'">
-                <h2>Metodos de pagamento</h2>
+                <h2 class="font-semibold">Formas de pagamento</h2>
              </div>
         </main>
     </div>

@@ -145,7 +145,6 @@ function modalHandler() {
       this.showModal = false;
       this.showStatus = false;
       this.showDelete = true;
-      console.debug('Abrindo modal delete', this.formData);
 
       try {
         const res = await fetch(`/bill/api/v1/${id}/`);
