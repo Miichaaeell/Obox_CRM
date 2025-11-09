@@ -62,9 +62,9 @@
                             </p>
                             <p>
                                 <br>
-                                <button @click="EditPlan('{{url_plan}}{{plan.id}}')" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800 hover:cursor-pointer">
+                                <button @click="EditForm('{{url_plan}}{{plan.id}}', 'plan')" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800 hover:cursor-pointer">
                                 <i data-lucide="pencil" class="w-[15px] h-[15px]"></i></button>
-                            <button type="button" @click="DeletePlan('{{url_plan}}{{plan.id}}')" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800 hover:cursor-pointer">
+                            <button type="button" @click="DeleteForm('{{url_plan}}{{plan.id}}')" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800 hover:cursor-pointer">
                                 <i data-lucide="trash" class="w-[15px] h-[15px]"></i></button>
                             </p>
                         </div>
@@ -83,9 +83,9 @@
                             </p>
                             <p>
                                 <br>
-                                <button class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800 hover:cursor-pointer">
+                                <button @click="EditForm('{{url_service}}{{service.id}}', 'service')" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800 hover:cursor-pointer">
                                 <i data-lucide="pencil" class="w-[15px] h-[15px]"></i></button>
-                            <button type="button" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800 hover:cursor-pointer">
+                            <button @click="DeleteForm('{{url_service}}{{service.id}}')" type="button" class="ml-1 bg-black text-white p-1 rounded-full hover:bg-red-800 hover:cursor-pointer">
                                 <i data-lucide="trash" class="w-[15px] h-[15px]"></i></button>
                             </p>
                         </div>
@@ -93,24 +93,24 @@
                 </div>
              </div>
              <!--Criar/Editar plano-->
-             <div x-show="menu == 'create-plan'" data-url="{{url_plan}}" id="create_plan">
+             <div x-show="menu == 'create-plan'" id="create_plan">
                     <h2 class="font-semibold mb-5">Criar Plano</h2>
-                    <form class="flex flex-col gap-3" @submit.prevent="SubmitForm()">
+                    <form class="flex flex-col gap-3" @submit.prevent="SubmitForm('{{url_plan}}')">
                         <div>
                             <label class="font-semibold" for="name">Nome do plano:</label><br>
-                            <input type="text" name="name" id="name" class="border-b w-[90%]" x-model="formData.name_plan" placeholder="Nome do plano">
+                            <input type="text" name="name" id="name" class="border-b w-[90%]" x-model="formData.name_plan" placeholder="Nome do plano" required>
                         </div>
                         <div>
                             <label class="font-semibold" for="description">Descrição:</label><br>
-                            <textarea name="description" id="description" x-model="formData.description" class="border rounded-2xl w-[90%] min-h-[100px] p-2"></textarea>
+                            <textarea name="description" id="description" x-model="formData.description" class="border rounded-2xl w-[90%] min-h-[100px] p-2" required></textarea>
                         </div>
                         <div>
                             <label class="font-semibold" for="price">Valor:</label><br>
-                            <input type="number" name="price" id="price" x-model="formData.price" class="border-b">
+                            <input type="number" name="price" id="price" x-model="formData.price" class="border-b" required>
                         </div>
                         <div>
                             <label class="font-semibold" for="duration">Duração</label><br>
-                            <input type="number" x-model="formData.duration_months" class="border-b w-[40px] mr-3">
+                            <input type="number" x-model="formData.duration_months" class="border-b w-[40px] mr-3" required>
                             <select name="duration" id="duration" class="border-b p-0.5">
                                 <option value="mes">Mês</option>
                             </select>
@@ -125,14 +125,14 @@
                 <!--Criar Serviço -->
                 <div x-show="menu == 'create-service'">
                     <h2 class="font-semibold mb-5">Novo Serviço</h2>
-                    <form action="" class="flex flex-col gap-3" @submit.prevent="SubmitForm()">
+                    <form action="" class="flex flex-col gap-3" @submit.prevent="SubmitForm('{{url_service}}')">
                         <div>
                             <label class="font-semibold" for="name">Descrição:</label><br>
-                            <input type="text" x-model="formData.service" name="name" id="name" class="border-b w-[90%]" placeholder="Ex: Taxa matrícula">
+                            <input type="text" x-model="formData.service" name="name" id="name" class="border-b w-[90%]" placeholder="Ex: Taxa matrícula" required>
                         </div>
                         <div>
                             <label class="font-semibold" for="price">Valor:</label><br>
-                            <input type="number" x-model="formData.price" name="price" id="price" class="border-b w-44" placeholder="Ex. 5">
+                            <input type="number" x-model="formData.price" name="price" id="price" class="border-b w-44" placeholder="Ex. 5" required>
                         </div>
                         <div>
                             <label class="font-semibold" for="duration">Categoria de receita</label><br>

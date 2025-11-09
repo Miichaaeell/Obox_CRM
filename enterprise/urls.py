@@ -40,7 +40,7 @@ urlpatterns = [
     
     #Views Service
     path('service/api/v1/', ListCreateServiceAPIView.as_view(), name='service'),
-    path('service/api/v1/<int:pk>/', RetriveUpdateDestroyServiceAPIView.as_view(), name='service'),
+    path('service/api/v1/<int:pk>', RetriveUpdateDestroyServiceAPIView.as_view(), name='service'),
 
     # Views Bill
     path('bill_list/', BillListView.as_view(), name='list_bill'),

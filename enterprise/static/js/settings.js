@@ -5,13 +5,13 @@ function SettingsHandler(){
         mode:'create',
         url:'',
 
-        async SubmitForm(){
+        async SubmitForm(url){
             const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value
             const headers = {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrf,
             };
-            const fetch_url = this.mode == 'create' ? document.getElementById('create_plan').dataset.url : this.url
+            const fetch_url = this.mode == 'create' ? url : this.url
             const method = this.mode == 'create' ? 'POST' : 'PUT'
             const response = await fetch(fetch_url, {
                 method: method,
@@ -25,7 +25,7 @@ function SettingsHandler(){
                 }
         },
 
-        async DeletePlan(url){
+        async DeleteForm(url){
             const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value
             const headers = {
                 'Content-Type': 'application/json',
@@ -42,13 +42,13 @@ function SettingsHandler(){
             }
         },
 
-        async EditPlan(url){
+        async EditForm(url, form){
             const response = await fetch(url)
             const data = await response.json()
             this.formData = data
             this.mode = 'update'
             this.url = url
-            this.menu = 'create-plan'
+            this.menu = form == 'plan' ? 'create-plan' : 'create-service'
         }
     }
 }
