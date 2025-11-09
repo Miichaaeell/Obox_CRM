@@ -14,7 +14,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core. functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
+from core.functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
 from enterprise.forms import PaymentMethodForm
 from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Service, StatusBill
 from enterprise.serializers import (
@@ -23,6 +23,7 @@ from enterprise.serializers import (
     PlanSerializer,
     ServiceSerializer
 )
+from enterprise.tasks import send_NFS
 from students.models import MonthlyFee
 
 
@@ -250,18 +251,11 @@ class NFEAPIView(APIView):
 
         if serializer.is_valid():
             data = serializer.validated_data
-            students = data['student']
-            description = data['description']
-            reference_month = data['reference_month']
-
-            # Criar função para rodar em segundo plano e emitir a nota
-            for student in students:
-                print(
-                    f'emitindo nota para {student['id']}, descrição {description},mes de referencia {reference_month} ')
+            response = send_NFS.delay(data)
 
             return Response({
                 'status': 'ok',
-                'mensagem': f'{len(students)} notas agendadas para emissão.'
+                'mensagem': f'notas agendadas para emissão.'
             },
                 status=status.HTTP_202_ACCEPTED
             )

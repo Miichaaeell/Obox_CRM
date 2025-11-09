@@ -74,7 +74,7 @@
               <input 
                 type="checkbox" 
                 class="nf-checkbox"
-                @change="toggleSelected($el, '{{monthlyfee.id}}', {{monthlyfee.amount}})"
+                @change="toggleSelected($el, '{{monthlyfee.id}}', '{{monthlyfee.student_name|default:monthlyfee.student}}', '{{monthlyfee.student.cpf_cnpj}}', {{monthlyfee.amount}})"
               >
             </td>
           </tr>
@@ -97,7 +97,7 @@
   <!-- Modal emitir -->
   <div 
     x-show="showModalEmitir" 
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    class="fixed inset-0 flex items-center justify-center bg-black/50"
   >
     <div class="bg-white p-6 rounded-lg w-96">
       <h2 class="text-xl font-bold mb-4">Confirmar Emissão</h2>

@@ -1,6 +1,8 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from celery import shared_task
+from decouple import config
+from webmania_client import WebmaniaClient
 
 from enterprise.models import Bill, StatusBill
 
@@ -45,3 +47,37 @@ def create_recurring_bill():
     Bill.objects.bulk_create(create_to_bill)
 
     return f'Create {len(create_to_bill)} bills'
+
+
+@shared_task
+def send_NFS(data):
+    students = data['student']
+    description = data['description']
+    reference_month = data['reference_month']
+    bearer_token = config('WEBMANIA_BEARER_TOKEN')
+    ambient = config('WEBMANIA_VENV')
+    
+    client = WebmaniaClient(
+        bearer_token=bearer_token,
+        venv=ambient
+    )
+    for student in students:        
+        try:
+           data = {
+            "servico": {
+                "valor_servicos": f"{student['valor']}",
+                "discriminacao": f"{description}",
+                "iss_retido": "2",
+                "código_servico": "6.04",
+                "codigo_cnae": "9313100",
+                "informacoes_complementares": "Obox Training"
+            },
+            "tomador": {
+                "cpf": f"{student['cpf']}",
+                "nome_completo": f"{student['name']}",
+            }
+            }
+           print(data)
+        except:
+           ...
+    return f'Notas emitidas'

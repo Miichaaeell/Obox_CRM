@@ -23,11 +23,11 @@ function nfeHandler() {
         return this.selected.length
     },
 
-    toggleSelected(el, id, valor) {
+    toggleSelected(el, id, name, cpf, valor) {
       const numericValue = typeof valor === 'number' ? valor : parseFloat(valor) || 0;
       if (el.checked) {
         if (!this.selected.some(s => s.id === id)) {
-          this.selected.push({id, valor: numericValue});
+          this.selected.push({id, name, cpf, valor: numericValue});
         }
       } else {
         this.selected = this.selected.filter(s => s.id !== id);
