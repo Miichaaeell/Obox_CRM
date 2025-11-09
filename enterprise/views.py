@@ -15,12 +15,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core. functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
-from enterprise.forms import PaymentMethodForm, PlanForm
-from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Services, StatusBill
+from enterprise.forms import PaymentMethodForm
+from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Service, StatusBill
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
-    PlanSerializer
+    PlanSerializer,
+    ServiceSerializer
 )
 from students.models import MonthlyFee
 
@@ -36,7 +37,7 @@ class EnterpriseSettingsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['plans'] = Plan.objects.all().only('name_plan', 'price', 'duration_months')
-        context['services'] = Services.objects.all().only('service', 'price')
+        context['services'] = Service.objects.all().only('service', 'price')
         context['url_plan'] = reverse('plan_api')
         return context
     
@@ -208,6 +209,8 @@ class NFESListView(LoginRequiredMixin, TemplateView):
 
 
 # API'S VIEW
+
+#Views Bill
 class BillDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bill.objects.all()
     serializer_class = BillSerializer
@@ -217,6 +220,8 @@ class BillCreateAPIView(generics.ListCreateAPIView):
     queryset = Bill.objects.all()
     serializer_class = BillSerializer
 
+
+#Views Plan
 class CreateListPlanAPIView(generics.ListCreateAPIView):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
@@ -225,6 +230,17 @@ class RetriveUpdateDestroyPlanAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
     
+    
+#Views Service
+class ListCreateServiceAPIView(generics.ListCreateAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
+
+class RetriveUpdateDestroyServiceAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
 
 class NFEAPIView(APIView):
     def post(self, request, *args, **kwargs):

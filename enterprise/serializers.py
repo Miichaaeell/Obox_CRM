@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from enterprise.models import Bill, Plan
+from enterprise.models import Bill, Plan, Service
 
 
 class BillSerializer(serializers.ModelSerializer):
@@ -21,4 +21,9 @@ class NFESerializer(serializers.Serializer):
 class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
+        fields = '__all__'
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
         fields = '__all__'

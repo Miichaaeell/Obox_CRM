@@ -6,7 +6,6 @@ from enterprise.models import (
     Installments,
     NFSe,
     PaymentMethod,
-    Plan,
     StatusBill,
     TypeBill,
 )
@@ -102,27 +101,6 @@ class PaymentMethodForm(forms.ModelForm):
         fields = ['method']
         widgets = {
             'method': forms.TextInput(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-            }),
-        }
-
-
-class PlanForm(forms.ModelForm):
-    class Meta:
-        model = Plan
-        fields = ['name_plan', 'description', 'price', 'duration_months']
-        widgets = {
-            'name_plan': forms.TextInput(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-            }),
-            'description': forms.Textarea(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-                "rows": 4,
-            }),
-            'price': forms.NumberInput(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-            }),
-            'duration_months': forms.NumberInput(attrs={
                 "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
             }),
         }

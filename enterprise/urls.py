@@ -4,6 +4,7 @@ from enterprise.views import (
     BillCreateAPIView,
     BillDetailAPIView,
     BillListView,
+    CreateListPlanAPIView,
     DownloadCashierFlowView,
     EnterpriseCashierView,
     EnterpriseHomeView,
@@ -11,10 +12,11 @@ from enterprise.views import (
     FlowCashierView,
     NFEAPIView,
     NFESListView,
+    ListCreateServiceAPIView,
     PaymentMethodCreateView,
     PaymentMethodListView,
     PaymentMethodUpdateView,
-    CreateListPlanAPIView,
+    RetriveUpdateDestroyServiceAPIView,
     RetriveUpdateDestroyPlanAPIView,
 )
 
@@ -35,6 +37,10 @@ urlpatterns = [
     # Views Plan
     path('plan/api/v1/',CreateListPlanAPIView.as_view(), name='plan_api'),
     path('plan/api/v1/<int:pk>', RetriveUpdateDestroyPlanAPIView.as_view(), name='plan_api'),
+    
+    #Views Service
+    path('service/api/v1/', ListCreateServiceAPIView.as_view(), name='service'),
+    path('service/api/v1/<int:pk>/', RetriveUpdateDestroyServiceAPIView.as_view(), name='service'),
 
     # Views Bill
     path('bill_list/', BillListView.as_view(), name='list_bill'),

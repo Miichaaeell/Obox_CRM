@@ -35,7 +35,7 @@ class Enterprise(TimeStampedModel, models.Model):
     def __str__(self):
         return self.name
 
-class Services(TimeStampedModel, models.Model):
+class Service(TimeStampedModel, models.Model):
     service = models.CharField(max_length=50, unique=True, verbose_name='Serviço')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Preço')
 
