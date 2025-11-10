@@ -13,6 +13,7 @@ from enterprise.views import (
     NFEAPIView,
     NFESListView,
     ListCreateEnterpriseAPIView,
+    RetriveUpdateDestroyEnterpriseAPIView,
     ListCreateServiceAPIView,
     PaymentMethodCreateView,
     PaymentMethodListView,
@@ -27,6 +28,7 @@ urlpatterns = [
     path('', EnterpriseHomeView.as_view(), name='home'),
     path('settings/', EnterpriseSettingsView.as_view(), name='settings'),
     path('enterprise/api/v1', ListCreateEnterpriseAPIView.as_view(), name='enterprise_api'),
+    path('enterprise/api/v1/<int:pk>', RetriveUpdateDestroyEnterpriseAPIView.as_view(), name='enterprise_api'),
 
     # Views Payment
     path('payment_list/', PaymentMethodListView.as_view(),

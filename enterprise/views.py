@@ -248,6 +248,10 @@ class RetriveUpdateDestroyServiceAPIView(generics.RetrieveUpdateDestroyAPIView):
 class ListCreateEnterpriseAPIView(generics.ListCreateAPIView):
     queryset = Enterprise.objects.all()
     serializer_class = EnterpriseSerializer
+    
+class RetriveUpdateDestroyEnterpriseAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Enterprise.objects.all()
+    serializer_class = EnterpriseSerializer
 
 
 class NFEAPIView(APIView):
