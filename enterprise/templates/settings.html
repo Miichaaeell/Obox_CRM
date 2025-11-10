@@ -16,8 +16,8 @@
         <!-- Menu-->
         <aside class="w-1/4 pr-4  border-r-2 border-black/50">
             <nav class="flex flex-col gap-2 text-sm text-gray-800 justify-start items-start">
-                <button type="button" @click="menu = 'info' " id="info" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'info'}">Dados da Empresa</button>
-                <button @click="menu = 'nfs' " type="button" id="nfs" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'nfs'}">Emissão Fiscal</button>
+                <button type="button" @click="menu = 'info', GetInfoEnterprise('{{url_enterprise}}/{{enterprise.id}}') " id="info" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'info'}">Dados da Empresa</button>
+                <button @click="menu = 'nfs', GetInfoEnterprise('{{url_enterprise}}/{{enterprise.id}}')" type="button" id="nfs" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'nfs'}">Emissão Fiscal</button>
                 <button type="button" @click="menu = 'plans' " id="plans" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'plans' | menu == 'create-plan' | menu == 'create-service'}">Planos e Serviços</button>
                 <button type="button" @click="menu = 'payments' " id="payments" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'payments'}">Formas de Pagamento</button>
             </nav>
@@ -27,7 +27,7 @@
             <!--Dados da empresa-->
             <div x-show="menu == 'info'">
                 <h2 class="font-semibold mb-4">Dados da empresa</h2>
-                <form>
+                <form @submit.prevent="UpdateInfoEnterprise('{{url_enterprise}}/{{enterprise.id}}')">
                     <h2 class="font-bold">Dados Cadastrais</h2>
                     <div class="grid md:grid-cols-2 mb-5 border rounded-2xl p-3 w-[90%]">
                         <div>
@@ -36,7 +36,7 @@
                         </div>
                         <div>
                             <label for="cnpj">CNPJ:</label><br>
-                            <input type="number" name="cnpj" id="cnpj" class="border-b w-[90%]" x-model="formData.cnpj">
+                            <input type="text" x-mask="99.999.999/9999-99"  name="cnpj" id="cnpj" class="border-b w-[90%]" x-model="formData.cnpj">
                         </div>
                          <div>
                             <label for="phone_number">Número de telefone:</label><br>
@@ -83,25 +83,28 @@
             <!-- Nota Fiscal -->
             <div x-show="menu == 'nfs'">
                 <h2 class="font-semibold mb-4">Emissão Fiscal</h2>
-                <form action="">
-                    <div class="grid grid-cols-2 gap-2">
+                <form @submit.prevent="UpdateInfoEnterprise('{{url_enterprise}}/{{enterprise.id}}')">
+                    <div class="grid grid-cols-2 gap-2 w-[90%] mb-5">
                         <div>
                             <label for="cnae_code">Código Cnae:</label><br>
                             <input type="number" name="cnae_code" id="cnae_code" class="border-b w-[90%]" x-model="formData.cnae_code">
                         </div>
                         <div>
                             <label for="service_code">Código de serviço:</label><br>
-                            <input type="number" name="service_code" id="service_code" class="border-b w-[90%]" x-model="formData.service_code">
-                        </div>
-                        <div>
-                            <label>Iss Retido:</label>
-                            <input type="radio" name="iss" id="true">
-                            <label for="true">Sim</label>
-                            <input type="radio" name="iss" id="false">
-                            <label for="false">Nao</label>
+                            <input type="number" name="service_code" id="service_code" class="border-b w-[90%]" x-model="formData.service_code" step="any">
                         </div>
                     </div>
-                    <button type="submit" class="bg-green-500 p-1.5 rounded-2xl mt-5 w-[100px] cursor-pointer hover:bg-green-700">Salvar</button> 
+                     <div>
+                        <input type="checkbox" name="iss_retained" id="iss_retained" x-model="formData.iss_retained">
+                        <label for="iss_retained">Iss Retido</label>
+                        <div x-show="formData.iss_retained" class="flex gap-2 mt-2">
+                            <label for="iss_value">Valor Retido: R$</label>
+                            <input type="number" name="iss_value" id="iss_value" x-model="formData.iss_value" step="any" class="border-b">
+                        </div>
+                    </div>
+                    <div class="flex justify-end w-[90%]">
+                        <button type="submit" class="bg-green-500 p-1.5 rounded-2xl mt-5 w-[100px] cursor-pointer hover:bg-green-700">Salvar</button>
+                    </div>
                 </form>
             </div>
             <!-- Planos -->

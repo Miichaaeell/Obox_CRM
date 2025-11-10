@@ -14,9 +14,24 @@
     <!-- Espaço à direita -->
       <i data-lucide="bell" class=" mx-2 text-gray-400"></i>
       <img src="{% static 'media/logo/logo_branca.png' %}" alt="logo_obox" class="rounded-full w-[60px] h-[60px]">
-      <div class="w-40 text-center ml-2">        
-        <h6 class="text-white font-bold ">O BOX TRAINING</h6>
+      <div class="w-40 text-center ml-2" x-data="header_handler()" x-init="GetInfo()">
+        {% csrf_token %}
+        <h6 class="text-white font-bold "><span x-text="enterprise_name"></span></h6>
         <a href="{% url 'settings' %}" class="text-sm text-gray-200">Configurações</a>
       </div>
     </div>
   </div>
+  <script>
+    function header_handler(){
+      return {
+        enterprise_name:fetch('http://localhost:8000/enterprise/api/v1/1')
+        .then(response => { 
+          return response.json()
+        })
+        .then(data => {
+          const name = data.name
+          return name
+        }),
+      }
+    }
+  </script>

@@ -7,7 +7,7 @@ from students.models import Student, Payment
 class Enterprise(TimeStampedModel, models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name='Nome')
     cnpj = models.CharField(
-        unique=True, help_text="CNPJ must be a valid 14-digit number ex: 01.234.567/0008-91", max_length=14, verbose_name='CNPJ')
+        unique=True, help_text="CNPJ must be a valid 14-digit number ex: 01.234.567/0008-91", max_length=18, verbose_name='CNPJ')
     cep = models.CharField(max_length=10, blank=True, null=True,
                            help_text="CEP must be a valid format ex: 12345-678", verbose_name='CEP')
     city = models.CharField(max_length=100, blank=True, null=True,

@@ -40,7 +40,9 @@ class EnterpriseSettingsView(LoginRequiredMixin, TemplateView):
         context['plans'] = Plan.objects.all().only('name_plan', 'price', 'duration_months')
         context['services'] = Service.objects.all().only('service', 'price')
         context['url_plan'] = reverse('plan_api')
-        context['url_service'] = reverse('service')
+        context['url_service'] = reverse('service_api')
+        context['url_enterprise'] = reverse('enterprise_api')
+        context['enterprise'] = Enterprise.objects.first()
         return context
     
 

@@ -43,8 +43,8 @@ urlpatterns = [
     path('plan/api/v1/<int:pk>', RetriveUpdateDestroyPlanAPIView.as_view(), name='plan_api'),
     
     #Views Service
-    path('service/api/v1/', ListCreateServiceAPIView.as_view(), name='service'),
-    path('service/api/v1/<int:pk>', RetriveUpdateDestroyServiceAPIView.as_view(), name='service'),
+    path('service/api/v1/', ListCreateServiceAPIView.as_view(), name='service_api'),
+    path('service/api/v1/<int:pk>', RetriveUpdateDestroyServiceAPIView.as_view(), name='service_api'),
 
     # Views Bill
     path('bill_list/', BillListView.as_view(), name='list_bill'),

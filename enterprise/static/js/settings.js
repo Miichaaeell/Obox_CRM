@@ -1,9 +1,10 @@
 function SettingsHandler(){
     return{
-        menu:'info',
+        menu:'',
         formData:{},
         mode:'create',
         url:'',
+
 
         async SubmitForm(url){
             const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value
@@ -49,6 +50,31 @@ function SettingsHandler(){
             this.mode = 'update'
             this.url = url
             this.menu = form == 'plan' ? 'create-plan' : 'create-service'
-        }
+        },
+
+        async GetInfoEnterprise(url){
+            const response = await fetch(url)
+            const data = await response.json()
+            this.formData = data
+        },
+
+        async UpdateInfoEnterprise(url){
+            const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf,
+            }
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(this.formData)
+            })
+            if(!response.ok){
+                console.log('Erro ao tentar deletar o plano')
+            }else{
+                alert('Dados Atualizados com Sucesso!')
+                window.location.reload()
+            }
+        },
     }
 }
