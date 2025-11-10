@@ -16,12 +16,12 @@ from rest_framework.views import APIView
 
 from core.functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
 from enterprise.forms import PaymentMethodForm
-from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Service, StatusBill
+from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Service, StatusBill, Enterprise
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
     PlanSerializer,
-    ServiceSerializer
+    ServiceSerializer, EnterpriseSerializer
 )
 from enterprise.tasks import send_NFS
 from students.models import MonthlyFee
@@ -242,6 +242,12 @@ class ListCreateServiceAPIView(generics.ListCreateAPIView):
 class RetriveUpdateDestroyServiceAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
+    
+
+#Views EnterpriseData
+class ListCreateEnterpriseAPIView(generics.ListCreateAPIView):
+    queryset = Enterprise.objects.all()
+    serializer_class = EnterpriseSerializer
 
 
 class NFEAPIView(APIView):

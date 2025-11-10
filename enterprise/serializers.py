@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from enterprise.models import Bill, Plan, Service
+from enterprise.models import Bill, Plan, Service, Enterprise
 
 
 class BillSerializer(serializers.ModelSerializer):
@@ -26,4 +26,9 @@ class PlanSerializer(serializers.ModelSerializer):
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
+        fields = '__all__'
+        
+class EnterpriseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Enterprise
         fields = '__all__'

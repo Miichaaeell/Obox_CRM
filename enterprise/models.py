@@ -15,7 +15,9 @@ class Enterprise(TimeStampedModel, models.Model):
     state = models.CharField(max_length=2, blank=True, null=True,
                              help_text="State must be a valid 2-letter abbreviation ex: SP", verbose_name='Estado')
     street = models.CharField(max_length=255, blank=True, null=True,
-                              help_text="Street name, number, ex: Av. Paulista, 1000", verbose_name='Rua')
+                              help_text="Street name ex: Av. Paulista", verbose_name='Rua')
+    house_number = models.IntegerField(verbose_name='Numero da casa', blank=True, null=True, help_text='Ex: 1')
+    neighborhood = models.CharField(max_length=124, blank=True, null=True, verbose_name='Bairro', help_text='Ex: Jd. Santa Rosa')
     phone_number = models.CharField(max_length=20, blank=True, null=True,
                                     help_text="Phone number must be a valid format ex: (19) 91234-5678", verbose_name='Telefone')
     email = models.EmailField(
@@ -24,6 +26,8 @@ class Enterprise(TimeStampedModel, models.Model):
                                  help_text="CNAE code must be a valid format ex: 47.11-3-01", verbose_name='Código CNAE')
     service_code = models.CharField(max_length=255, blank=True, null=True,
                                     help_text="Description of the CNAE code", verbose_name='Código do serviço')
+    iss_retained = models.BooleanField(verbose_name='Iss retido', default=False, null=True, blank=True)
+    iss_value = models.DecimalField(verbose_name='Valor de iss retido', decimal_places=2, max_digits=5, null=True, blank=True, default=0)
     description_service = models.TextField(
         help_text="Detailed description of the service", verbose_name='Descrição do serviço')
 

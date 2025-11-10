@@ -1,6 +1,6 @@
 function SettingsHandler(){
     return{
-        menu:'plans',
+        menu:'info',
         formData:{},
         mode:'create',
         url:'',

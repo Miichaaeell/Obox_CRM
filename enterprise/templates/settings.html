@@ -16,28 +16,93 @@
         <!-- Menu-->
         <aside class="w-1/4 pr-4  border-r-2 border-black/50">
             <nav class="flex flex-col gap-2 text-sm text-gray-800 justify-start items-start">
-            <button @click="menu = 'nfs' " type="button" id="nfs" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'nfs'}">Emissão Fiscal</button>
-            <button type="button" @click="menu = 'plans' " id="plans" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'plans' | menu == 'create-plan' | menu == 'create-service'}">Planos e Serviços</button>
-            <button type="button" @click="menu = 'payments' " id="payments" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'payments'}">Formas de Pagamento</button>
+                <button type="button" @click="menu = 'info' " id="info" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'info'}">Dados da Empresa</button>
+                <button @click="menu = 'nfs' " type="button" id="nfs" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'nfs'}">Emissão Fiscal</button>
+                <button type="button" @click="menu = 'plans' " id="plans" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'plans' | menu == 'create-plan' | menu == 'create-service'}">Planos e Serviços</button>
+                <button type="button" @click="menu = 'payments' " id="payments" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'payments'}">Formas de Pagamento</button>
             </nav>
         </aside>
         <!-- Formulários -->
         <main class="flex-1 pl-6">
+            <!--Dados da empresa-->
+            <div x-show="menu == 'info'">
+                <h2 class="font-semibold mb-4">Dados da empresa</h2>
+                <form>
+                    <h2 class="font-bold">Dados Cadastrais</h2>
+                    <div class="grid md:grid-cols-2 mb-5 border rounded-2xl p-3 w-[90%]">
+                        <div>
+                            <label for="name">Nome da empresa:</label><br>
+                            <input type="text" name="name" id="name" class="border-b w-[90%]" x-model="formData.name">
+                        </div>
+                        <div>
+                            <label for="cnpj">CNPJ:</label><br>
+                            <input type="number" name="cnpj" id="cnpj" class="border-b w-[90%]" x-model="formData.cnpj">
+                        </div>
+                         <div>
+                            <label for="phone_number">Número de telefone:</label><br>
+                            <input type="number" name="phone_number" id="phone_number" class="border-b w-[90%]" x-model="formData.phone_number">
+                        </div>
+                        <div>
+                            <label for="email">E-mail:</label><br>
+                            <input type="email" name="email" id="email" class="border-b w-[90%]" x-model="formData.email">
+                        </div>
+                    </div>
+                    <h2 class="font-bold">Endereço</h2>
+                    <div class="grid md:grid-cols-3 mb-5 p-3 border rounded-2xl w-[90%]">
+                        <div>
+
+                            <label for="city">Cidade:</label><br>
+                            <input type="text" name="city" id="city" class="border-b w-[90%]" x-model="formData.city">
+                        </div>
+                        <div>
+                            <label for="state">Estado:</label><br>
+                            <input type="text" name="state" id="state" class="border-b w-[90%]" x-model="formData.state">
+                        </div>
+                        <div>
+                            <label for="cep">CEP:</label><br>
+                            <input type="number" name="cep" id="cep" class="border-b w-[90%]" x-model="formData.cep">
+                        </div>
+                        <div>
+                            <label for="street">Rua:</label><br>
+                            <input type="text" name="street" id="street" class="border-b w-[90%]" x-model="formData.street">
+                        </div>
+                        <div>
+                            <label for="house_number">Nº:</label><br>
+                            <input type="number" name="house_number" id="house_number" class="border-b w-[90%]" x-model="formData.house_number">
+                        </div>
+                        <div>
+                            <label for="neighborhood">Bairro:</label><br>
+                            <input type="text" name="neighborhood" id="neighborhood" class="border-b w-[90%]" x-model="formData.neighborhood">
+                        </div>
+                    </div>
+                    <div class="flex justify-end w-[90%]">
+                        <button type="submit" class="bg-green-500 p-1.5 rounded-2xl mt-5 w-[100px] cursor-pointer hover:bg-green-700">Salvar</button>
+                    </div>
+                </form>
+            </div>
             <!-- Nota Fiscal -->
             <div x-show="menu == 'nfs'">
-                <h2 class="font-semibold mb-4">Dados e Emissão Fiscal</h2>
-                <nav class="w-[80%] font-semibold flex justify-between">
-                    <a href="">Sobre</a>
-                    <a href="">Cadastro</a>
-                    <a href="">Fiscal</a>
-                    <a href="">Certificado</a>
-                </nav>
-                <div class="text-sm text-gray-700 space-y-2">
-                <p><strong>Dados da Emissão</strong></p>
-                <p>CNPJ:</p>
-                <p>CIDADE/UF:</p>
-                <p>Certificado Digital Obrigatório: <span class="font-semibold text-green-600">Sim</span></p>
-                </div>
+                <h2 class="font-semibold mb-4">Emissão Fiscal</h2>
+                <form action="">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label for="cnae_code">Código Cnae:</label><br>
+                            <input type="number" name="cnae_code" id="cnae_code" class="border-b w-[90%]" x-model="formData.cnae_code">
+                        </div>
+                        <div>
+                            <label for="service_code">Código de serviço:</label><br>
+                            <input type="number" name="service_code" id="service_code" class="border-b w-[90%]" x-model="formData.service_code">
+                        </div>
+                        <div>
+                            <label>Iss Retido:</label>
+                            <input type="radio" name="iss" id="true">
+                            <label for="true">Sim</label>
+                            <input type="radio" name="iss" id="false">
+                            <label for="false">Nao</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-green-500 p-1.5 rounded-2xl mt-5 w-[100px] cursor-pointer hover:bg-green-700">Salvar</button> 
+                </form>
             </div>
             <!-- Planos -->
              <div x-show="menu == 'plans'">
