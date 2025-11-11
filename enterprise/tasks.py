@@ -4,7 +4,7 @@ from celery import shared_task
 from decouple import config
 from webmania_client import WebmaniaClient
 
-from enterprise.models import Bill, StatusBill
+from enterprise.models import Bill, StatusBill, Enterprise
 
 
 @shared_task
@@ -56,6 +56,8 @@ def send_NFS(data):
     reference_month = data['reference_month']
     bearer_token = config('WEBMANIA_BEARER_TOKEN')
     ambient = config('WEBMANIA_VENV')
+    enterprise = Enterprise.objects.first()
+    succes, failed = [], []
     
     client = WebmaniaClient(
         bearer_token=bearer_token,
@@ -67,17 +69,23 @@ def send_NFS(data):
             "servico": {
                 "valor_servicos": f"{student['valor']}",
                 "discriminacao": f"{description}",
-                "iss_retido": "2",
-                "código_servico": "6.04",
-                "codigo_cnae": "9313100",
-                "informacoes_complementares": "Obox Training"
+                "iss_retido": 1 if enterprise.iss_retained == True else 2,
+                "código_servico": enterprise.service_code,
+                "codigo_cnae": enterprise.cnae_code,
+                "informacoes_complementares": enterprise.name
             },
             "tomador": {
                 "cpf": f"{student['cpf']}",
                 "nome_completo": f"{student['name']}",
             }
             }
-           print(data)
-        except:
-           ...
-    return f'Notas emitidas'
+           response = client.send_nfs(data=data)
+           if response.get('error'):
+               print(response)
+               failed.append(f'Erro ao emitir nota para {student['name']}')
+           else:
+               succes.append(f'Sucesso ao emitir nota para {student['Name']}')          
+        except Exception as e:
+           print(e)
+           failed.append(f'Erro ao emitir nota para {student['name']}')
+    return f'Total de {len(succes)} notas emitidas e total de {len(failed)} notas falharam'
