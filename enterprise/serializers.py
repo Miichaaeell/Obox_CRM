@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from enterprise.models import Bill, Plan, Service, Enterprise
+from enterprise.models import Bill, Plan, Service, Enterprise, PaymentMethod
 
 
 class BillSerializer(serializers.ModelSerializer):
@@ -31,4 +31,9 @@ class ServiceSerializer(serializers.ModelSerializer):
 class EnterpriseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enterprise
+        fields = '__all__'
+        
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentMethod
         fields = '__all__'

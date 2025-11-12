@@ -4,7 +4,6 @@ from enterprise.views import (
     BillCreateAPIView,
     BillDetailAPIView,
     BillListView,
-    CreateListPlanAPIView,
     DownloadCashierFlowView,
     EnterpriseCashierView,
     EnterpriseHomeView,
@@ -13,11 +12,11 @@ from enterprise.views import (
     NFEAPIView,
     NFESListView,
     ListCreateEnterpriseAPIView,
-    RetriveUpdateDestroyEnterpriseAPIView,
+    ListCreatePaymentMethodAPIView,
     ListCreateServiceAPIView,
-    PaymentMethodCreateView,
-    PaymentMethodListView,
-    PaymentMethodUpdateView,
+    ListCreatePlanAPIView,
+    RetriveUpdateDestroyEnterpriseAPIView,
+    RetriveUpdateDestroyPaymentMethodAPIView,
     RetriveUpdateDestroyServiceAPIView,
     RetriveUpdateDestroyPlanAPIView,
 )
@@ -31,15 +30,10 @@ urlpatterns = [
     path('enterprise/api/v1/<int:pk>', RetriveUpdateDestroyEnterpriseAPIView.as_view(), name='enterprise_api'),
 
     # Views Payment
-    path('payment_list/', PaymentMethodListView.as_view(),
-         name='list_payment_method'),
-    path('payment_create/', PaymentMethodCreateView.as_view(),
-         name='create_payment_method'),
-    path('payment_update/<int:pk>/', PaymentMethodUpdateView.as_view(),
-         name='update_payment_method'),
-
+     path('paymentmethods/api/v1/', ListCreatePaymentMethodAPIView().as_view(), name='payment_method'),
+     path('paymentmethods/api/v1/<int:pk>', RetriveUpdateDestroyPaymentMethodAPIView().as_view(), name='payment_method'),
     # Views Plan
-    path('plan/api/v1/',CreateListPlanAPIView.as_view(), name='plan_api'),
+    path('plan/api/v1/',ListCreatePlanAPIView.as_view(), name='plan_api'),
     path('plan/api/v1/<int:pk>', RetriveUpdateDestroyPlanAPIView.as_view(), name='plan_api'),
     
     #Views Service

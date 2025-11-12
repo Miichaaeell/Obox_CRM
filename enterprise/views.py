@@ -15,13 +15,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
-from enterprise.forms import PaymentMethodForm
 from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Service, StatusBill, Enterprise
 from enterprise.serializers import (
     BillSerializer,
     NFESerializer,
     PlanSerializer,
-    ServiceSerializer, EnterpriseSerializer
+    ServiceSerializer, 
+    EnterpriseSerializer,
+    PaymentMethodSerializer
 )
 from enterprise.tasks import send_NFS
 from students.models import MonthlyFee
@@ -39,10 +40,12 @@ class EnterpriseSettingsView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['plans'] = Plan.objects.all().only('name_plan', 'price', 'duration_months')
         context['services'] = Service.objects.all().only('service', 'price')
+        context['enterprise'] = Enterprise.objects.first()
+        context['payments'] = PaymentMethod.objects.all()
         context['url_plan'] = reverse('plan_api')
         context['url_service'] = reverse('service_api')
         context['url_enterprise'] = reverse('enterprise_api')
-        context['enterprise'] = Enterprise.objects.first()
+        context['url_payments'] = reverse('payment_method')
         return context
     
 
@@ -92,43 +95,6 @@ class EnterpriseCashierView(LoginRequiredMixin, View):
         elif action == 'create':
             response = create_new_register_cashier()
             return response
-
-
-class PaymentMethodListView(LoginRequiredMixin, ListView):
-    model = PaymentMethod
-    template_name = 'components/_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Métodos de Pagamento'
-        context['sufix_url'] = 'payment_method'
-        return context
-
-
-class PaymentMethodCreateView(LoginRequiredMixin, CreateView):
-    model = PaymentMethod
-    form_class = PaymentMethodForm
-    template_name = 'components/_create_update.html'
-    success_url = reverse_lazy('list_payment_method')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Método de Pagamento'
-        context['sufix_url'] = 'payment_method'
-        return context
-
-
-class PaymentMethodUpdateView(LoginRequiredMixin, UpdateView):
-    model = PaymentMethod
-    form_class = PaymentMethodForm
-    template_name = 'components/_create_update.html'
-    success_url = reverse_lazy('list_payment_method')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Método de Pagamento'
-        context['sufix_url'] = 'payment_method'
-        return context
 
 
     # Views for Bill
@@ -226,7 +192,7 @@ class BillCreateAPIView(generics.ListCreateAPIView):
 
 
 #Views Plan
-class CreateListPlanAPIView(generics.ListCreateAPIView):
+class ListCreatePlanAPIView(generics.ListCreateAPIView):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
 
@@ -254,6 +220,14 @@ class ListCreateEnterpriseAPIView(generics.ListCreateAPIView):
 class RetriveUpdateDestroyEnterpriseAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Enterprise.objects.all()
     serializer_class = EnterpriseSerializer
+    
+class ListCreatePaymentMethodAPIView(generics.ListCreateAPIView):
+    queryset = PaymentMethod.objects.all()
+    serializer_class = PaymentMethodSerializer
+    
+class RetriveUpdateDestroyPaymentMethodAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PaymentMethod.objects.all()
+    serializer_class = PaymentMethodSerializer
 
 
 class NFEAPIView(APIView):

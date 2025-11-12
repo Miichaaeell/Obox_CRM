@@ -79,6 +79,7 @@ class PaymentMethod(TimeStampedModel, models.Model):
     class Meta:
         verbose_name = 'Método de Pagamento'
         verbose_name_plural = 'Métodos de Pagamento'
+        ordering = ['method']
 
 
 class Bill(TimeStampedModel, models.Model):

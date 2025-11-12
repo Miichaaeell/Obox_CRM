@@ -5,7 +5,6 @@ from enterprise.models import (
     Enterprise,
     Installments,
     NFSe,
-    PaymentMethod,
     StatusBill,
     TypeBill,
 )
@@ -92,17 +91,6 @@ class BillForm(forms.ModelForm):
             'payment_method': forms.RadioSelect(attrs={
                 'class': 'sr-only', 'x-model': 'selectedOpption', "required": True
             })
-        }
-
-
-class PaymentMethodForm(forms.ModelForm):
-    class Meta:
-        model = PaymentMethod
-        fields = ['method']
-        widgets = {
-            'method': forms.TextInput(attrs={
-                "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
-            }),
         }
 
 

@@ -1,6 +1,6 @@
 function SettingsHandler(){
     return{
-        menu:'',
+        menu:'info',
         formData:{},
         mode:'create',
         url:'',
@@ -38,9 +38,14 @@ function SettingsHandler(){
             })
             if(!response.ok){
                 console.log('Erro ao tentar deletar o plano')
+                console.log(response)
             }else{
                 location.reload()
             }
+        },
+
+        async ClearForm(){
+            this.formData = {}
         },
 
         async EditForm(url, form){
@@ -49,7 +54,17 @@ function SettingsHandler(){
             this.formData = data
             this.mode = 'update'
             this.url = url
-            this.menu = form == 'plan' ? 'create-plan' : 'create-service'
+            switch(form){
+                case "plan":
+                    this.menu = 'create-plan';
+                    break
+                case "service":
+                    this.menu = 'create-service';
+                    break
+                case 'payment':
+                    this.menu = 'create-payment'
+                    break
+            }
         },
 
         async GetInfoEnterprise(url){
@@ -70,7 +85,11 @@ function SettingsHandler(){
                 body: JSON.stringify(this.formData)
             })
             if(!response.ok){
-                console.log('Erro ao tentar deletar o plano')
+                const res = []
+                const retorno = await response.json()
+                
+                console.log(retorno)
+                alert('Erro ao atualizar a empresa')
             }else{
                 alert('Dados Atualizados com Sucesso!')
                 window.location.reload()
