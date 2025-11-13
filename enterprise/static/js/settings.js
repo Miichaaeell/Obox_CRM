@@ -32,20 +32,27 @@ function SettingsHandler(){
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrf,
             }
-            const response = await fetch(url, {
+            await fetch(url, {
                 method: 'DELETE',
                 headers:headers,
-            })
-            if(!response.ok){
-                console.log('Erro ao tentar deletar o plano')
-                console.log(response)
-            }else{
+            }).then((response) => {
+                if(response.ok){
                 location.reload()
+            }else{
+                return response.json()
             }
+            }).then((data) =>{
+                alert(data['detail'])
+            })
+            .catch((error) =>{
+                console.log(error.message)
+            })
+            
         },
 
         async ClearForm(){
             this.formData = {}
+            this.mode = 'create'
         },
 
         async EditForm(url, form){
@@ -95,5 +102,27 @@ function SettingsHandler(){
                 window.location.reload()
             }
         },
+        async SearchCep(){
+            base_url = "https://viacep.com.br/ws/"
+            await fetch(base_url+this.formData.cep+'/json/')
+            .then((response) =>{
+                if(response.ok){
+                    return response.json()
+                }
+                else{
+                    console.log(response)
+                }
+            }).then((data) => {
+                this.formData.street = data['logradouro']
+                this.formData.neighborhood = data['bairro']
+                this.formData.city = data['localidade']
+                this.formData.state = data['uf']
+
+            }).catch((error)=>{
+                console.log(error.message)
+            })
+            
+            
+        }
     }
 }

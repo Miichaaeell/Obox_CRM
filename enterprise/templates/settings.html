@@ -16,7 +16,7 @@
         <!-- Menu-->
         <aside class="w-1/4 pr-4  border-r-2 border-black/50">
             <nav class="flex flex-col gap-2 text-sm text-gray-800 justify-start items-start">
-                <button type="button" @click="menu = 'info' " id="info" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'info'}">Dados da Empresa</button>
+                <button type="button" @click="menu = 'info', GetInfoEnterprise('{{url_enterprise}}/{{enterprise.id}}') " id="info" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'info'}">Dados da Empresa</button>
                 <button @click="menu = 'nfs', GetInfoEnterprise('{{url_enterprise}}/{{enterprise.id}}')" type="button" id="nfs" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'nfs'}">Emissão Fiscal</button>
                 <button type="button" @click="menu = 'plans' " id="plans" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'plans' | menu == 'create-plan' | menu == 'create-service'}">Planos e Serviços</button>
                 <button type="button" @click="menu = 'payments' " id="payments" class="hover:text-green-600 hover:cursor-pointer" :class="{'font-bold': menu == 'payments' | menu == 'create-payment'}">Formas de Pagamento</button>
@@ -31,48 +31,47 @@
                     <h2 class="font-bold">Dados Cadastrais</h2>
                     <div class="grid md:grid-cols-2 mb-5 border rounded-2xl p-3 w-[90%]">
                         <div>
-                            <label for="name">Nome da empresa:</label><br>
-                            <input type="text" name="name" id="name" class="border-b w-[90%]" x-model="formData.name">
+                            <label class="font-semibold" for="name">* Nome da empresa:</label><br>
+                            <input type="text" name="name" id="name" class="border-b w-[90%]" x-model="formData.name" required>
                         </div>
                         <div>
-                            <label for="cnpj">CNPJ:</label><br>
-                            <input type="text" x-mask="99.999.999/9999-99"  name="cnpj" id="cnpj" class="border-b w-[90%]" x-model="formData.cnpj">
+                            <label class="font-semibold" for="cnpj">* CNPJ:</label><br>
+                            <input type="text" x-mask="99.999.999/9999-99"  name="cnpj" id="cnpj" class="border-b w-[90%]" x-model="formData.cnpj" required>
                         </div>
                          <div>
-                            <label for="phone_number">Número de telefone:</label><br>
-                            <input type="number" name="phone_number" id="phone_number" class="border-b w-[90%]" x-model="formData.phone_number">
+                            <label class="font-semibold" for="phone_number">Número de telefone:</label><br>
+                            <input type="text" x-mask="(99) 99999-9999" name="phone_number" id="phone_number" class="border-b w-[90%]" x-model="formData.phone_number">
                         </div>
                         <div>
-                            <label for="email">E-mail:</label><br>
+                            <label class="font-semibold" for="email">E-mail:</label><br>
                             <input type="email" name="email" id="email" class="border-b w-[90%]" x-model="formData.email">
                         </div>
                     </div>
                     <h2 class="font-bold">Endereço</h2>
-                    <div class="grid md:grid-cols-3 mb-5 p-3 border rounded-2xl w-[90%]">
+                    <div class="grid md:grid-cols-[1fr_1fr_10%] mb-5 p-3 border rounded-2xl w-[90%]">
                         <div>
-
-                            <label for="city">Cidade:</label><br>
-                            <input type="text" name="city" id="city" class="border-b w-[90%]" x-model="formData.city">
+                            <label class="font-semibold" for="cep">* CEP:</label><br>
+                            <input type="text" x-mask="99999-999" @change='SearchCep()' name="cep" id="cep" class="border-b w-[90%]" x-model="formData.cep" required>
                         </div>
                         <div>
-                            <label for="state">Estado:</label><br>
-                            <input type="text" name="state" id="state" class="border-b w-[90%]" x-model="formData.state">
+                            <label class="font-semibold" for="city">Cidade:</label><br>
+                            <input type="text" name="city" id="city" class="border-b w-[90%]" x-model="formData.city" readonly>
                         </div>
                         <div>
-                            <label for="cep">CEP:</label><br>
-                            <input type="number" name="cep" id="cep" class="border-b w-[90%]" x-model="formData.cep">
+                            <label class="font-semibold" for="state">Estado:</label><br>
+                            <input type="text" name="state" id="state" class="border-b w-[90%] text-center" x-model="formData.state" readonly>
                         </div>
                         <div>
-                            <label for="street">Rua:</label><br>
-                            <input type="text" name="street" id="street" class="border-b w-[90%]" x-model="formData.street" required>
+                            <label class="font-semibold" for="street">Rua:</label><br>
+                            <input type="text" name="street" id="street" class="border-b w-[90%]" x-model="formData.street" required readonly>
                         </div>
                         <div>
-                            <label for="house_number">Nº:</label><br>
-                            <input type="number" name="house_number" id="house_number" class="border-b w-[90%]" x-model="formData.house_number" required>
+                            <label class="font-semibold" for="neighborhood">Bairro:</label><br>
+                            <input type="text" name="neighborhood" id="neighborhood" class="border-b w-[90%]" x-model="formData.neighborhood" readonly>
                         </div>
                         <div>
-                            <label for="neighborhood">Bairro:</label><br>
-                            <input type="text" name="neighborhood" id="neighborhood" class="border-b w-[90%]" x-model="formData.neighborhood">
+                            <label class="font-semibold" for="house_number">* Nº:</label><br>
+                            <input type="number" name="house_number" id="house_number" class="border-b w-[90%] text-center" x-model="formData.house_number" required>
                         </div>
                     </div>
                     <div class="flex justify-end w-[90%]">
