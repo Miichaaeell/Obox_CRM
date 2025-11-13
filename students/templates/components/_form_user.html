@@ -2,7 +2,8 @@
 <div class="bg-white rounded-2xl shadow-xl w-4/5 mx-auto p-6 relative"
 x-data="formHandler()"
 id="containerMain"
-data-plans="{{ plans|default:'[]' }}">
+data-plans="{{ plans|default:'[]' }}"
+data-registrationfee="{{ registrationFee|default:'[]' }}">
         <h2 class="text-xl font-semibold mb-4">{{ title_card }}</h2>        
       <form class="space-y-6 gap-8" method="post">
         {% csrf_token %}
@@ -15,23 +16,21 @@ data-plans="{{ plans|default:'[]' }}">
         <!--Nome completo-->
         <div class="gap -4 text-sm"> 
             <div>
+              {{registrationFee}}
             <label class="block font-medium">Nome completo:</label>
             {{form.name}}
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">        
-            <!-- CPF -->
         <div>
             <label class="block font-medium">CPF:</label>
              {{form.cpf_cnpj}}
           </div>
-            <!--Data de nascimento -->
             <div>
             <label class="block font-medium">Data de Nascimento:</label>
             {{form.date_of_birth}}
           </div>
-            <!--Telefone-->
          <div>
             <label class="block font-medium">Telefone:</label>
             {{form.phone_number}}
@@ -39,17 +38,14 @@ data-plans="{{ plans|default:'[]' }}">
         </div>
 
         <div class="flex text-sm justify-between w-[86%] " >
-               <!--Data da matricula-->
           <div>
             <label class="block font-medium">Data da Matrícula:</label>
              <input class="" value="{{today|date:'d/m/Y'}}" readonly>
           </div>
-          <!-- Plano -->
          <div>
             <label class="block font-medium">Plano:</label>
             {{form.plan}}
           </div>
-            <!-- Valor -->
           <div>
             <label class="block font-medium">Valor:</label>
             <input type="text" class="text-gray-700 w-32 border-b border-gray-400 focus:outline-none" id="value_plan" :value="formattedPlanPrice()" readonly>

@@ -26,7 +26,7 @@ from rest_framework.views import APIView
 
 
 from core.uploadfile import upload_file
-from enterprise.models import Installments, PaymentMethod, Plan
+from enterprise.models import Installments, PaymentMethod, Plan, Service
 from students.forms import StatusStudentForm, StudentForm
 from students.serializers import StudentSerializer
 from students.serializers import (
@@ -100,6 +100,9 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
         context['plans'] = json.dumps(list(
             Plan.objects.values('id', 'price')), cls=DjangoJSONEncoder)
         context['quantity_installments'] = Installments.objects.all()
+        context['registrationFee'] = json.dumps(list(
+            Service.objects.filter(service__icontains='Matrícula').values('price')), cls=DjangoJSONEncoder)
+            
         return context
 
     @transaction.atomic
@@ -167,6 +170,8 @@ class StudentDetailView(DetailView):
         )
         context['today'] = timezone.now()
         context['title_card'] = 'Ativar aluno'
+        context['registrationFee'] = json.dumps(list(
+            Service.objects.filter(service__icontains='Matrícula').values('price')), cls=DjangoJSONEncoder)
         return context
 
 # Views for frequence studant

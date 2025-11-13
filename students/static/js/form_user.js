@@ -13,19 +13,20 @@ function formHandler() {
   if (containerMain?.dataset?.activationUrl) {
     activationUrl = containerMain.dataset.activationUrl;
   }
-
-  const registrationFeeField = document.getElementById('registration_fee');
-  const registrationFee = registrationFeeField
-    ? window.PaymentFlow.parseNumber(registrationFeeField.value)
-    : 0;
-
+  var registrationFee = []
+  try {
+    registrationFee = JSON.parse(containerMain?.dataset?.registrationfee)
+  }catch (e){
+    console.error('Erro ao fazer parse da taxa:', e);
+  
+  }
   const paymentFlow = window.PaymentFlow.createPaymentFlow();
 
   return {
     ...paymentFlow,
     plans: plansData,
     activationUrl,
-    registrationFee,
+    registrationFee: registrationFee[0]['price'],
     selectedPlanId: null,
     planPrice: 0,
     isSubmitting: false,
@@ -58,7 +59,7 @@ function formHandler() {
       }
 
       const planPrice = Number(planSelected.price) || 0;
-      const total = planPrice + this.registrationFee;
+      const total = planPrice + Number(this.registrationFee);
 
       this.selectedPlanId = planId;
       this.planPrice = planPrice;
