@@ -8,7 +8,7 @@ from students.models import MonthlyFee, Student
 @shared_task
 def create_monthlyfee():
 
-    students = Student.objects.filter(
+    students: list = Student.objects.filter(
         status__status__iexact='ativo').select_related('plan', 'status')
 
     month, year = datetime.now().month, datetime.now().year

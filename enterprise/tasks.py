@@ -8,9 +8,9 @@ from enterprise.models import Bill, StatusBill, Enterprise
 
 
 @shared_task
-def create_recurring_bill():
+def create_recurring_bill() -> None:
     year, month = datetime.now().year, datetime.now().month
-    today = datetime.now().date()
+    today: str  = datetime.now().date()
     first_day_this_month = today.replace(day=1)
     first_day_last_month = first_day_this_month - relativedelta(months=1)
     bills = Bill.objects.filter(appellant=True, due_date__lt=first_day_this_month, due_date__gte=first_day_last_month)
@@ -50,14 +50,14 @@ def create_recurring_bill():
 
 
 @shared_task
-def send_NFS(data):
-    students = data['student']
-    description = data['description']
-    reference_month = data['reference_month']
-    bearer_token = config('WEBMANIA_BEARER_TOKEN')
-    ambient = config('WEBMANIA_VENV')
+def send_NFS(data: dict) -> str:
+    students: str = data['student']
+    description: str = data['description']
+    reference_month: str = data['reference_month']
+    bearer_token: str = config('WEBMANIA_BEARER_TOKEN')
+    ambient: int = config('WEBMANIA_VENV')
     enterprise = Enterprise.objects.first()
-    succes, failed = [], []
+    success, failed = [], []
     
     client = WebmaniaClient(
         bearer_token=bearer_token,
@@ -65,7 +65,7 @@ def send_NFS(data):
     )
     for student in students:        
         try:
-           data = {
+           data: dict = {
             "servico": {
                 "valor_servicos": f"{student['valor']}",
                 "discriminacao": f"{description}",
@@ -84,8 +84,9 @@ def send_NFS(data):
                print(response)
                failed.append(f'Erro ao emitir nota para {student['name']}')
            else:
-               succes.append(f'Sucesso ao emitir nota para {student['Name']}')          
+               print(response)
+               success.append(f'Sucesso ao emitir nota para {student['Name']}')          
         except Exception as e:
            print(e)
            failed.append(f'Erro ao emitir nota para {student['name']}')
-    return f'Total de {len(succes)} notas emitidas e total de {len(failed)} notas falharam'
+    return f'Total de {len(success)} notas emitidas e total de {len(failed)} notas falharam'

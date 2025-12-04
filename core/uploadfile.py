@@ -4,7 +4,7 @@ from enterprise.models import Plan
 from students.models import StatusStudent, Student
 
 
-def format_cpf(cpf):
+def format_cpf(cpf:str) -> str:
     # remove tudo que não for número
     cpf = ''.join(filter(str.isdigit, str(cpf)))
     # garante 11 dígitos
@@ -13,8 +13,8 @@ def format_cpf(cpf):
     return f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}"
 
 
-def upload_file(file):
-    ext = file.name.split('.')[-1].lower()
+def upload_file(file) -> dict:
+    ext:str = file.name.split('.')[-1].lower()
     if ext not in ['xlsx', 'csv']:
         return {
             "message": f'Formato de arquivo inválido',
