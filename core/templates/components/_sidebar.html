@@ -5,9 +5,18 @@
   class="bg-black text-white h-[90vh] flex flex-col transition-all duration-300 shadow-2xl rounded-2xl z-40"
 >
 <!-- Toggle -->
-      <button @click="open = !open" class="hover:bg-gray-700 flex items-center justify-center space-y-2 gap-3 p-3 cursor-pointer">
-        <img src="{% static 'media/logo/logo_obox.png' %}" alt="logo_obox">
-      </button>
+        <nav @click="open = !open" class="flex items-center cursor-pointer justify-center">
+            <img src="{% static 'media/logo/logo_obox.png' %}" alt="logo_obox" class="justify-self-center" :class="open ? 'w-[90%]' : 'w-[70%]'">
+            <lord-icon
+              src="https://cdn.lordicon.com/olfvnikl.json"
+              trigger="loop"
+              delay="1000"
+              stroke="bold"
+              colors="primary:#ffffff,secondary:#545454"
+              class="rounded-lg p-3 absolute cursor-pointer"
+              style="right:-5px">
+            </lord-icon>
+        </nav>
 
   <!-- Menu -->
   <nav class="flex flex-col h-full items-stretch mt-1 space-y-2">
