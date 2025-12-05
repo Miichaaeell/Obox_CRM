@@ -28,6 +28,7 @@ class Enterprise(TimeStampedModel, models.Model):
                                     help_text="Description of the CNAE code", verbose_name='Código do serviço')
     iss_retained = models.BooleanField(verbose_name='Iss retido', default=False, null=True, blank=True)
     iss_value = models.DecimalField(verbose_name='Valor de iss retido', decimal_places=2, max_digits=5, null=True, blank=True, default=0)
+    iss_aliquot = models.DecimalField(verbose_name='Alíquota de iss', decimal_places=4, max_digits=5, null=True, blank=True, default=0)
     description_service = models.TextField(
         help_text="Detailed description of the service", verbose_name='Descrição do serviço')
 

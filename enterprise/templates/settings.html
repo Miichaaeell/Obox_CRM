@@ -92,6 +92,10 @@
                             <label for="service_code">Código de serviço:</label><br>
                             <input type="number" name="service_code" id="service_code" class="border-b w-[90%]" x-model="formData.service_code" step="any">
                         </div>
+                        <div>
+                            <label for="iss_aliquot">Alíquota de ISS (%):</label><br>
+                            <input type="number" name="iss_aliquot" id="iss_aliquot" x-model="formData.iss_aliquot" step="any" class="border-b w-[90%]">
+                        </div>
                     </div>
                      <div>
                         <input type="checkbox" name="iss_retained" id="iss_retained" x-model="formData.iss_retained">
