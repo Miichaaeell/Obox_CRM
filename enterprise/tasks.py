@@ -70,8 +70,12 @@ def send_NFS(data: dict) -> str:
             "servico": {
                 "valor_servicos":f"{student['valor']}",
                 "discriminacao": f"{description}",
-                "classe_imposto": "REF409019769",
-                "informacoes_complementares": enterprise.name
+                "iss_retido": 2 if enterprise.iss_retained == False else 1,
+                "codigo_servico": f"{enterprise.service_code}",
+                "informacoes_complementares": enterprise.name,
+                "impostos": {
+                    "iss": f'{enterprise.iss_aliquot}'
+                }
             },
             "tomador": {
                 "cpf": f"{student['cpf']}",
@@ -80,6 +84,7 @@ def send_NFS(data: dict) -> str:
             }
             if enterprise.iss_retained == True:
                data['servico']['responsavel_retencao_iss'] = 1
+            print(data)
             response: dict = client.send_nfs(data=data)
             if response.get('error'):
                print(response)
