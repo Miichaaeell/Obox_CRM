@@ -14,7 +14,14 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.functions import get_context_cashier_data, create_new_register_cashier, close_cashier, create_file_xlsx_cashier, get_context_homeview
+from core.functions import (
+    create_file_xlsx_cashier,
+    create_new_register_cashier,
+    get_context_cashier_data,
+    get_context_homeview,
+    get_dashboard_context,
+    close_cashier,
+)
 from enterprise.models import Bill, Cashier, PaymentMethod, Plan, Service, StatusBill, Enterprise
 from enterprise.serializers import (
     BillSerializer,
@@ -32,6 +39,16 @@ class EnterpriseHomeView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         context = get_context_homeview()
         return render(request, 'home.html', context)
+
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(get_dashboard_context())
+        return context
+
 
 class EnterpriseSettingsView(LoginRequiredMixin, TemplateView):
     template_name= 'settings.html'

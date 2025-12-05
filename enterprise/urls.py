@@ -4,6 +4,7 @@ from enterprise.views import (
     BillCreateAPIView,
     BillDetailAPIView,
     BillListView,
+    DashboardView,
     DownloadCashierFlowView,
     EnterpriseCashierView,
     EnterpriseHomeView,
@@ -13,18 +14,19 @@ from enterprise.views import (
     NFESListView,
     ListCreateEnterpriseAPIView,
     ListCreatePaymentMethodAPIView,
-    ListCreateServiceAPIView,
     ListCreatePlanAPIView,
+    ListCreateServiceAPIView,
     RetriveUpdateDestroyEnterpriseAPIView,
     RetriveUpdateDestroyPaymentMethodAPIView,
-    RetriveUpdateDestroyServiceAPIView,
     RetriveUpdateDestroyPlanAPIView,
+    RetriveUpdateDestroyServiceAPIView,
 )
 
 
 urlpatterns = [
      #Views Enterprise
     path('', EnterpriseHomeView.as_view(), name='home'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('settings/', EnterpriseSettingsView.as_view(), name='settings'),
     path('enterprise/api/v1', ListCreateEnterpriseAPIView.as_view(), name='enterprise_api'),
     path('enterprise/api/v1/<int:pk>', RetriveUpdateDestroyEnterpriseAPIView.as_view(), name='enterprise_api'),
