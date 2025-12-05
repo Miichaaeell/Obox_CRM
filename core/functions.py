@@ -3,16 +3,19 @@ from io import BytesIO
 from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum, Count, F
+from django.db.models.functions import TruncMonth
 from django.http import JsonResponse
-from enterprise.models import Cashier, Bill, Payment
-from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.safestring import mark_safe
+
+from enterprise.models import Cashier, Bill, Payment
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
-from enterprise.models import Installments, PaymentMethod
+from enterprise.models import Installments, PaymentMethod, NFSe
 from students.models import MonthlyFee, Student, Payment
 
 
@@ -284,4 +287,180 @@ def get_context_homeview():
             'students_active_url': f"{reverse('list_student')}?filter=ativo",
             'installments': installments,
         }
+    return context
+
+
+def get_dashboard_context():
+    today = timezone.localdate()
+    next_week = today + timedelta(days=7)
+    six_months_ago = today - timedelta(days=180)
+
+    students_qs = Student.objects.select_related('status', 'plan')
+    total_students = students_qs.count()
+    active_students = students_qs.filter(status__status__iexact='Ativo').count()
+    inactive_students = students_qs.filter(status__status__iexact='Inativo').count()
+
+    monthlyfees_qs = MonthlyFee.objects.select_related('student', 'plan')
+    monthly_fee_values = monthlyfees_qs.aggregate(
+        total_value=Sum('amount'),
+        paid_value=Sum('amount', filter=Q(paid=True)),
+        pending_value=Sum('amount', filter=Q(paid=False)),
+    )
+    monthly_fee_values = {
+        key: value or 0 for key, value in monthly_fee_values.items()
+    }
+
+    monthly_fee_counts = monthlyfees_qs.aggregate(
+        total=Count('id'),
+        paid_count=Count('id', filter=Q(paid=True)),
+        pending_count=Count('id', filter=Q(paid=False)),
+        overdue_count=Count('id', filter=Q(paid=False, due_date__lt=today)),
+        due_next_count=Count(
+            'id',
+            filter=Q(paid=False, due_date__range=(today, next_week))
+        ),
+    )
+    monthly_fee_counts = {
+        key: value or 0 for key, value in monthly_fee_counts.items()
+    }
+
+    upcoming_fees_qs = monthlyfees_qs.filter(
+        paid=False, due_date__range=(today, next_week)
+    ).order_by('due_date')[:6]
+    overdue_fees_qs = monthlyfees_qs.filter(
+        paid=False, due_date__lt=today
+    ).order_by('due_date')[:6]
+
+    def serialize_fee(fee):
+        return {
+            'name': fee.student.name if fee.student else fee.student_name or 'Sem identificação',
+            'plan': fee.plan.name_plan if fee.plan else 'Sem plano',
+            'due_date': fee.due_date,
+            'amount': fee.amount if fee.amount is not None else 0,
+        }
+
+    upcoming_fees = [serialize_fee(fee) for fee in upcoming_fees_qs]
+    overdue_fees = [serialize_fee(fee) for fee in overdue_fees_qs]
+
+    bills_qs = Bill.objects.select_related('status', 'payment_method')
+    bills_summary = {
+        'open_count': bills_qs.filter(date_payment__isnull=True).count(),
+        'paid_count': bills_qs.filter(date_payment__isnull=False).count(),
+        'overdue_count': bills_qs.filter(
+            date_payment__isnull=True, due_date__lt=today
+        ).count(),
+        'total_value': bills_qs.aggregate(total=Sum('value'))['total'] or 0,
+    }
+    bills_by_status = list(
+        bills_qs.values('status__status')
+        .annotate(total=Count('id'), total_value=Sum('value'))
+        .order_by('-total')
+    )
+    for bill in bills_by_status:
+        bill['status'] = bill.pop('status__status') or 'Sem status'
+        bill['total_value'] = bill['total_value'] or 0
+
+    payment_method_stats = list(
+        Payment.objects.values('payment_method')
+        .annotate(total=Sum('value'), count=Count('id'))
+        .order_by('-total')
+    )
+    for stat in payment_method_stats:
+        stat['method'] = stat.pop('payment_method') or 'Não informado'
+        stat['total'] = float(stat['total'] or 0)
+        stat['count'] = stat['count'] or 0
+
+    payment_method_labels = [stat['method']
+                             for stat in payment_method_stats]
+    payment_method_totals = [stat['total']
+                             for stat in payment_method_stats]
+
+    monthly_cashflow_qs = (
+        monthlyfees_qs.filter(due_date__gte=six_months_ago)
+        .annotate(month=TruncMonth('due_date'))
+        .values('month')
+        .annotate(
+            billed=Sum('amount'),
+            received=Sum('amount', filter=Q(paid=True)),
+        )
+        .order_by('month')
+    )
+    monthly_cashflow_labels = []
+    monthly_cashflow_billed = []
+    monthly_cashflow_received = []
+    for entry in monthly_cashflow_qs:
+        month = entry['month']
+        if month:
+            monthly_cashflow_labels.append(month.strftime('%b/%y'))
+        else:
+            monthly_cashflow_labels.append('Sem data')
+        monthly_cashflow_billed.append(float(entry['billed'] or 0))
+        monthly_cashflow_received.append(float(entry['received'] or 0))
+
+    students_by_plan = list(
+        students_qs.values('plan__name_plan')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+    for plan in students_by_plan:
+        plan['name'] = plan.pop('plan__name_plan') or 'Sem plano'
+        plan['percentage'] = round(
+            (plan['count'] / total_students) * 100, 1
+        ) if total_students else 0
+
+    nfse_qs = NFSe.objects.select_related('student')
+    nfse_summary = {
+        'total': nfse_qs.count(),
+        'this_month': nfse_qs.filter(
+            issue_date__year=today.year, issue_date__month=today.month
+        ).count(),
+    }
+    recent_invoices = nfse_qs.order_by('-issue_date')[:5]
+
+    context = {
+        'students_summary': {
+            'total': total_students,
+            'active': active_students,
+            'inactive': inactive_students,
+            'active_percentage': round(
+                (active_students / total_students) * 100, 1
+            ) if total_students else 0,
+        },
+        'monthly_fee_values': monthly_fee_values,
+        'monthly_fee_counts': monthly_fee_counts,
+        'monthly_fee_distribution': {
+            'paid_pct': round(
+                (monthly_fee_counts['paid_count'] / monthly_fee_counts['total']) * 100, 1
+            ) if monthly_fee_counts['total'] else 0,
+            'pending_pct': round(
+                (monthly_fee_counts['pending_count'] / monthly_fee_counts['total']) * 100, 1
+            ) if monthly_fee_counts['total'] else 0,
+            'overdue_pct': round(
+                (monthly_fee_counts['overdue_count'] / monthly_fee_counts['total']) * 100, 1
+            ) if monthly_fee_counts['total'] else 0,
+        },
+        'upcoming_fees': upcoming_fees,
+        'overdue_fees': overdue_fees,
+        'bills_summary': bills_summary,
+        'bills_by_status': bills_by_status,
+        'payment_method_stats': payment_method_stats,
+        'payment_method_labels': mark_safe(
+            json.dumps(payment_method_labels)
+        ),
+        'payment_method_totals': mark_safe(
+            json.dumps(payment_method_totals)
+        ),
+        'monthly_cashflow_labels': mark_safe(
+            json.dumps(monthly_cashflow_labels)
+        ),
+        'monthly_cashflow_billed': mark_safe(
+            json.dumps(monthly_cashflow_billed)
+        ),
+        'monthly_cashflow_received': mark_safe(
+            json.dumps(monthly_cashflow_received)
+        ),
+        'students_by_plan': students_by_plan,
+        'nfse_summary': nfse_summary,
+        'recent_invoices': recent_invoices,
+    }
     return context

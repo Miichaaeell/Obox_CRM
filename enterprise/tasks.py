@@ -4,7 +4,8 @@ from celery import shared_task
 from decouple import config
 from webmania_client import WebmaniaClient
 
-from enterprise.models import Bill, StatusBill, Enterprise
+from enterprise.models import Bill, StatusBill, Enterprise, NFSe
+from students.models import Student
 
 
 @shared_task
@@ -63,15 +64,13 @@ def send_NFS(data: dict) -> str:
         bearer_token=bearer_token,
         venv=ambient
     )
-    for student in students:        
+    for student in students:     
         try:
-           data: dict = {
+            data: dict = {
             "servico": {
-                "valor_servicos": f"{student['valor']}",
+                "valor_servicos":f"{student['valor']}",
                 "discriminacao": f"{description}",
-                "iss_retido": 1 if enterprise.iss_retained == True else 2,
-                "código_servico": enterprise.service_code,
-                "codigo_cnae": enterprise.cnae_code,
+                "classe_imposto": "REF409019769",
                 "informacoes_complementares": enterprise.name
             },
             "tomador": {
@@ -79,13 +78,27 @@ def send_NFS(data: dict) -> str:
                 "nome_completo": f"{student['name']}",
             }
             }
-           response = client.send_nfs(data=data)
-           if response.get('error'):
+            if enterprise.iss_retained == True:
+               data['servico']['responsavel_retencao_iss'] = 1
+            response: dict = client.send_nfs(data=data)
+            if response.get('error'):
                print(response)
                failed.append(f'Erro ao emitir nota para {student['name']}')
-           else:
-               print(response)
-               success.append(f'Sucesso ao emitir nota para {student['Name']}')          
+            else:
+                success.append(f'Nota emitida com sucesso para {student['name']}')
+                try:
+                    student_instance = Student.objects.filter(name__icontains=student['name']).first()
+                    NFSe.objects.create(
+                       student = student_instance,
+                       issue_date=datetime.now().date(),
+                       uuid_nfse=response.get('uuid'),
+                       link_pdf=response.get('pdf_rps'),
+                       link_xml=response.get('xml'),
+                       reference_month=reference_month,
+                   )
+                except Exception as e:
+                   print(e)
+                         
         except Exception as e:
            print(e)
            failed.append(f'Erro ao emitir nota para {student['name']}')
