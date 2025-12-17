@@ -174,7 +174,27 @@ function mainPage() {
         }
         const data = await res.json();
         const inactive = data.find((status) => status.status.toLowerCase() === 'inativo');
-        this.statusId = inactive?.id ?? '';
+        if (!inactive){
+          const container = document.getElementById('mainContainer');
+          const csrf = container.dataset.csrf;
+          const create_status = await fetch('students/status/api/v1/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'CSRFToken': csrf
+            },
+            body: JSON.stringify({ status: 'Inativo' }),
+          });
+          if (!create_status.ok) {
+            console.error('Erro ao criar status inativo');
+            return;
+          }
+          const new_status = await create_status.json();
+          this.statusId = new_status?.id;
+          return;
+        }else {
+              this.statusId = inactive?.id
+        }
       },
 
       close() {

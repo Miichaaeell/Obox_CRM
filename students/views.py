@@ -101,7 +101,7 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
             Plan.objects.values('id', 'price')), cls=DjangoJSONEncoder)
         context['quantity_installments'] = Installments.objects.all()
         context['registrationFee'] = json.dumps(list(
-            Service.objects.filter(service__icontains='Matrícula').values('price')), cls=DjangoJSONEncoder)
+            Service.objects.filter(Q(service__icontains='matrícula')|Q(service__icontains='matricula')).values('price')), cls=DjangoJSONEncoder)
             
         return context
 
@@ -368,10 +368,7 @@ class StudentActivateAPIView(APIView):
         active_status = StatusStudent.objects.filter(
             status__iexact='ATIVO').first()
         if not active_status:
-            return Response(
-                {'message': 'Status "ATIVO" não está configurado.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            active_status = StatusStudent.objects.create(status='ATIVO')
 
         def to_decimal(value, default='0.00'):
             try:
