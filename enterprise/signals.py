@@ -1,8 +1,10 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from rich.console import Console
 
 from enterprise.models import Bill, PaymentMethod, StatusBill
 
+c = Console()
 
 @receiver(post_save, sender=Bill)
 def verify_payment_method(sender, instance, created, **Kwargs):
@@ -46,4 +48,4 @@ def verify_change_method(sender, instance, **kwargs):
                 instance.total_value = bill.value
                 instance.status = status_automatic
     except Exception as e:
-        print(f'Pré save {e}')
+        c.log(f'Pré save {e}', style="bold red", justify="center")

@@ -1,12 +1,15 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+
 from celery import shared_task
 from decouple import config
+from rich.console import Console
 from webmania_client import WebmaniaClient
 
 from enterprise.models import Bill, StatusBill, Enterprise, NFSe
 from students.models import Student
 
+c = Console()
 
 @shared_task
 def create_recurring_bill() -> None:
@@ -59,6 +62,7 @@ def send_NFS(data: dict) -> str:
     ambient: int = config('WEBMANIA_VENV')
     enterprise = Enterprise.objects.first()
     success, failed = [], []
+    create_nfse: list = list()
     
     client = WebmaniaClient(
         bearer_token=bearer_token,
@@ -84,27 +88,29 @@ def send_NFS(data: dict) -> str:
             }
             if enterprise.iss_retained == True:
                data['servico']['responsavel_retencao_iss'] = 1
-            print(data)
             response: dict = client.send_nfs(data=data)
             if response.get('error'):
-               print(response)
+               c.log(response)
                failed.append(f'Erro ao emitir nota para {student['name']}')
             else:
                 success.append(f'Nota emitida com sucesso para {student['name']}')
                 try:
                     student_instance = Student.objects.filter(name__icontains=student['name']).first()
-                    NFSe.objects.create(
-                       student = student_instance,
-                       issue_date=datetime.now().date(),
-                       uuid_nfse=response.get('uuid'),
-                       link_pdf=response.get('pdf_rps'),
-                       link_xml=response.get('xml'),
-                       reference_month=reference_month,
-                   )
+                    create_nfse.append(
+                          NFSe(
+                            student = student_instance,
+                            issue_date=datetime.now().date(),
+                            uuid_nfse=response.get('uuid'),
+                            link_pdf=response.get('pdf_rps'),
+                            link_xml=response.get('xml'),
+                            reference_month=reference_month,
+                          )
+                    )
                 except Exception as e:
-                   print(e)
+                    c.log(f'Erro ao criar NFSe: {e}', style="bold red", justify="center")
                          
         except Exception as e:
-           print(e)
+           c.log(f'Erro ao emitir nota para {student['name']}: {e}', style="bold red", justify="center")
            failed.append(f'Erro ao emitir nota para {student['name']}')
+    NFSe.objects.bulk_create(create_nfse)
     return f'Total de {len(success)} notas emitidas e total de {len(failed)} notas falharam'

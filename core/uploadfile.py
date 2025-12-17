@@ -1,8 +1,12 @@
 from datetime import datetime
 import pandas as pd
+from rich.console import Console
 
 from enterprise.models import Plan
 from students.models import StatusStudent, Student, MonthlyFee
+
+c = Console()
+
 
 def format_cpf(cpf:str) -> str:
     # remove tudo que não for número
@@ -41,7 +45,7 @@ def upload_file(file) -> dict:
         Student.objects.all().delete()
         MonthlyFee.objects.all().delete()
     except Exception as e:
-        print(f'Erro ao limpar tabela de alunos e mensalidades: {e}', style="bold red", justify="center")
+        c.log(f'Erro ao limpar tabela de alunos e mensalidades: {e}', style="bold red", justify="center")
         
     try:
         create_student = [
@@ -58,7 +62,7 @@ def upload_file(file) -> dict:
         ]
 
     except Exception as e:
-        print(f'Erro ao criar lista de alunos', e)
+        c.log(f'Erro ao criar lista de alunos {e}',  style="bold red", justify="center")
     Student.objects.bulk_create(create_student)
     try:
         create_monthly_fee = [
@@ -72,7 +76,7 @@ def upload_file(file) -> dict:
             ) for studant_instance in create_student
         ]
     except Exception as e:
-        print(f'Erro ao criar lista de mensalidades: {e}')
+        c.log(f'Erro ao criar lista de mensalidades: {e}', style="bold red", justify="center")
     MonthlyFee.objects.bulk_create(create_monthly_fee)
     return {
         "message": f'Arquivo {file} carregado com sucesso!',
