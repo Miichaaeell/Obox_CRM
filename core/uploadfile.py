@@ -1,8 +1,8 @@
+from datetime import datetime
 import pandas as pd
 
 from enterprise.models import Plan
-from students.models import StatusStudent, Student
-
+from students.models import StatusStudent, Student, MonthlyFee
 
 def format_cpf(cpf:str) -> str:
     # remove tudo que não for número
@@ -28,36 +28,52 @@ def upload_file(file) -> dict:
 
     df.columns = df.columns.str.lower().str.strip()
     try:
-        data = df[['nome', 'contrato', 'telefone', 'cpf',
-                   'status', 'data_de_nascimento', 'data_de_cadastro']].drop_duplicates().dropna()
+        data = df[['nome', 'contrato','cpf',
+                   'status', 'data_de_nascimento','data_de_cadastro' ]].drop_duplicates().dropna()
         data[f'cpf'] = data['cpf'].apply(format_cpf)
-        data['data_de_nascimento'], data['data_de_cadastro'], data['due_date'] = data[
-            'data_de_nascimento'].dt.date, data['data_de_cadastro'].dt.date, data['data_de_cadastro'].dt.day
+        data['data_de_nascimento'], data['due_date'] = data['data_de_nascimento'].dt.date, data['data_de_cadastro']
     except Exception as e:
         return {
             "message": f'Erro ao processar o arquivo {e}',
             "status_code": '422'
         }
-
+    try:
+        Student.objects.all().delete()
+        MonthlyFee.objects.all().delete()
+    except Exception as e:
+        print(f'Erro ao limpar tabela de alunos e mensalidades: {e}', style="bold red", justify="center")
+        
     try:
         create_student = [
             Student(
                 name=row.nome,
                 cpf_cnpj=row.cpf,
                 date_of_birth=row.data_de_nascimento,
-                phone_number=row.telefone,
                 status=StatusStudent.objects.filter(
                     status__iexact=str(row.status)).first(),
-                observation='Trago da base de dados',
-                due_date=row.due_date,
+                observation='Importado via arquivo',
+                due_date=row.due_date if row.due_date else datetime.now().day(),
                 plan=Plan.objects.get(name_plan__iexact=row.contrato),
-                created_at=row.data_de_cadastro
             ) for row in data.itertuples(index=False)
         ]
-        print(create_student)
+
     except Exception as e:
-        print(f'Erro ao criar lista de alunos')
+        print(f'Erro ao criar lista de alunos', e)
     Student.objects.bulk_create(create_student)
+    try:
+        create_monthly_fee = [
+            MonthlyFee(
+                student=studant_instance,
+                student_name=studant_instance.name,
+                due_date=studant_instance.created_at,
+                reference_month=datetime.now().month - 1,
+                amount=studant_instance.plan.price,
+                plan=studant_instance.plan,
+            ) for studant_instance in create_student
+        ]
+    except Exception as e:
+        print(f'Erro ao criar lista de mensalidades: {e}')
+    MonthlyFee.objects.bulk_create(create_monthly_fee)
     return {
         "message": f'Arquivo {file} carregado com sucesso!',
         "status_code": '201'

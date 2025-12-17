@@ -29,7 +29,7 @@ class StudentForm(forms.ModelForm):
                                                "x-mask:dynamic": "$input.length <= 14 ? '999.999.999-99' : '99.999.999/9999-99'",
                                                "placeholder": "Digite CPF ou CNPJ", }),
             'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'text-gray-700 w-32 border-b border-gray-400 focus:outline-none', 'required': True}),
-            'phone_number': forms.TextInput(attrs={"class": "text-gray-700 w-32 border-b border-gray-400 focus:outline-none", "help_text": "19999999999", "placeholder": '19999999999', 'required': True, "x-data": "", "x-mask": "(99) 9 9999-9999"}),
+            'phone_number': forms.TextInput(attrs={"class": "text-gray-700 w-32 border-b border-gray-400 focus:outline-none", "help_text": "19999999999", "placeholder": '19999999999', "x-data": "", "x-mask": "(99) 9 9999-9999"}),
             'status': forms.Select(attrs={
                 "class": "mt-1 block w-full px py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
             }),

@@ -21,7 +21,7 @@ from students.models import MonthlyFee, Student, Payment
 
 def get_context_cashier_data():
         last_cashier = Cashier.objects.order_by('-created_at').first()
-        if last_cashier.status == 'closed':
+        if last_cashier and last_cashier.status == 'closed':
             context = {
                 'status': last_cashier.get_status_display(),
                 'income_pix': last_cashier.income_pix,
@@ -43,7 +43,7 @@ def get_context_cashier_data():
                 'closing_balance': last_cashier.closing_balance
             }
             return context
-        start = last_cashier.created_at
+        start = last_cashier.created_at if last_cashier else datetime.now()
         end = datetime.now()
         payments = Payment.objects.filter(Q(created_at__gte=(start))
                                           | Q(created_at__lte=(end)),
@@ -76,11 +76,10 @@ def get_context_cashier_data():
         expense = pay['total_expenses'] or 0
         last_balance = Cashier.objects.filter(
             status='closed').order_by('-created_at').first()
-        print(last_balance.closing_balance)
-        closing_balance = last_balance.closing_balance + income - expense
-        expense_withdrawal = last_cashier.expense_withdrawal
+        closing_balance = (last_balance.closing_balance + income - expense) if last_balance else (income - expense)
+        expense_withdrawal = last_cashier.expense_withdrawal if last_cashier and last_cashier.status == 'open' else 0
         context = {
-            'status': last_cashier.get_status_display(),
+            'status': last_cashier.get_status_display() if last_cashier else "Fechado",
             'income_pix': total['income_pix'] if total['income_pix'] else 0,
             'income_credit': total['income_credit'] if total['income_credit'] else 0,
             'income_debit': total['income_debit'] if total['income_debit'] else 0,

@@ -139,7 +139,9 @@
       updateDiscountFromPercent(percentValue) {
         const percent = roundCurrency(Math.max(0, Math.min(100, parseNumber(percentValue))));
         this.paymentData.discountPercent = percent;
+        console.log('Base Amount:', this.paymentData.baseAmount);
         const discountAmount = roundCurrency((this.paymentData.baseAmount || 0) * (percent / 100));
+        console.log('Calculated Discount Amount:', discountAmount);
         this.paymentData.discountValue = discountAmount;
         this.recalculateFinalAmount();
       },
@@ -180,17 +182,12 @@
         }
 
         let total = roundCurrency(base);
-
         if (this.paymentData.discountPercent) {
           total = roundCurrency(
             total - roundCurrency(total * (Math.max(0, this.paymentData.discountPercent) / 100)),
           );
         }
-
-        if (this.paymentData.discountValue) {
-          total = roundCurrency(total - Math.max(0, this.paymentData.discountValue));
-        }
-
+        
         if (this.paymentData.finePercent) {
           total = roundCurrency(
             total + roundCurrency(total * (Math.max(0, this.paymentData.finePercent) / 100)),
@@ -202,6 +199,7 @@
         }
 
         this.paymentData.finalAmount = roundCurrency(Math.max(total, 0));
+
         this.updateValidation();
       },
 

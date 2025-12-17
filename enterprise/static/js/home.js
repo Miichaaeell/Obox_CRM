@@ -173,7 +173,7 @@ function mainPage() {
           return;
         }
         const data = await res.json();
-        const inactive = data.find((status) => status.status === 'Inativo');
+        const inactive = data.find((status) => status.status.toLowerCase() === 'inativo');
         this.statusId = inactive?.id ?? '';
       },
 

@@ -171,7 +171,7 @@ class StudentDetailView(DetailView):
         context['today'] = timezone.now()
         context['title_card'] = 'Ativar aluno'
         context['registrationFee'] = json.dumps(list(
-            Service.objects.filter(service__icontains='Matrícula').values('price')), cls=DjangoJSONEncoder)
+            Service.objects.filter(Q(service__icontains='matrícula')|Q(service__icontains='matricula')).values('price')), cls=DjangoJSONEncoder)
         return context
 
 # Views for frequence studant

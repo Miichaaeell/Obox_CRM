@@ -20,7 +20,7 @@ class Student(TimeStampedModel, models.Model):
     name = models.CharField(max_length=100, verbose_name='Nome Completo',
                             help_text='Enter the full name of the student')
     cpf_cnpj = models.CharField(
-        max_length=18, unique=True, verbose_name='CPF/CNPJ', help_text='Enter a valid CPF or CNPJ number')
+        max_length=18, unique=True, verbose_name='CPF/CNPJ', help_text='Enter a valid CPF or CNPJ number', blank=True, null=True)
     date_of_birth = models.DateField(
         blank=True, null=True, verbose_name='Date of Birth')
     phone_number = models.CharField(max_length=20, blank=True, null=True,
@@ -28,9 +28,9 @@ class Student(TimeStampedModel, models.Model):
     status = models.ForeignKey(
         StatusStudent, on_delete=models.PROTECT, verbose_name='Status do Aluno')
     observation = models.TextField(
-        verbose_name='Observação', help_text='Additional notes about the student')
+        verbose_name='Observação', help_text='Additional notes about the student',blank=True, null=True)
     due_date = models.IntegerField(
-        verbose_name='Data de Vencimento', help_text='Enter the due date for payments')
+        verbose_name='Data de Vencimento', help_text='Enter the due date for payments', null=True, blank=True)
     plan = models.ForeignKey(
         'enterprise.Plan', on_delete=models.PROTECT, verbose_name='Plano',
         help_text='Select the plan associated with the student')

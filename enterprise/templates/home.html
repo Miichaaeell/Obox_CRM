@@ -17,7 +17,7 @@
     <div class="flex-1 space-y-6">
        <!-- Card Ativos -->
     <div class="border border-gray-600 rounded-xl shadow-md p-4">
-      <button type="button" @click="window.location.href='{{ students_active_url }}'" class="flex justify-between items-center w-full">
+      <button type="button" @click="window.location.href='{{ students_active_url }}'" class="flex justify-between items-center w-full hover:cursor-pointer">
         <div class="flex items-center space-x-2">
           <span class="text-green-500 font-semibold text-lg">Contratos ativos</span>
           <span class="text-green-500 text-3xl font-bold">{{ actives_total }}</span>
@@ -30,7 +30,7 @@
 
       <!-- Card A vencer -->
       <div x-data="{ open: false }" class="border border-gray-600 rounded-xl shadow-md p-4">
-        <button @click="open = !open" class="flex justify-between items-center w-full">
+        <button @click="open = !open" class="flex justify-between items-center w-full hover:cursor-pointer">
           <div class="flex items-center space-x-2">
             <span class="text-orange-500 font-semibold text-lg">Contratos a vencer</span>
             <span id="total_due" class="text-orange-500 text-3xl font-bold">{{ monthly_fees_due_total }}</span>
@@ -84,7 +84,7 @@
       </div>
           <!-- Card Atrasados -->
     <div x-data="{ open: false }" class="border border-gray-600 rounded-xl shadow-md p-4">
-      <button @click="open = !open" class="flex justify-between items-center w-full">
+      <button @click="open = !open" class="flex justify-between items-center w-full hover:cursor-pointer">
         <div class="flex items-center space-x-2">
           <span class="text-red-500 font-semibold text-lg">Contratos atrasados</span>
           <span id="total_overdue" class="text-red-500 text-3xl font-bold">{{ monthly_fees_overdue_total }}</span>
