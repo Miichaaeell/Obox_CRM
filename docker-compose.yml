@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    image: obox:latest
     command: python manage.py runserver 0.0.0.0:8000
     entrypoint: /entrypoint.sh
     volumes:
@@ -36,7 +37,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
 
   celery_worker:
-    build: .
+    image: obox:latest
     command: celery -A core worker -l info
     volumes:
       - .:/app
@@ -47,7 +48,7 @@ services:
       - rabbitmq
 
   celery_beat:
-    build: .
+    image: obox:latest
     command: celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app

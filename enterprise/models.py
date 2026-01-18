@@ -1,7 +1,7 @@
 from django.db import models
 
 from core.models import TimeStampedModel
-from students.models import Student, Payment
+from students.models import Student
 
 
 class Enterprise(TimeStampedModel, models.Model):
