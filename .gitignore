@@ -18,8 +18,8 @@ db.sqlite3
 *.db
 
 # Media / uploads
-/media/
-logo/
+**/media/*
+!**/media/logo/
 DataBase/
 
 # Static
@@ -45,6 +45,5 @@ data.json
 node_modules/
 *.log
 
-# Tailwind build output
-core/static/css/output.css
-static/css/output.css
+
+

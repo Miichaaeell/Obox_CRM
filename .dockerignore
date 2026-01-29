@@ -1,0 +1,25 @@
+# Ignore common version control directories and files
+.git
+.svn
+.hg
+
+# Ignore development/build artifacts and cache files
+node_modules
+**/node_modules
+target
+build
+dist
+.cache
+
+# Ignore configuration and log files
+.env
+npm-debug.log
+*.log
+
+# Ignore OS-specific temporary files
+.DS_Store
+Thumbs.db
+
+# Exclude all markdown files except a specific one
+*.md
+!README.md
