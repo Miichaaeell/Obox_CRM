@@ -1,7 +1,10 @@
 services:
   web:
-    build: .
-    image: obox:latest
+    build:
+      context: .
+      target: runtime
+    image: obox:1.0.0
+    container_name: Obox
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
@@ -22,6 +25,7 @@ services:
 
   postgres:
     image: postgres:15
+    container_name: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
@@ -37,6 +41,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:4-management
+    container_name: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672" # interface web opcional
@@ -44,27 +49,27 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
 
-  celery_worker:
-    image: obox:latest
-    command: celery -A core worker -l info
+  base_worker: &worker
+    container_name: base_worker
+    image: obox:1.0.0
     env_file:
       - .env
     depends_on:
-      - web
-      - postgres
       - rabbitmq
 
+  celery_worker:
+    <<: *worker
+    container_name: celery_worker
+    command: celery -A core worker -l info
+    restart: always
+
   celery_beat:
-    image: obox:latest
+    <<: *worker
+    container_name: celery_beat
     command: celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - celerybeat_data:/app/celerybeat_data
-    env_file:
-      - .env
-    depends_on:
-      - web
-      - postgres
-      - rabbitmq
+    restart: always
 
 volumes:
   postgres_data:

@@ -1,20 +1,34 @@
-# Dockerfile
-FROM python:3.13-slim-trixie
+# ============ Base stage ============
 
-
-# Diretório de trabalho
+FROM python:3.13-slim-trixie AS base
 WORKDIR /app
 
-# Instala dependências do sistema
-RUN apt-get update && apt-get install -y libpq-dev git && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-RUN pip install --upgrade pip
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+  && rm -rf /var/lib/apt/lists/*
 
-# Copia dependências
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o código da aplicação
+# ============ Build stage ============
+FROM base AS builder
+
+# Dependências só de build (não ficam no runtime)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --upgrade pip wheel setuptools
+
+# Copiar requirements primeiro para melhorar cache
+COPY requirements.txt ./
+
+RUN python -m pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# ============ Runtime stage ============
+
+FROM base AS runtime
+COPY --from=builder /install /usr/local
 COPY . .
-
 

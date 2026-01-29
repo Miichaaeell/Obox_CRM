@@ -23,3 +23,18 @@ Thumbs.db
 # Exclude all markdown files except a specific one
 *.md
 !README.md
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+staticfiles/
+media/
