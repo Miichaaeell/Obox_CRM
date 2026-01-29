@@ -3,7 +3,7 @@ services:
     build:
       context: .
       target: runtime
-    image: obox:1.0.0
+    image: obox:1.0.0.dev
     container_name: Obox
     command: >
       sh -c "python manage.py makemigrations &&
@@ -51,7 +51,7 @@ services:
 
   base_worker: &worker
     container_name: base_worker
-    image: obox:1.0.0
+    image: obox:1.0.0.dev
     env_file:
       - .env
     depends_on:
