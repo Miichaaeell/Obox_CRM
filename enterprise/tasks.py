@@ -72,6 +72,7 @@ def send_NFS(data: dict) -> str:
     enterprise = Enterprise.objects.first()
     success, failed = [], []
     create_nfse: list = list()
+    c.log(enterprise.service_code)
 
     client = WebmaniaClient(bearer_token=bearer_token, ambient=ambient)
     for student in students:
@@ -81,8 +82,10 @@ def send_NFS(data: dict) -> str:
                     "valor_servicos": f"{student['valor']}",
                     "discriminacao": f"{description}",
                     "iss_retido": 2 if not enterprise.iss_retained else 1,
-                    "codigo_servico": f"{enterprise.service_code}",
+                    "codigo_servico": f"{str(enterprise.service_code)}",
+                    "codigo_nbs": f"{str(enterprise.service_code)}000",
                     "informacoes_complementares": enterprise.name,
+                    "tributacao_iss": "1",
                     "impostos": {"iss": f"{enterprise.iss_aliquot}"},
                 },
                 "tomador": {

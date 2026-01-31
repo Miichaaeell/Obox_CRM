@@ -54,6 +54,8 @@ services:
     image: obox:1.0.0.dev
     env_file:
       - .env
+    volumes:
+      - .:/app
     depends_on:
       - rabbitmq
 
