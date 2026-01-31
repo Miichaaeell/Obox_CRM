@@ -15,41 +15,45 @@ from students.views import (
     UploadFileView,
     StatusStudentListCreateAPIView,
     FrequencyAPIView,
-
 )
 
-
 urlpatterns = [
-
     # URLS STUDENTS
-    path('', StudentListView.as_view(), name='list_student'),
-    path('create_student/', StudentCreateView.as_view(), name='create_student'),
-    path('detail_student/<int:pk>/',
-         StudentDetailView.as_view(), name='detail_student'),
-    path('api/students/v1/<int:pk>/',
-         StudentRetriveUpdateDestroyAPIView.as_view(), name='student_api'),
-    path('api/students/v1/<int:pk>/activate/',
-         StudentActivateAPIView.as_view(), name='student_activate'),
-    path('frequency/api/v1/', FrequencyAPIView.as_view(), name='frequency_api'),
-
+    path("", StudentListView.as_view(), name="list_student"),
+    path("create_student/", StudentCreateView.as_view(), name="create_student"),
+    path(
+        "detail_student/<int:pk>/", StudentDetailView.as_view(), name="detail_student"
+    ),
+    path(
+        "api/students/v1/<int:pk>/",
+        StudentRetriveUpdateDestroyAPIView.as_view(),
+        name="student_api",
+    ),
+    path(
+        "api/students/v1/<int:pk>/activate/",
+        StudentActivateAPIView.as_view(),
+        name="student_activate",
+    ),
+    path("frequency/api/v1/", FrequencyAPIView.as_view(), name="frequency_api"),
     # Urls satus
-    path('status', StatusStudentListView.as_view(), name='list_status'),
-    path('create_status/', StatusStudentCreateView.as_view(), name='create_status'),
-    path('update_status/<int:pk>/',
-         StatusStudentUpdateView.as_view(), name='update_status'),
-    path('status/api/v1/', StatusStudentListCreateAPIView.as_view(), name='status_api'),
-
+    path("status", StatusStudentListView.as_view(), name="list_status"),
+    path("create_status/", StatusStudentCreateView.as_view(), name="create_status"),
+    path(
+        "update_status/<int:pk>/",
+        StatusStudentUpdateView.as_view(),
+        name="update_status",
+    ),
+    path("status/api/v1/", StatusStudentListCreateAPIView.as_view(), name="status_api"),
     # Urls monthlyfee
-    path("monthlyfee/api/v1/<int:pk>/", MonthlyFeeRetriveUpdateDestroyAPIView.as_view(),
-         name="monthlyfee_api"),
-
+    path(
+        "monthlyfee/api/v1/<int:pk>/",
+        MonthlyFeeRetriveUpdateDestroyAPIView.as_view(),
+        name="monthlyfee_api",
+    ),
     # Urls frequence
-    path('frequence/', FrequenceStudentView.as_view(), name='frequence'),
-
+    path("frequence/", FrequenceStudentView.as_view(), name="frequence"),
     # Urls Upload
-    path('uploadfile/', UploadFileView.as_view(), name='uploadfile'),
-
+    path("uploadfile/", UploadFileView.as_view(), name="uploadfile"),
     # Urls Payment
-
-    path('payment/api/v1/', PaymentListCreateAPIView.as_view(), name='payment_api')
+    path("payment/api/v1/", PaymentListCreateAPIView.as_view(), name="payment_api"),
 ]

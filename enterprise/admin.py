@@ -13,7 +13,6 @@ from enterprise.models import (
     TypeBill,
 )
 
-
 admin.site.register(Enterprise)
 admin.site.register(StatusBill)
 admin.site.register(TypeBill)

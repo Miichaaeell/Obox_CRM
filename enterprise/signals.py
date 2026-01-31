@@ -6,13 +6,16 @@ from enterprise.models import Bill, PaymentMethod, StatusBill
 
 c = Console()
 
+
 @receiver(post_save, sender=Bill)
 def verify_payment_method(sender, instance, created, **Kwargs):
     if created:
         method_automatico = PaymentMethod.objects.filter(
-            method__icontains='automatico').first()
+            method__icontains="automatico"
+        ).first()
         status_automatic = StatusBill.objects.filter(
-            status__icontains='AUTOMÁTICO').first()
+            status__icontains="AUTOMÁTICO"
+        ).first()
         if instance.payment_method == method_automatico:
             instance.date_payment = instance.due_date
             instance.status = status_automatic
@@ -27,11 +30,12 @@ def verify_change_method(sender, instance, **kwargs):
     try:
         bill = Bill.objects.get(id=instance.id)
         method_automatic = PaymentMethod.objects.filter(
-            method__icontains='automatico').first()
+            method__icontains="automatico"
+        ).first()
         status_automatic = StatusBill.objects.filter(
-            status__icontains='AUTOMÁTICO').first()
-        status_pendent = StatusBill.objects.filter(
-            status__icontains='pendente').first()
+            status__icontains="AUTOMÁTICO"
+        ).first()
+        status_pendent = StatusBill.objects.filter(status__icontains="pendente").first()
         if bill.payment_method != instance.payment_method:
             if instance.payment_method == method_automatic:
                 instance.date_payment = instance.due_date
@@ -48,4 +52,4 @@ def verify_change_method(sender, instance, **kwargs):
                 instance.total_value = bill.value
                 instance.status = status_automatic
     except Exception as e:
-        c.log(f'Pré save {e}', style="bold red", justify="center")
+        c.log(f"Pré save {e}", style="bold red", justify="center")

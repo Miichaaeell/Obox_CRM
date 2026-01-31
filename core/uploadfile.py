@@ -67,9 +67,7 @@ def upload_file(file) -> dict:
                 name=row.nome,
                 cpf_cnpj=row.cpf,
                 date_of_birth=row.data_de_nascimento,
-                status=StatusStudent.objects.get(
-                    status__iexact=str(row.status)
-                ),
+                status=StatusStudent.objects.get(status__iexact=str(row.status)),
                 observation=f"Importado via arquivo em {datetime.now().date()}",
                 due_date=row.due_date if row.due_date else datetime.now().day(),
                 plan=Plan.objects.get(name_plan__iexact=row.contrato),

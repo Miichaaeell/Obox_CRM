@@ -13,7 +13,8 @@ def register_stock_on_intflow(sender, instance, created, **kwargs):
             product_stock.save()
         else:
             ProductStock.objects.create(
-                product=instance.product, quantity=instance.quantity)
+                product=instance.product, quantity=instance.quantity
+            )
 
 
 @receiver(post_save, sender=Sale)
@@ -25,7 +26,6 @@ def update_stock_on_sale(sender, instance, created, **kwargs):
                 product_stock.quantity -= instance.quantity
                 product_stock.save()
             else:
-                raise ValueError(
-                    "Estoque insuficiente para completar a venda.")
+                raise ValueError("Estoque insuficiente para completar a venda.")
         except ProductStock.DoesNotExist:
             raise ValueError("Estoque do produto não encontrado.")
