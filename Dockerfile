@@ -31,4 +31,3 @@ RUN python -m pip install --no-cache-dir --prefix=/install -r requirements.txt
 FROM base AS runtime
 COPY --from=builder /install /usr/local
 COPY . .
-

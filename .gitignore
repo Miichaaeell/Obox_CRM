@@ -45,6 +45,3 @@ data.json
 # Node / Tailwind
 node_modules/
 *.log
-
-
-
