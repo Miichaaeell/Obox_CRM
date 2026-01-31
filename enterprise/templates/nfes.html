@@ -8,8 +8,8 @@
 {% endblock title %}
 
 {% block content %}
-<div 
-    x-data="nfeHandler()" 
+<div
+    x-data="nfeHandler()"
     x-init="init()"
     class="bg-white rounded-2xl shadow-xl p-6 flex flex-col min-h-[80vh]"
 >
@@ -71,8 +71,8 @@
               </td>
             <td>{{monthlyfee.amount}}</td>
             <td>
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 class="nf-checkbox"
                 @change="toggleSelected($el, '{{monthlyfee.id}}', '{{monthlyfee.student_name|default:monthlyfee.student}}', '{{monthlyfee.student.cpf_cnpj}}', {{monthlyfee.amount}})"
               >
@@ -87,16 +87,16 @@
 
   <!-- Botão Emitir -->
   <div class="flex justify-center mt-10">
-    <button 
-      @click="openModalEmitir()" 
+    <button
+      @click="openModalEmitir()"
       class="text-center text-white bg-green-500 rounded-lg p-2 w-min-32">
       Emitir NF
     </button>
   </div>
 
   <!-- Modal emitir -->
-  <div 
-    x-show="showModalEmitir" 
+  <div
+    x-show="showModalEmitir"
     class="fixed inset-0 flex items-center justify-center bg-black/50"
   >
     <div class="bg-white p-6 rounded-lg w-96">

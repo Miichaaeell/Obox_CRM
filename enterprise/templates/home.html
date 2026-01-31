@@ -44,7 +44,7 @@
         </button>
         <div x-show="open" x-transition class="mt-4 text-sm text-gray-300">
           <table class="w-full text-left text-gray-300">
-            <thead>              
+            <thead>
               {% if monthly_fees_due  %}
                 <tr class="border-b border-gray-600">
                 <th class="px-4 py-2">Nome Completo</th>
@@ -62,14 +62,14 @@
                 <td class="px-4 py-2">{{ fee.due_date|date:"d/m/Y" }}</td>
                 <td class="px-4 py-2">
                   <!-- Botão Receber -->
-                  <button 
+                  <button
                     @click="show({{ fee.id }}, 'total_due', '{% url 'monthlyfee_api' fee.id %}')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>
                   <!-- Botão Inativar -->
-                  <button 
-                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_due', url:'{% url 'student_api' fee.student.id %}' })" 
+                  <button
+                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_due', url:'{% url 'student_api' fee.student.id %}' })"
                     class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
                     Inativar
                   </button>
@@ -129,14 +129,14 @@
             </td>
             <td class="px-4 py-2">
                 <!-- Botão Receber -->
-                  <button 
+                  <button
                     @click="show({{ fee.id }}, 'total_overdue', '{% url 'monthlyfee_api' fee.id %}')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     Receber
                   </button>
                   <!-- Botão Inativar -->
-                  <button 
-                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_overdue', url:'{% url 'student_api' fee.student.id %}' })" 
+                  <button
+                    @click="deactivateModal.show({ feeId: {{ fee.id }}, studentId: {{ fee.student.id }}, counterId: 'total_overdue', url:'{% url 'student_api' fee.student.id %}' })"
                     class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
                     Inativar
                   </button>
@@ -150,21 +150,21 @@
         </div>
       </div>
     </div>
-    </div> 
+    </div>
       <!-- Coluna direita (calendário) -->
   <div class="w-80">
-    <div x-data="calendar()" 
+    <div x-data="calendar()"
      x-init="$nextTick(() => init())"
      id="calendarContainer"
      data-events='{{ calendar_events|default:"[]"|safe }}'
      data-accounts-url="{{ accounts_url }}"
      class="bg-black text-gray-100 rounded-2xl shadow-xl p-4 border border-gray-700">
   <div class="flex justify-between items-center mb-4">
-    <button @click="prevMonth" 
+    <button @click="prevMonth"
             class="px-2 py-1 text-gray-400 hover:text-white">&lt;</button>
-    <h2 class="font-bold" 
+    <h2 class="font-bold"
         x-text="monthNames[currentMonth] + ' ' + currentYear"></h2>
-    <button @click="nextMonth" 
+    <button @click="nextMonth"
             class="px-2 py-1 text-gray-400 hover:text-white">&gt;</button>
   </div>
 
@@ -186,7 +186,7 @@
               x-text="day">
         </span>
         <!-- bolinha indicadora -->
-        <span x-show="hasEvent(day)" 
+        <span x-show="hasEvent(day)"
               class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-red-500 rounded-full">
         </span>
       </div>

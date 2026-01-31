@@ -17,7 +17,7 @@
             <div>
                 <p class="font-bold">
                 Valor pago
-                </p> 
+                </p>
                 <p x-text="formatCurrency(paymentData.finalAmount)"> </p>
             </div>
             <div>
@@ -30,7 +30,7 @@
             <template x-for="payment in payments">
                 <p>Recebido: <span x-text="formatCurrency(payment.value)"></span> (<span  x-text="payment.payment_method"></span>)</p>
             </template>
-            <p>Status: <span class="text-green-500 font-bold">Pago</span> </p> 
+            <p>Status: <span class="text-green-500 font-bold">Pago</span> </p>
         </div>
     </div>
     <div class="flex items-center mt-4 justify-center gap-4"><!--Bototes-->

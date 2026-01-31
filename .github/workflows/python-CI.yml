@@ -24,7 +24,7 @@ jobs:
 
             - name: Ruff format (check)
               run: ruff format --check .
-    
+
     black:
         runs-on: ubuntu-latest
 

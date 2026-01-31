@@ -77,7 +77,7 @@
 <!-- Botões quando for CREATE -->
     <template x-if="mode === 'create'">
         <div class="flex gap-4">
-          <button 
+          <button
                 type="button"
                 class="px-4 py-2 w-32 rounded-lg bg-gray-500 text-white"
                 @click="modalclose()">
@@ -85,7 +85,7 @@
             </button>
             {% for status in status_bill %}
                 {% if status.status == 'PENDENTE' %}
-                    <button 
+                    <button
                         type="submit"
                         class="px-4 py-2 w-32 rounded-lg bg-green-600 text-white"
                         @click="formData.status = {{ status.id }}">
@@ -99,13 +99,13 @@
     <!-- Botões quando for UPDATE -->
     <template x-if="mode === 'update'">
         <div class="flex gap-4">
-            <button 
+            <button
                 type="button"
                 class="px-4 py-2 w-32 rounded-lg bg-gray-500 text-white"
                 @click="modalclose()">
                 Cancelar
             </button>
-            <button 
+            <button
                 type="submit"
                 class="px-4 py-2 w-32 rounded-lg bg-green-600 text-white">
                 Salvar

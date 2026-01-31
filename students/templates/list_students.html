@@ -4,7 +4,7 @@
 {% block title %}
   Lista de Alunos
 {% endblock title %}
-  
+
 
 {% block content %}
   <div x-data="studentFilters()"
@@ -98,12 +98,12 @@
           <td class="p-3">{{obj.name}}</td>
           <td class="p-3">{{obj.cpf_cnpj}}</td>
           <td class="p-3">{{obj.phone_number}}</td>
-          <td class="p-3">{{obj.plan.name_plan}}</td>            
+          <td class="p-3">{{obj.plan.name_plan}}</td>
             {% if obj.status|lower == 'ativo' %}
              <td class="p-3 font-medium text-green-600"> {{obj.status}}</td>
             {% else %}
             <td class="p-3 font-medium text-red-600">{{obj.status}}</td>
-            {% endif %}              
+            {% endif %}
           <td class="p-3 flex justify-between">{{obj.created_at|date:'d/m/Y'}}
             <button class="p-1 rounded-full hover:bg-gray-200"><a href="{% url 'detail_student' obj.id %}"><i data-lucide="circle-arrow-right" class="w-5 h-5"></i></a></button>
           </td>
@@ -116,6 +116,3 @@
 </div>
 <script src="{% static 'js/list_students.js' %}"></script>
 {% endblock content %}
-
-
-    

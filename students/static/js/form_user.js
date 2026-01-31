@@ -18,7 +18,7 @@ function formHandler() {
     registrationFee = JSON.parse(containerMain?.dataset?.registrationfee)
   }catch (e){
     console.error('Erro ao fazer parse da taxa:', e);
-  
+
   }
   const paymentFlow = window.PaymentFlow.createPaymentFlow();
 

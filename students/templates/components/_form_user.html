@@ -4,7 +4,7 @@ x-data="formHandler()"
 id="containerMain"
 data-plans="{{ plans|default:'[]' }}"
 data-registrationfee="{{ registrationFee|default:'[]' }}">
-        <h2 class="text-xl font-semibold mb-4">{{ title_card }}</h2>        
+        <h2 class="text-xl font-semibold mb-4">{{ title_card }}</h2>
       <form class="space-y-6 gap-8" method="post">
         {% csrf_token %}
         {% if form.errors %}
@@ -14,14 +14,14 @@ data-registrationfee="{{ registrationFee|default:'[]' }}">
 {% endif %}
 
         <!--Nome completo-->
-        <div class="gap -4 text-sm"> 
+        <div class="gap -4 text-sm">
             <div>
             <label class="block font-medium">Nome completo:</label>
             {{form.name}}
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">        
+        <div class="grid grid-cols-3 gap-4 text-sm w-[80%]">
         <div>
             <label class="block font-medium">CPF:</label>
              {{form.cpf_cnpj}}
@@ -64,7 +64,7 @@ data-registrationfee="{{ registrationFee|default:'[]' }}">
                    id="percent_discount"
                    name="percent_discount"
                    :value="paymentData.discountPercent">
-                   
+
           </div>
           <!-- Valor desconto -->
           <div>
@@ -87,7 +87,7 @@ data-registrationfee="{{ registrationFee|default:'[]' }}">
            Cancelar
           </a>
           <button type="submit"
-            class="px-3 w-32 py-1 text-white bg-gray-400 rounded-lg  text-sm" 
+            class="px-3 w-32 py-1 text-white bg-gray-400 rounded-lg  text-sm"
             :class="{
             'bg-green-500' : validate == true,
             }"

@@ -4,10 +4,10 @@
     <div class="flex items-center justify-between bg-transparent gap-2 w-full">
       <i data-lucide="search" class="text-gray-400 ml-2 "></i>
       <form action="{% url 'list_student' %}" method="get" autocomplete="on" class="w-4/5 border-l border-gray-400">
-      <input 
+      <input
       type="text"
-      name="search" 
-      value="{{ request.GET.search }}" 
+      name="search"
+      value="{{ request.GET.search }}"
       placeholder="Buscar Aluno"
       class="w-full p-2 bg-transparent text-sm text-gray-200 focus:outline-none">
     </form>
@@ -25,7 +25,7 @@
     function header_handler(){
       return {
         enterprise_name:fetch('http://localhost:8000/enterprise/api/v1/1')
-        .then(response => { 
+        .then(response => {
           return response.json()
         })
         .then(data => {

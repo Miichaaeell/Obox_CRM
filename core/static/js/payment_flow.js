@@ -187,7 +187,7 @@
             total - roundCurrency(total * (Math.max(0, this.paymentData.discountPercent) / 100)),
           );
         }
-        
+
         if (this.paymentData.finePercent) {
           total = roundCurrency(
             total + roundCurrency(total * (Math.max(0, this.paymentData.finePercent) / 100)),

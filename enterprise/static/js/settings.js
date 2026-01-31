@@ -47,7 +47,7 @@ function SettingsHandler(){
             .catch((error) =>{
                 console.log(error.message)
             })
-            
+
         },
 
         async ClearForm(){
@@ -94,7 +94,7 @@ function SettingsHandler(){
             if(!response.ok){
                 const res = []
                 const retorno = await response.json()
-                
+
                 console.log(retorno)
                 alert('Erro ao atualizar a empresa')
             }else{
@@ -121,8 +121,8 @@ function SettingsHandler(){
             }).catch((error)=>{
                 console.log(error.message)
             })
-            
-            
+
+
         }
     }
 }

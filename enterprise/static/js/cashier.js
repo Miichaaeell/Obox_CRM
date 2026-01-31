@@ -8,13 +8,13 @@ function CashierHandler(){
         totalCashier:Number(),
         entries:true,
         exits:true,
-        
 
-    
+
+
     startclosecashier(){
         const date = new Date()
         this.referenceMonth= date.toLocaleDateString('pt-BR', {day:'2-digit', month: 'long', year: 'numeric' });
-        this.ModalCloseCashier = true;    
+        this.ModalCloseCashier = true;
     },
     flowclosecashier(){
         this.ValueCashier = PaymentFlow.parseNumber(this.ValueCashier);
@@ -77,7 +77,7 @@ function CashierHandler(){
             .catch((error) => {
                 console.error('Error:', error);
             });
-             
+
     },
     openCashier(){
         const payload = {

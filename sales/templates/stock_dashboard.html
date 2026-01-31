@@ -19,7 +19,7 @@
   <!-- Barra de busca -->
   <div class="flex justify-between items-center mb-4">
     <form method="get" action="">
-      <input type="text" name="q" value="{{ request.GET.q }}" 
+      <input type="text" name="q" value="{{ request.GET.q }}"
              placeholder="🔍 Buscar produto..."
              class="w-72 px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:outline-none">
       <button type="submit"
@@ -27,7 +27,7 @@
         Buscar
       </button>
     </form>
-    <a href="{% url 'create_intflow' %}" 
+    <a href="{% url 'create_intflow' %}"
        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
       Nova entrada de produto
     </a>

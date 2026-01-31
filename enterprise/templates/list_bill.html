@@ -21,12 +21,12 @@
         {% include 'components/_search.html' with placeholder="filtrar status ou mes/ano" name='list_bill' %}
         <a href="{% url 'list_bill' %}" class="text-gray-500 hover:underline w-40 pb-4">Apagar filtros</a>
       </div>
-      
+
   </div>
   </div>
 
   <!-- Tabela -->
-  
+
     <table class="w-full text-sm text-gray-700 border-collapse">
       <thead class=" border-b text-left">
         <tr>
@@ -41,7 +41,7 @@
       </thead>
       <tbody>
         <!-- Linha 1 -->
-        
+
         {% for obj in object_list %}
           <tr class="">
           <td class="px-4 py-3">{{ obj.description }}</td>
@@ -54,7 +54,7 @@
           {% endif %}
             </td>
           <td class="px-4 py-3">R$ {{ obj.value }}</td>
-          <td class="px-4 py-3 text-green-600 font-semibold"> 
+          <td class="px-4 py-3 text-green-600 font-semibold">
           {% if obj.total_value %}
             R$ {{ obj.total_value }}
           {% else %}
@@ -74,7 +74,7 @@
           {% if obj.appellant %}
             Sim
           {% else %}
-              Não            
+              Não
           {% endif %}
             <div>
               <button @click="modalupdate({{obj.id}})" class="ml-6 bg-black text-white p-1 rounded-full hover:bg-gray-800 hover:cursor-pointer">
@@ -91,7 +91,7 @@
         {% empty %}
           <tr><td class="text-center pt-3" colspan="7">Nenhuma conta cadastrada</td></tr>
         {% endfor %}
-          
+
       </tbody>
     </table>
     <!-- =================== Paginação =================== -->
@@ -108,4 +108,3 @@
 
 <script src="{% static 'js/list_bill.js' %}"></script>
 {% endblock %}
- 

@@ -3,15 +3,15 @@
 
     {# Primeira + Anterior #}
     {% if page_obj.has_previous %}
-      <a href="?page=1&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}" 
+      <a href="?page=1&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}"
          class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-500">Primeira</a>
-      <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}" 
+      <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}"
          class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-500">Anterior</a>
     {% endif %}
 
     {# Reticências antes (se necessário) #}
     {% if page_obj.number > 3 %}
-      <a href="?page=1&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}" 
+      <a href="?page=1&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}"
          class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-500">1</a>
       <span class="px-3 py-1">…</span>
     {% endif %}
@@ -22,7 +22,7 @@
         {% if num == page_obj.number %}
           <span class="px-3 py-1 bg-blue-600 text-white rounded">{{ num }}</span>
         {% else %}
-          <a href="?page={{ num }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}" 
+          <a href="?page={{ num }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}"
              class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-500">{{ num }}</a>
         {% endif %}
       {% endif %}
@@ -31,15 +31,15 @@
     {# Reticências depois (se necessário) #}
     {% if page_obj.number < page_obj.paginator.num_pages|add:"-2" %}
       <span class="px-3 py-1">…</span>
-      <a href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}" 
+      <a href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}"
          class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-500">{{ page_obj.paginator.num_pages }}</a>
     {% endif %}
 
     {# Próxima + Última #}
     {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}" 
+      <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}"
          class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-500">Próxima</a>
-      <a href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}" 
+      <a href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|default_if_none:'' }}&location={{ request.GET.location|default_if_none:'' }}&search={{ request.GET.search|default_if_none:'' }}&filter={{ request.GET.filter|default_if_none:'' }}&created_date={{ request.GET.created_date|default_if_none:'' }}"
          class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-500">Última</a>
     {% endif %}
 

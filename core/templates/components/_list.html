@@ -12,8 +12,8 @@
                 {% include 'components/search.html' %}
             </div>
         {% endif %}
-<!-- Botão Criar Novo -->        
-    <div class="flex-end">                            
+<!-- Botão Criar Novo -->
+    <div class="flex-end">
         <a href="{% url 'create_'|add:sufix_url %}"
             class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
             ➕ Novo {{ title }}
@@ -29,7 +29,7 @@
 {% if object_list %}
     <table class="min-w-full text-left border-collapse">
         <thead class="bg-gray-200">
-            <tr> 
+            <tr>
                 <th class="px-4 py-2 text-left text-sm font-semibold">
                     {{ title }}
                 </th>
@@ -39,7 +39,7 @@
                     </th>
                     <th class="px-4 py-2 text-left text-sm font-semibold">
                         Telefone
-                    </th>                            
+                    </th>
                     <th class="px-4 py-2 text-left text-sm font-semibold">
                         Data de Vencimento
                     </th>
@@ -63,10 +63,10 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-            {% for obj in object_list %}                           
+            {% for obj in object_list %}
                 {% if title == 'Alunos' %}
                 <tr onclick="window.location='{% url 'detail_'|add:sufix_url obj.id %}'" class="hover:bg-gray-300 transition cursor-pointer">
-                    <td class="px-4 py-2 text-left text-sm">{{ obj|upper }}</td>                        
+                    <td class="px-4 py-2 text-left text-sm">{{ obj|upper }}</td>
                     <td class="px-4 py-2 text-left text-sm">{{obj.cpf_cnpj}}</td>
                     <td class="px-4 py-2 text-left text-sm">{{obj.phone_number}}</td>
                     <td class="px-4 py-2 text-left text-sm"> Dia {{obj.due_date}}</td>
@@ -74,7 +74,7 @@
                     <td class="px-4 py-2 text-left text-sm">{{obj.status}}</td>
                 {% elif  title|upper == 'PRODUTOS'%}
                  <td class="px-4 py-2 text-sm flex justify-between">
-                    <span>{{ obj.name|upper }} </span>                                            
+                    <span>{{ obj.name|upper }} </span>
                 </td>
                     <td  class="px-4 py-2 text-left text-sm">
                         {{obj.description}}
@@ -83,15 +83,15 @@
                         R$ {{obj.price}}
                     </td>
                     <td class="px-4 py-2 text-right space-x-2">
-                        <a href="{% url 'update_'|add:sufix_url obj.id %}" 
+                        <a href="{% url 'update_'|add:sufix_url obj.id %}"
                         class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                         Editar
                         </a>
                     </td>
                 {% else %}
-                <tr class="hover:bg-gray-300"> 
+                <tr class="hover:bg-gray-300">
                     <td class="px-4 py-2 text-sm flex justify-between">
-                    <span>{{ obj|upper }} </span>                                            
+                    <span>{{ obj|upper }} </span>
                 </td>
                 {% endif %}
                 </tr>

@@ -43,8 +43,8 @@ function flowCashier() {
               message: error.message,
               })
         }).finally(()=> this.snipped = false);
-    
-        
+
+
     },
   };
 }

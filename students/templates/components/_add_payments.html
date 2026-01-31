@@ -1,12 +1,12 @@
 <div>
         <div class=" w-[220px]" > <!--Adicionar pagamento-->
-          <div @click="dropdown = !dropdown" class="flex justify-between items-center shadow-sm bg-gray-800 p-2 py-2 rounded-lg border text-white font-bold hover:cursor-pointer transition"> 
-            <span class="">Adicionar pagamento</span> 
+          <div @click="dropdown = !dropdown" class="flex justify-between items-center shadow-sm bg-gray-800 p-2 py-2 rounded-lg border text-white font-bold hover:cursor-pointer transition">
+            <span class="">Adicionar pagamento</span>
             <i data-lucide="chevron-down" class="h-6 w-6"></i>
-          </div> 
+          </div>
           <ul x-show="dropdown" class="border rounded-lg">
             {% for payment in payment_methods %}
-              <li 
+              <li
               @click="addPayment({{payment.id}}, '{{ payment.method }}', '{{today|date:'Y-m-d'}}')"
               class="p-1 px-2 hover:bg-gray-800 hover:cursor-pointer transition focus:border-gray-700 focus:ring-2 focus:ring-gray-700 rounded-lg">
                 {{payment.method|title}}
@@ -15,7 +15,7 @@
           </ul>
         </div> <!-- Fim Adicionar pagamento-->
         <template x-for="(p, id,) in payments" :key="id"> <!--Div de pagamento-->
-           <div class="flex justify-between gap-4 items-center mt-5 w-[80%]"> 
+           <div class="flex justify-between gap-4 items-center mt-5 w-[80%]">
           <div class="">
             <span class="border rounded-lg p-2 bg-green-500  px-4 block w-40 text-center" x-text="p.payment_method"></span>
           </div>

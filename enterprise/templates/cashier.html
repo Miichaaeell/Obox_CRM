@@ -4,7 +4,7 @@
 {% block title %}
     Caixa
 {% endblock title %}
-    
+
 
 {% block content %}
   <div x-data="CashierHandler()">
@@ -18,7 +18,7 @@
         }"> {{status|title}}</span>
       </div>
        <div>
-        
+
         {% if status == 'Aberto' %}
           <span class="font-semibold">Data de abertura:</span>
           <span class="font-bold">{{date_start}}</span>
@@ -26,10 +26,10 @@
           <span class="font-semibold">Data de fechamento:</span>
           <span class="font-bold">{{date_end}}</span>
         {% endif %}
-          
-        
+
+
       </div>
-    
+
     </div>
     <div class="w-full max-w-6xl grid grid-cols-4 gap-4">
       <!-- Coluna da esquerda: Cards -->
@@ -99,7 +99,7 @@
               </tr>
             </thead>
             <tbody>
-    
+
              {% for bill in bills %}
                 <tr x-show="exits">
                 <td> {{ bill.due_date|date:'d/m/y' }}</td>
@@ -135,13 +135,13 @@
     <!-- Rodapé -->
     <div class="w-full max-w-6xl flex justify-end gap-4 mt-6">
       <a href="{% url 'flow_cashier' %}"><button class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:cursor-pointer hover:bg-gray-500" >Acessar fluxo</button></a>
-      
+
       {% if status == 'Aberto' %}
         <button @click="startclosecashier" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:cursor-pointer" >Fechar caixa</button>
       {% else %}
         <button @click='openCashier' class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:cursor-pointer" >Abrir Caixa</button>
       {% endif %}
-        
+
       {% csrf_token %}
     </div>
     <!--MODAIS-->
@@ -152,4 +152,3 @@
   <script src="{% static 'js/notification_modal.js' %}"></script>
    <script src="{% static 'js/cashier.js' %}"></script>
 {% endblock content %}
-    

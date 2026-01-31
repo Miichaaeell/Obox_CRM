@@ -31,7 +31,7 @@ function actions(){
             };
             this.openModalUpdate = true
         },
-        
+
         openActive(student){
             this.url = student.urlUpdate || this.url;
             this.openActiveModal = true;
@@ -106,7 +106,7 @@ function actions(){
                 window.notificationModal.show({
                     title: 'Não foi possível atualizar',
                     message: 'Erro ao editar o aluno.',
-                });                
+                });
             }
         },
     }

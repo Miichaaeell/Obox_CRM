@@ -9,21 +9,21 @@
   <!-- Card informações do aluno -->
   <div class="bg-white rounded-2xl shadow p-6 relative">
     <div class="font-bold mb-4">Informações do aluno:</div>
-    <div class="grid grid-cols-3 gap-6 text-sm">      
+    <div class="grid grid-cols-3 gap-6 text-sm">
       <div>
         <p class="flex flex-col mb-5"><strong>Nome:</strong> {{ obj.name }} </p>
         <p class="flex flex-col"><strong>Plano:</strong> {{ obj.plan }} </p>
       </div>
       <div >
         <p class="flex flex-col mb-5"><strong>CPF:</strong> {{ obj.cpf_cnpj }}</p>
-        <p class="flex flex-col"><strong>Status:</strong> 
-          
+        <p class="flex flex-col"><strong>Status:</strong>
+
           {% if obj.status|lower == 'ativo' %}
             <span class="text-green-600 font-semibold">{{ obj.status }}</span>
           {% else %}
             <span class="text-red-600 font-semibold">{{ obj.status }}</span>
           {% endif %}
-            
+
           </p>
       </div>
       <div>
@@ -72,7 +72,7 @@
             :class="{
             'bg-transparent border-none rounded-b-none relative z-10': tab === 'frequencia',
             'bg-[#C4C2C2] rounded-br-full rounded-bl-none': tab === 'mensalidades',
-            'bg-[#C4C2C2] rounded-b-none': tab === 'historico', 
+            'bg-[#C4C2C2] rounded-b-none': tab === 'historico',
             }"
             class="px-6 py-2 grow rounded-t-2xl  text-sm font-medium transition hover:cursor-pointer">
             Frequência
@@ -92,13 +92,13 @@
             :class="{
             'bg-transparent border-none rounded-b-none relative z-10': tab === 'historico',
             'bg-[#C4C2C2] rounded-bl-full rounded-br-none': tab === 'mensalidades',
-            'bg-[#C4C2C2] rounded-b-none': tab === 'frequencia', 
+            'bg-[#C4C2C2] rounded-b-none': tab === 'frequencia',
             }"
             class="px-6 py-2 grow rounded-t-2xl text-sm font-medium transition hover:cursor-pointer">
             Histórico
           </button>
         </menu>
-        
+
     <div class="bg-[#E9E7E7] relative z-5 rounded-2xl shadow-inner mt-[-4px]">
       <!-- Conteúdo das abas -->
       <div class="p-4" x-show="tab === 'frequencia'">
@@ -172,7 +172,7 @@
         {% for history in historys %}
           <p>{{history.created_at|date:"d/m/Y"}} - {{history.description}}</p>
         {% endfor %}
-          
+
       </div>
     </div>
   </div>
