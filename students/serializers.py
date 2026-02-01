@@ -40,12 +40,18 @@ class StudentSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
+        fields = ["montlhyfee", "payment_method", "value", "quantity_installments"]
+        read_only_fields = ["id"]
+
+
+class PaymentInlineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
         fields = ["payment_method", "value", "quantity_installments"]
-        read_only_fields = ["monthlyfee", "id"]
 
 
 class MonthlyFeeSerializer(serializers.ModelSerializer):
-    payments = PaymentSerializer(many=True, write_only=True, required=True)
+    payments = PaymentInlineSerializer(many=True, write_only=True, required=True)
     plan = serializers.CharField(
         source="student.plan.name_plan",
         read_only=True,
