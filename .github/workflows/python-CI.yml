@@ -1,43 +1,63 @@
 name: CI
 
 on:
-    pull_request:
-    push:
+  pull_request:
+  push:
 
 jobs:
-    ruff:
-        runs-on: ubuntu-latest
+  lint_and_checks:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Set up Python
-              uses: actions/setup-python@v6
-              with:
-                  python-version: "3.13"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
 
-            - name: Install ruff
-              run: pip install ruff==0.6.4
+      - name: Install pre-commit
+        run: pip install pre-commit
 
-            - name: Ruff lint
-              run: ruff check .
+      - name: Write pre-commit config (CI only)
+        run: |
+          cat > .pre-commit-ci.yaml <<'YAML'
+          repos:
+            - repo: https://github.com/pre-commit/pre-commit-hooks
+              rev: v4.5.0
+              hooks:
+                - id: check-ast
+                - id: check-case-conflict
+                - id: check-merge-conflict
+                - id: check-symlinks
+                - id: debug-statements
+                - id: destroyed-symlinks
+                - id: detect-aws-credentials
+                  args: ["--allow-missing-credentials"]
+                - id: detect-private-key
+                - id: end-of-file-fixer
+                - id: trailing-whitespace
 
-            - name: Ruff format (check)
-              run: ruff format --check .
+            # Ruff (lint)
+            - repo: https://github.com/astral-sh/ruff-pre-commit
+              rev: v0.6.4
+              hooks:
+                - id: ruff
+                  args: ["--output-format=github"]
 
-    black:
-        runs-on: ubuntu-latest
+            # Black (format check)
+            - repo: https://github.com/psf/black
+              rev: 24.3.0
+              hooks:
+                - id: black
+          YAML
 
-        steps:
-            - uses: actions/checkout@v4
+      - name: Cache pre-commit
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-ci.yaml') }}
 
-            - name: Set up Python
-              uses: actions/setup-python@v6
-              with:
-                python-version: "3.13"
-
-            - name: Install black
-              run: pip install black==23.7.0
-
-            - name: Black format (check)
-              run: black --check .
+      - name: Run checks (pre-commit)
+        run: pre-commit run --all-files --config .pre-commit-ci.yaml
