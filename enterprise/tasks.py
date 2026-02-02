@@ -81,12 +81,20 @@ def send_NFS(data: dict) -> str:
                 "servico": {
                     "valor_servicos": f"{student['valor']}",
                     "discriminacao": f"{description}",
-                    "iss_retido": 2 if not enterprise.iss_retained else 1,
-                    "codigo_servico": f"{str(enterprise.service_code)}",
-                    "codigo_nbs": f"{str(enterprise.service_code)}000",
-                    "informacoes_complementares": enterprise.name,
+                    "finalidade": "0",
+                    "consumidor_final": "1",
+                    "cod_indicador_operacao": "030101",
                     "tributacao_iss": "1",
-                    "impostos": {"iss": f"{enterprise.iss_aliquot}"},
+                    "iss_retido": "2" if not enterprise.iss_retained else "1",
+                    "impostos": {
+                        "ibs_cbs": {
+                            "situacao_tributaria": "000",
+                            "classificacao_tributaria": "000001",
+                        },
+                    },
+                    "codigo_servico": f"{str(enterprise.service_code)}",
+                    "codigo_nbs": "122051200",
+                    "informacoes_complementares": enterprise.name,
                 },
                 "tomador": {
                     "cpf": f"{student['cpf']}",
@@ -94,7 +102,7 @@ def send_NFS(data: dict) -> str:
                 },
             }
             if enterprise.iss_retained:
-                data["servico"]["responsavel_retencao_iss"] = 1
+                data["servico"]["responsavel_retencao_iss"] = "1"
             response: dict = client.send_nfs(data=data)
             if response.get("error"):
                 c.log(response)
