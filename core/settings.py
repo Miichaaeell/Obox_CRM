@@ -30,7 +30,9 @@ DEBUG = config("DEBUG", False)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="", cast=Csv())
 USE_X_FORWARDED_HOST = True
-CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS] + [
+    "http://localhost:8000"
+]
 
 # Application definition
 
