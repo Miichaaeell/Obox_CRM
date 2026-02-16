@@ -24,7 +24,7 @@
   <script>
     function header_handler(){
       return {
-        enterprise_name:fetch('http://localhost:8000/enterprise/api/v1/1')
+        enterprise_name:fetch('/enterprise/api/v1/1')
         .then(response => {
           return response.json()
         })
