@@ -4,12 +4,28 @@ from dateutil.relativedelta import relativedelta
 from celery import shared_task
 from decouple import config
 from rich.console import Console
+from rich.table import Table
+from rich.text import Text
 from services.webmania.client import WebmaniaClient
 
 from enterprise.models import Bill, StatusBill, Enterprise, NFSe
 from students.models import Student
 
-c = Console()
+c = Console(color_system="truecolor", highlight=False, stderr=True)
+
+
+def log_error(message: str) -> None:
+    c.rule(message, style="bold red blink")
+
+
+def log_success(message: str) -> None:
+    c.rule(message, style="bold green blink")
+
+
+def fmt_list(items: list[str], empty_msg: str, style: str = "dim") -> Text:
+    if not items:
+        return Text(empty_msg, style=style)
+    return Text("\n").join(Text(f"• {str(x)}", style=style) for x in items)
 
 
 @shared_task
@@ -72,7 +88,6 @@ def send_NFS(data: dict) -> str:
     enterprise = Enterprise.objects.first()
     success, failed = [], []
     create_nfse: list = list()
-    c.log(enterprise.service_code)
 
     client = WebmaniaClient(bearer_token=bearer_token, ambient=ambient)
     for student in students:
@@ -105,35 +120,74 @@ def send_NFS(data: dict) -> str:
                 data["servico"]["responsavel_retencao_iss"] = "1"
             response: dict = client.send_nfs(data=data)
             if response.get("error"):
-                c.log(response)
+                log_error("ERRO NO RESPOSNSE DA API")
+                c.log(response, justify="center", style="bold red")
                 failed.append(f"Erro ao emitir nota para {student['name']}")
             else:
+                log_success("NOTA EMITIDA")
+                c.log(
+                    f"Nota emitida com sucesso para {student['name']}",
+                    justify="center",
+                    style="bold green",
+                )
                 success.append(f"Nota emitida com sucesso para {student['name']}")
                 try:
                     student_instance = Student.objects.filter(
                         name__icontains=student["name"]
                     ).first()
-                    create_nfse.append(
-                        NFSe(
-                            student=student_instance,
-                            issue_date=datetime.now().date(),
-                            uuid_nfse=response.get("uuid"),
-                            link_pdf=response.get("pdf_rps"),
-                            link_xml=response.get("xml"),
-                            reference_month=reference_month,
+                    if student_instance:
+                        create_nfse.append(
+                            NFSe(
+                                student=student_instance,
+                                issue_date=datetime.now().date(),
+                                uuid_nfse=response.get("uuid"),
+                                link_pdf=response.get("pdf_rps"),
+                                link_xml=response.get("xml"),
+                                reference_month=reference_month,
+                            )
                         )
-                    )
+                    else:
+                        log_error("ERRO")
+                        c.log(
+                            f"Aluno {student['name']} não encontrado no banco de dados. Erro ao criar registro da NFSe.",
+                            style="bold red",
+                            justify="center",
+                        )
                 except Exception as e:
+                    log_error("ERRO")
                     c.log(
-                        f"Erro ao criar NFSe: {e}", style="bold red", justify="center"
+                        f"Erro ao criar NFSe para {student['name']}: {e}",
+                        style="bold red",
+                        justify="center",
                     )
 
         except Exception as e:
+            log_error("ERRO")
             c.log(
                 f"Erro ao emitir nota para {student['name']}: {e}",
                 style="bold red",
                 justify="center",
             )
             failed.append(f"Erro ao emitir nota para {student['name']}")
-    NFSe.objects.bulk_create(create_nfse)
-    return f"Total de {len(success)} notas emitidas e total de {len(failed)} notas falharam"
+    try:
+        NFSe.objects.bulk_create(create_nfse)
+    except Exception as e:
+        log_error("ERRO NO BULK CREATED DE NFS")
+        c.log(f"Erro ao salvar NFSe: {e}", style="bold red", justify="center")
+    table = Table(
+        title="Resultado do Envio de NFSe",
+        title_justify="center",
+        title_style="bold cyan",
+        show_lines=True,
+        show_header=True,
+        header_style="bold magenta",
+        expand=True,
+        border_style="bright_blue",
+    )
+    table.add_column(f"✅ Sucesso ({len(success)})", ratio=1, justify="center")
+    table.add_column(f"❌ Falha ({len(failed)})", ratio=1, justify="center")
+    table.add_row(
+        fmt_list(success, "Nenhuma nota emitida com sucesso.", "green"),
+        fmt_list(failed, "Nenhum erro encontrado.", "red"),
+    )
+    c.print(table)
