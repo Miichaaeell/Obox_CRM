@@ -1,51 +1,53 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from celery import shared_task
 from decouple import config
 from django.db import transaction
-from django.db.models import Count, Max
+from django.db.models import Count
 from django.utils import timezone
 from core.settings import c, log_error, log_success
 
 from students.models import History, MonthlyFee, StatusStudent, Student
+from enterprise.models import Plan
 
 
 @shared_task
 def create_monthlyfee():
-    students: list = Student.objects.filter(
-        status__status__iexact="ativo"
-    ).select_related("plan", "status")
-
-    month, year = datetime.now().month, datetime.now().year
+    students: list = (
+        Student.objects.filter(status__status__iexact="ativo")
+        .select_related("plan", "status")
+        .prefetch_related("monthly_fees")
+    )
+    # TODO: Refatorar a criação da mensalidade utilizando a quantidade de meses trago pela relação do plano
+    now = timezone.localdate()
+    month, year = now.month, now.year
     current_month_index = (year * 12) + month
-    last_due_dates = {
-        row["student_id"]: row["last_due_date"]
-        for row in MonthlyFee.objects.filter(student__in=students)
-        .values("student_id")
-        .annotate(last_due_date=Max("due_date"))
-    }
-    create_to_monthlyfee = [
-        MonthlyFee(
-            student=student,
-            student_name=student.name,
-            amount=student.plan.price,
-            due_date=f"{year}-{month}-{student.due_date}",
-            reference_month=f"{month}/{year}",
-            plan=student.plan,
-        )
-        for student in students
-        if not (
-            student.plan.duration_months == 3
-            and (
-                (last_due_date := last_due_dates.get(student.id)) is not None
-                and (
-                    current_month_index
-                    - ((last_due_date.year * 12) + last_due_date.month)
+    trimestral_plan = Plan.objects.filter(name__icontains="trimestral").first()
+    create_to_monthlyfee: list = []
+    for student in students:
+        try:
+            if student.plan == trimestral_plan:
+                last_fee = student.monthly_fees.order_by("-created_at").first()
+                if last_fee:
+                    last_fee_month_index = (
+                        last_fee.created_at.year * 12
+                    ) + last_fee.created_at.month
+                    if (current_month_index - last_fee_month_index) <= 2:
+                        continue
+            create_to_monthlyfee.append(
+                MonthlyFee(
+                    student=student,
+                    student_name=student.name,
+                    amount=student.plan.price,
+                    due_date=f"{year}-{month}-{student.due_date}",
+                    reference_month=f"{month}/{year}",
+                    plan=student.plan,
                 )
-                < 3
             )
-        )
-    ]
+        except Exception as e:
+            log_error("Erro ao criar lista de mensalidades")
+            c.log(e, style="bold red", justify="justify")
+            return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
     if create_to_monthlyfee:
         try:
             MonthlyFee.objects.bulk_create(create_to_monthlyfee)
