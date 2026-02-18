@@ -26,7 +26,7 @@ def upload_file(file) -> dict:
         case "xlsx":
             df = pd.read_excel(file)
 
-    df.columns = df.columns.str.lower().str.strip()
+    df.columns = df.columns.str.lower().str.strip().str.replace(" ", "")
     try:
         data = (
             df[
@@ -36,7 +36,7 @@ def upload_file(file) -> dict:
                     "cpf",
                     "status",
                     "datadenascimento",
-                    "diapagamento",
+                    "diadopagamento",
                 ]
             ]
             .drop_duplicates()
@@ -45,12 +45,32 @@ def upload_file(file) -> dict:
         data["cpf"] = data["cpf"].apply(format_cpf)
         data["data_de_nascimento"], data["due_date"] = (
             data["datadenascimento"].dt.date,
-            data["diapagamento"],
+            data["diadopagamento"],
         )
     except Exception as e:
         log_error("Erro ao processar o arquivo")
         c.log(e, style="bold red", justify="justify")
         return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
+
+    # try:
+    #     from enterprise.models import NFSe, PaymentMethod, Bill
+    #     from students.models import Frequency, Payment
+
+    #     Bill.objects.all().delete()
+    #     PaymentMethod.objects.all().delete()
+    #     NFSe.objects.all().delete()
+    #     Frequency.objects.all().delete()
+    #     Payment.objects.all().delete()
+    #     MonthlyFee.objects.all().delete()
+    #     Student.objects.all().delete()
+
+    # except Exception as e:
+    #     c.log(
+    #         f"Erro ao limpar tabela de alunos e mensalidades: {e}",
+    #         style="bold red",
+    #         justify="center",
+    #     )
+    #     return {"message": f"Erro ao limpar tabelas: {e}", "status_code": "422"}
 
     try:
         create_student = [
