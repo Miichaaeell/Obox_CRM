@@ -1,31 +1,14 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+from core.settings import c, log_error, log_success, fmt_list
 from celery import shared_task
 from decouple import config
-from rich.console import Console
 from rich.table import Table
-from rich.text import Text
 from services.webmania.client import WebmaniaClient
 
 from enterprise.models import Bill, StatusBill, Enterprise, NFSe
 from students.models import Student
-
-c = Console(color_system="truecolor", highlight=False, stderr=True)
-
-
-def log_error(message: str) -> None:
-    c.rule(message, style="bold red blink")
-
-
-def log_success(message: str) -> None:
-    c.rule(message, style="bold green blink")
-
-
-def fmt_list(items: list[str], empty_msg: str, style: str = "dim") -> Text:
-    if not items:
-        return Text(empty_msg, style=style)
-    return Text("\n").join(Text(f"• {str(x)}", style=style) for x in items)
 
 
 @shared_task

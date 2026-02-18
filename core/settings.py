@@ -15,6 +15,9 @@ import dj_database_url
 from pathlib import Path
 from decouple import config, Csv
 
+from rich.console import Console
+from rich.text import Text
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -167,3 +170,20 @@ CELERY_TIMEZONE = "America/Sao_Paulo"
 CELERY_BROKER_URL = "amqp://dev:dev@localhost:5672/myvhost"
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "default"
+
+
+c = Console(color_system="truecolor", highlight=False, stderr=True)
+
+
+def log_error(message: str) -> None:
+    c.rule(message, style="bold red blink")
+
+
+def log_success(message: str) -> None:
+    c.rule(message, style="bold green blink")
+
+
+def fmt_list(items: list[str], empty_msg: str, style: str = "dim") -> Text:
+    if not items:
+        return Text(empty_msg, style=style)
+    return Text("\n").join(Text(f"• {str(x)}", style=style) for x in items)

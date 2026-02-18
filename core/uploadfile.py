@@ -1,12 +1,9 @@
 from datetime import datetime
 
 import pandas as pd
-from rich.console import Console
-
+from core.settings import log_error, log_success, c
 from enterprise.models import Plan
 from students.models import MonthlyFee, StatusStudent, Student
-
-c = Console()
 
 
 def format_cpf(cpf: str) -> str:
@@ -21,6 +18,7 @@ def format_cpf(cpf: str) -> str:
 def upload_file(file) -> dict:
     ext: str = file.name.split(".")[-1].lower()
     if ext not in ["xlsx", "csv"]:
+        log_error(f"Formato de arquivo inválido: {ext} não é permitido.")
         return {"message": "Formato de arquivo inválido", "status_code": "400"}
     match ext:
         case "csv":
@@ -37,8 +35,8 @@ def upload_file(file) -> dict:
                     "contrato",
                     "cpf",
                     "status",
-                    "data_de_nascimento",
-                    "data_de_cadastro",
+                    "datadenascimento",
+                    "diapagamento",
                 ]
             ]
             .drop_duplicates()
@@ -46,20 +44,13 @@ def upload_file(file) -> dict:
         )
         data["cpf"] = data["cpf"].apply(format_cpf)
         data["data_de_nascimento"], data["due_date"] = (
-            data["data_de_nascimento"].dt.date,
-            data["data_de_cadastro"],
+            data["datadenascimento"].dt.date,
+            data["diapagamento"],
         )
     except Exception as e:
+        log_error("Erro ao processar o arquivo")
+        c.log(e, style="bold red", justify="justify")
         return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
-    # try:
-    #     Student.objects.all().delete()
-    #     MonthlyFee.objects.all().delete()
-    # except Exception as e:
-    #     c.log(
-    #         f"Erro ao limpar tabela de alunos e mensalidades: {e}",
-    #         style="bold red",
-    #         justify="center",
-    #     )
 
     try:
         create_student = [
@@ -76,15 +67,15 @@ def upload_file(file) -> dict:
         ]
 
     except Exception as e:
-        c.log(f"Erro ao criar lista de alunos {e}", style="bold red", justify="center")
+        log_error("Erro ao criar lista de alunos")
+        c.log(e, style="bold red", justify="justify")
         return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
-    Student.objects.bulk_create(create_student)
     try:
         create_monthly_fee = [
             MonthlyFee(
                 student=studant_instance,
                 student_name=studant_instance.name,
-                due_date=studant_instance.created_at,
+                due_date=datetime.now().date().replace(day=studant_instance.due_date),
                 reference_month=datetime.now().month - 1,
                 amount=studant_instance.plan.price,
                 plan=studant_instance.plan,
@@ -92,10 +83,23 @@ def upload_file(file) -> dict:
             for studant_instance in create_student
         ]
     except Exception as e:
-        c.log(
-            f"Erro ao criar lista de mensalidades: {e}",
-            style="bold red",
-            justify="center",
-        )
-    MonthlyFee.objects.bulk_create(create_monthly_fee)
+        log_error("Erro ao criar lista de mensalidades")
+        c.log(e, style="bold red", justify="justify")
+        return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
+    try:
+        Student.objects.bulk_create(create_student)
+        MonthlyFee.objects.bulk_create(create_monthly_fee)
+    except Exception as e:
+        log_error("Erro ao criar alunos e mensalidades")
+        c.log(e, style="bold red", justify="justify")
+        return {
+            "message": f"Erro ao criar alunos e mensalidades: {e}",
+            "status_code": "422",
+        }
+    log_success(f"Arquivo {file} carregado com sucesso!")
+    c.log(
+        f"Total de {len(create_student)} alunos e {len(create_monthly_fee)} mensalidades cadastrados com sucesso!",
+        style="bold green",
+        justify="justify",
+    )
     return {"message": f"Arquivo {file} carregado com sucesso!", "status_code": "201"}
