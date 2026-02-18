@@ -3,12 +3,11 @@ from datetime import timedelta
 from celery import shared_task
 from decouple import config
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.utils import timezone
 from core.settings import c, log_error, log_success
 
 from students.models import History, MonthlyFee, StatusStudent, Student
-from enterprise.models import Plan
 
 
 @shared_task
@@ -16,24 +15,22 @@ def create_monthlyfee():
     students: list = (
         Student.objects.filter(status__status__iexact="ativo")
         .select_related("plan", "status")
-        .prefetch_related("monthly_fees")
+        .annotate(last_fee_created_at=Max("monthly_fees__created_at"))
     )
-    # TODO: Refatorar a criação da mensalidade utilizando a quantidade de meses trago pela relação do plano
+
     now = timezone.localdate()
     month, year = now.month, now.year
     current_month_index = (year * 12) + month
-    trimestral_plan = Plan.objects.filter(name__icontains="trimestral").first()
     create_to_monthlyfee: list = []
     for student in students:
         try:
-            if student.plan == trimestral_plan:
-                last_fee = student.monthly_fees.order_by("-created_at").first()
-                if last_fee:
-                    last_fee_month_index = (
-                        last_fee.created_at.year * 12
-                    ) + last_fee.created_at.month
-                    if (current_month_index - last_fee_month_index) <= 2:
-                        continue
+            if student.plan.duration_months > 1 and student.last_fee_created_at:
+                duration_months = student.plan.duration_months or 1
+                last_fee = student.last_fee_created_at
+                last_fee_month_index = (last_fee.year * 12) + last_fee.month
+                diff = current_month_index - last_fee_month_index
+                if diff < duration_months:
+                    continue
             create_to_monthlyfee.append(
                 MonthlyFee(
                     student=student,
@@ -50,7 +47,7 @@ def create_monthlyfee():
             return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
     if create_to_monthlyfee:
         try:
-            MonthlyFee.objects.bulk_create(create_to_monthlyfee)
+            MonthlyFee.objects.bulk_create(create_to_monthlyfee, ignore_conflicts=True)
             log_success(
                 f"Criadas {len(create_to_monthlyfee)} mensalidades com sucesso!"
             )

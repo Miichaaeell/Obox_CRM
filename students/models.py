@@ -178,6 +178,15 @@ class MonthlyFee(TimeStampedModel, models.Model):
         verbose_name = "Mensalidade"
         verbose_name_plural = "Mensalidades"
         ordering = ["-created_at", "student"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "reference_month", "plan"],
+                name="uniq_monthlyfee_student_reference_month_plan",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["student", "-created_at"]),
+        ]
 
 
 class Payment(TimeStampedModel, models.Model):
