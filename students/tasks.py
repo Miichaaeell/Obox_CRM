@@ -61,20 +61,23 @@ def create_monthlyfee():
         return "Nenhum aluno ativo encontrado, nada criado."
 
 
+# TODO Revisar funcão
 @shared_task
-def deactivate_overdue_students(days_overdue: int | None = None):
-    if days_overdue is None:
-        days_overdue = config("STUDENT_OVERDUE_DAYS", default=30, cast=int)
-    if days_overdue < 0:
+def deactivate_overdue_students() -> dict:
+    days_overdue = config("STUDENT_OVERDUE_DAYS", default=30, cast=int)
+    if days_overdue <= 0:
         log_error("Dias de atraso inválido para inativação.")
-        return {"message": "Dias de atraso inválido.", "status_code": "422"}
+        return {
+            "message": "Dias de atraso inválido. Tem que ser acima de 0 dias.",
+            "status_code": 422,
+        }
 
     cutoff = timezone.localdate() - timedelta(days=days_overdue)
 
     overdue_student_ids = list(
         MonthlyFee.objects.filter(
             paid=False,
-            due_date__lte=cutoff,
+            due_date__lt=cutoff,
             student__status__status__iexact="Ativo",
         )
         .values_list("student_id", flat=True)
@@ -83,41 +86,52 @@ def deactivate_overdue_students(days_overdue: int | None = None):
 
     if not overdue_student_ids:
         log_success("Nenhum aluno com atraso acima do limite.")
-        return "Nenhum aluno com atraso acima do limite."
+        return {"inactivated_students": 0, "deleted_fees": 0}
 
     inactive_status = StatusStudent.objects.filter(status__iexact="Inativo").first()
     if not inactive_status:
         log_error("Status 'Inativo' não encontrado.")
-        return {"message": "Status 'Inativo' não encontrado.", "status_code": "422"}
+        return {"message": "Status 'Inativo' não encontrado.", "status_code": 422}
 
     description = f"Aluno inativado automaticamente após {days_overdue} dias de atraso."
+    try:
+        with transaction.atomic():
+            overdue_fees_qs = MonthlyFee.objects.filter(
+                student_id__in=overdue_student_ids,
+                paid=False,
+                due_date__lt=cutoff,
+            )
 
-    with transaction.atomic():
-        unpaid_counts = list(
-            MonthlyFee.objects.filter(student_id__in=overdue_student_ids, paid=False)
-            .values("student_id")
-            .annotate(total=Count("id"))
-        )
-        deleted_total, _ = MonthlyFee.objects.filter(
-            student_id__in=overdue_student_ids, paid=False
-        ).delete()
-        Student.objects.filter(id__in=overdue_student_ids).update(
-            status=inactive_status, observation=description
-        )
-        History.objects.bulk_create(
-            [
-                History(
-                    student_id=item["student_id"],
-                    status=inactive_status,
-                    description=f"{item['total']} Mensalidades excluídas. {description}",
-                )
-                for item in unpaid_counts
-            ]
-        )
+            unpaid_counts = list(
+                overdue_fees_qs.values("student_id").annotate(total=Count("id"))
+            )
+
+            deleted_total, _ = overdue_fees_qs.delete()
+
+            Student.objects.filter(id__in=overdue_student_ids).update(
+                status=inactive_status,
+                observation=description,
+            )
+
+            History.objects.bulk_create(
+                [
+                    History(
+                        student_id=item["student_id"],
+                        status=inactive_status,
+                        description=f"{item['total']} mensalidade(s) excluída(s). {description}",
+                    )
+                    for item in unpaid_counts
+                ]
+            )
+    except Exception as e:
+        log_error("Erro ao inativar alunos e excluir mensalidades.")
+        c.log(e, style="bold red", justify="justify")
+        return {"message": f"Erro ao processar a inativação: {e}", "status_code": 422}
 
     log_success(
-        f"Inativados {len(overdue_student_ids)} alunos e excluídas {deleted_total} mensalidades."
+        f"Inativados {len(overdue_student_ids)} aluno(s) e excluídas {deleted_total} mensalidade(s)."
     )
+
     return {
         "inactivated_students": len(overdue_student_ids),
         "deleted_fees": deleted_total,
