@@ -81,17 +81,33 @@ def send_NFS(data: dict) -> str:
                     "discriminacao": f"{description}",
                     "finalidade": "0",
                     "consumidor_final": "1",
-                    "cod_indicador_operacao": "030101",
+                    "cod_indicador_operacao": (
+                        "030101"
+                        if not enterprise.cod_operation
+                        else f"{str(enterprise.cod_operation)}"
+                    ),
                     "tributacao_iss": "1",
                     "iss_retido": "2" if not enterprise.iss_retained else "1",
                     "impostos": {
                         "ibs_cbs": {
-                            "situacao_tributaria": "000",
-                            "classificacao_tributaria": "000001",
+                            "situacao_tributaria": (
+                                "000"
+                                if not enterprise.situation_tributary
+                                else f"{str(enterprise.situation_tributary)}"
+                            ),
+                            "classificacao_tributaria": (
+                                "000001"
+                                if not enterprise.tax_tributary
+                                else f"{str(enterprise.tax_tributary)}"
+                            ),
                         },
                     },
                     "codigo_servico": f"{str(enterprise.service_code)}",
-                    "codigo_nbs": "122051200",
+                    "codigo_nbs": (
+                        "122051200"
+                        if not enterprise.nbs_code
+                        else f"{str(enterprise.nbs_code)}"
+                    ),
                     "informacoes_complementares": enterprise.name,
                 },
                 "tomador": {

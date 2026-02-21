@@ -114,7 +114,7 @@ class Enterprise(TimeStampedModel, models.Model):
         help_text="Código de situação tributária ex: 000",
         verbose_name="Código de situação tributária",
     )
-    classificacao_tributaria = models.CharField(
+    tax_tributary = models.CharField(
         max_length=10,
         blank=True,
         null=True,
