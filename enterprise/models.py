@@ -100,6 +100,36 @@ class Enterprise(TimeStampedModel, models.Model):
         verbose_name="Descrição do serviço",
     )
 
+    cod_operation = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="Código indicador de operação ex: 030101",
+        verbose_name="Código indicador de operação",
+    )
+    situation_tributary = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="Código de situação tributária ex: 000",
+        verbose_name="Código de situação tributária",
+    )
+    classificacao_tributaria = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="Código de classificação tributária ex: 000001",
+        verbose_name="Código de classificação tributária",
+    )
+
+    code_nbs = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Código NBS ex: 122051200",
+        verbose_name="Código NBS",
+    )
+
     class Meta:
         verbose_name = "Empresa"
         verbose_name_plural = "Empresas"
