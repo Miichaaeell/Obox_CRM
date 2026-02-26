@@ -50,8 +50,19 @@ def get_context_cashier_data():
     )
     total = payments.aggregate(
         income_pix=Sum("value", filter=Q(payment_method__iexact="pix")),
-        income_credit=Sum("value", filter=Q(payment_method__iexact="credito")),
-        income_debit=Sum("value", filter=Q(payment_method__iexact="debito")),
+        income_credit=Sum(
+            "value",
+            filter=(
+                Q(payment_method__iexact="credito")
+                | Q(payment_method__iexact="crédito")
+            ),
+        ),
+        income_debit=Sum(
+            "value",
+            filter=(
+                Q(payment_method__iexact="debito") | Q(payment_method__iexact="débito")
+            ),
+        ),
         income_cash=Sum("value", filter=Q(payment_method__iexact="dinheiro")),
         total_incomes=Sum("value"),
     )
@@ -60,7 +71,8 @@ def get_context_cashier_data():
     )
     pay = bill.filter(
         Q(status__status__iexact="pago")
-        | Q(payment_method__method__icontains="automatico")
+        | Q(payment_method__method__icontains="deb. automatico")
+        | Q(payment_method__method__icontains="déb. automático")
     ).aggregate(
         total_expenses=Sum("value"),
         expense_pix=Sum("value", filter=Q(payment_method__method__iexact="pix")),
@@ -68,14 +80,16 @@ def get_context_cashier_data():
         expense_automatic=Sum(
             "value",
             filter=(
-                Q(payment_method__method__iexact="deb. automatico")
-                | Q(payment_method__method__iexact="déb. automático")
+                Q(payment_method__method__icontains="deb. automatico")
+                | Q(payment_method__method__icontains="déb. automático")
             ),
         ),
         expense_others=Sum(
             "value",
             filter=Q(payment_method__method__iexact="credito")
-            | Q(payment_method__method__iexact="debito"),
+            | Q(payment_method__method__iexact="crédito")
+            | Q(payment_method__method__iexact="debito")
+            | Q(payment_method__method__iexact="débito"),
         ),
     )
     income = total["total_incomes"] or 0
