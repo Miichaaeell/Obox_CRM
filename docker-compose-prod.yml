@@ -7,7 +7,9 @@ services:
     image: obox:1.0.0
     container_name: Obox
     command: >
-      sh -c "gunicorn core.wsgi:application --bind 0.0.0.0:8000"
+      sh -c "
+      python manage.py migrate --noinput &&
+      gunicorn core.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - "8000:8000"
     env_file:
