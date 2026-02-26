@@ -10,9 +10,6 @@ __pycache__.py
 __pycache__/
 **/__pycache__/
 
-# Migrations (ignora todos, menos __init__.py)
-**/migrations/**
-!**/migrations/__init__.py
 
 # Banco local
 db.sqlite3
