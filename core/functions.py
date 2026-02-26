@@ -66,7 +66,11 @@ def get_context_cashier_data():
         expense_pix=Sum("value", filter=Q(payment_method__method__iexact="pix")),
         expense_boleto=Sum("value", filter=Q(payment_method__method__iexact="boleto")),
         expense_automatic=Sum(
-            "value", filter=Q(payment_method__method__iexact="deb. automatico")
+            "value",
+            filter=(
+                Q(payment_method__method__iexact="deb. automatico")
+                | Q(payment_method__method__iexact="déb. automático")
+            ),
         ),
         expense_others=Sum(
             "value",
