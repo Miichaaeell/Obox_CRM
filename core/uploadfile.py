@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pandas as pd
 from core.settings import log_error, log_success, c
-from enterprise.models import Plan
-from students.models import MonthlyFee, StatusStudent, Student
+from enterprise.models import Plan, PaymentMethod
+from students.models import MonthlyFee, StatusStudent, Student, Payment
 
 
 def format_cpf(cpf: str) -> str:
@@ -28,24 +28,27 @@ def upload_file(file) -> dict:
 
     df.columns = df.columns.str.lower().str.strip().str.replace(" ", "")
     try:
-        data = (
-            df[
-                [
-                    "nome",
-                    "contrato",
-                    "cpf",
-                    "status",
-                    "datadenascimento",
-                    "diadopagamento",
-                ]
+        data = df[
+            [
+                "nome",
+                "contrato",
+                "cpf",
+                "datadenascimento",
+                "diadovencimento",
+                "metododepagamento",
             ]
-            .drop_duplicates()
-            .dropna()
-        )
+        ].drop_duplicates()
         data["cpf"] = data["cpf"].apply(format_cpf)
-        data["data_de_nascimento"], data["due_date"] = (
+        (
+            data["data_de_nascimento"],
+            data["due_date"],
+            data["payment_method"],
+            data["date_paid"],
+        ) = (
             data["datadenascimento"].dt.date,
-            data["diadopagamento"],
+            data["diadovencimento"].dt.date,
+            data["metododepagamento"],
+            data["diadovencimento"].dt.date,
         )
     except Exception as e:
         log_error("Erro ao processar o arquivo")
@@ -64,23 +67,24 @@ def upload_file(file) -> dict:
     #     MonthlyFee.objects.all().delete()
     #     Student.objects.all().delete()
 
-    # except Exception as e:
-    #     c.log(
-    #         f"Erro ao limpar tabela de alunos e mensalidades: {e}",
-    #         style="bold red",
-    #         justify="center",
-    #     )
-    #     return {"message": f"Erro ao limpar tabelas: {e}", "status_code": "422"}
+    except Exception as e:
+        c.log(
+            f"Erro ao limpar tabela de alunos e mensalidades: {e}",
+            style="bold red",
+            justify="center",
+        )
+        return {"message": f"Erro ao limpar tabelas: {e}", "status_code": "422"}
 
     try:
+        active = StatusStudent.objects.get(status__iexact="Ativo")
         create_student = [
             Student(
                 name=row.nome,
                 cpf_cnpj=row.cpf,
                 date_of_birth=row.data_de_nascimento,
-                status=StatusStudent.objects.get(status__iexact=str(row.status)),
+                status=active,
                 observation=f"Importado via arquivo em {datetime.now().date()}",
-                due_date=row.due_date if row.due_date else datetime.now().day(),
+                due_date=row.due_date.day if row.due_date else datetime.now().day(),
                 plan=Plan.objects.get(name_plan__iexact=row.contrato),
             )
             for row in data.itertuples(index=False)
@@ -99,6 +103,7 @@ def upload_file(file) -> dict:
                 reference_month=datetime.now().month - 1,
                 amount=studant_instance.plan.price,
                 plan=studant_instance.plan,
+                paid=True,
             )
             for studant_instance in create_student
         ]
@@ -106,14 +111,39 @@ def upload_file(file) -> dict:
         log_error("Erro ao criar lista de mensalidades")
         c.log(e, style="bold red", justify="justify")
         return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
+
+    try:
+        payments = [
+            Payment(
+                montlhyfee=monthly_fee_instance,
+                payment_method=PaymentMethod.objects.get(
+                    method__icontains=str(row.payment_method).strip()
+                ),
+                value=monthly_fee_instance.amount,
+                created_at=row.date_paid,
+                updated_at=row.date_paid,
+            )
+            for monthly_fee_instance, row in zip(
+                create_monthly_fee, data.itertuples(index=False)
+            )
+        ]
+    except Exception as e:
+        log_error("Erro ao criar lista de pagamentos")
+        c.log(e, style="bold red", justify="justify")
+        return {"message": f"Erro ao processar o arquivo {e}", "status_code": "422"}
     try:
         Student.objects.bulk_create(create_student)
         MonthlyFee.objects.bulk_create(create_monthly_fee)
+        Payment.objects.bulk_create(payments)
+        for monthlyfe, row in zip(create_monthly_fee, data.itertuples(index=False)):
+            Payment.objects.filter(montlhyfee=monthlyfe).update(
+                updated_at=row.date_paid, created_at=row.date_paid
+            )
     except Exception as e:
-        log_error("Erro ao criar alunos e mensalidades")
+        log_error("Erro ao criar alunos, mensalidades e pagamentos")
         c.log(e, style="bold red", justify="justify")
         return {
-            "message": f"Erro ao criar alunos e mensalidades: {e}",
+            "message": f"Erro ao criar alunos, mensalidades e pagamentos: {e}",
             "status_code": "422",
         }
     log_success(f"Arquivo {file} carregado com sucesso!")

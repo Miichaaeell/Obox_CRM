@@ -49,21 +49,22 @@ def get_context_cashier_data():
         Q(created_at__gte=(start)) | Q(created_at__lte=(end)), cashier__isnull=True
     )
     total = payments.aggregate(
-        income_pix=Sum("value", filter=Q(payment_method__iexact="pix")),
+        income_pix=Sum("value", filter=Q(payment_method__icontains="pix")),
         income_credit=Sum(
             "value",
             filter=(
-                Q(payment_method__iexact="credito")
-                | Q(payment_method__iexact="crédito")
+                Q(payment_method__icontains="credito")
+                | Q(payment_method__icontains="crédito")
             ),
         ),
         income_debit=Sum(
             "value",
             filter=(
-                Q(payment_method__iexact="debito") | Q(payment_method__iexact="débito")
+                Q(payment_method__icontains="debito")
+                | Q(payment_method__icontains="débito")
             ),
         ),
-        income_cash=Sum("value", filter=Q(payment_method__iexact="dinheiro")),
+        income_cash=Sum("value", filter=Q(payment_method__icontains="dinheiro")),
         total_incomes=Sum("value"),
     )
     bill = Bill.objects.select_related("payment_method", "status").filter(
