@@ -192,3 +192,30 @@ def send_NFS(data: dict) -> str:
         fmt_list(failed, "Nenhum erro encontrado.", "red"),
     )
     c.print(table)
+
+
+@shared_task
+def crrection_data() -> None:
+    from datetime import datetime
+    from students.models import MonthlyFee, Payment, Student
+    from core.settings import c
+
+    date = datetime.now().replace(day=3).replace(month=2)
+
+    try:
+        Student.objects.all().update(created_at=date)
+    except Exception as e:
+        c.log(f"Erro ao atualizar Alunos {e}")
+
+    try:
+        MonthlyFee.objects.filter(paid=True).all().update(
+            reference_month="02/2026", created_at=date
+        )
+    except Exception as e:
+
+        c.log(f"Erro ao atualizar mensalidades {e}")
+
+    try:
+        Payment.objects.all().update(created_at=date)
+    except Exception as e:
+        c.log(f"Erro ao atualizar pagamentos {e}")
