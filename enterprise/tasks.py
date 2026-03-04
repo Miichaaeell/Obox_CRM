@@ -113,6 +113,8 @@ def send_NFS(data: dict) -> str:
                 "tomador": {
                     "cpf": f"{student['cpf']}",
                     "nome_completo": f"{student['name']}",
+                    "uf": enterprise.state if enterprise.state else "SP",
+                    "cidade": enterprise.city if enterprise.city else "Cosmópolis",
                 },
             }
             if enterprise.iss_retained:
