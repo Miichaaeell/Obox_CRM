@@ -55,5 +55,11 @@ def verify_change_method(sender, instance, **kwargs):
                     instance.date_payment = bill.due_date
                     instance.total_value = bill.value
                     instance.status = status_automatic
+                elif (
+                    instance.status
+                    == StatusBill.objects.filter(status__icontains="pago").first()
+                ):
+                    instance.date_payment = instance.due_date
+
         except Exception as e:
             c.log(f"Pré save {e}", style="bold red", justify="center")

@@ -22,12 +22,14 @@ class StudentAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     search_fields = ["montlhyfee__student__name"]
     list_filter = ["payment_method"]
+    list_select_related = ["montlhyfee"]
 
 
 @admin.register(MonthlyFee)
 class MonthlyFeeAdmin(admin.ModelAdmin):
     search_fields = ["student_name", "reference_month", "plan"]
     list_filter = ["plan", "reference_month"]
+    list_select_related = ["plan"]
 
 
 admin.site.register(StatusStudent)

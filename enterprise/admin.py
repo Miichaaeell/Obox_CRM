@@ -19,7 +19,7 @@ from enterprise.models import (
 class EnterpriseAdmin(admin.ModelAdmin):
     list_display = ()
     search_fields = ("id", "name")
-    list_filter = ("created_at",)  # se created_at for DateTimeField/DateField
+    list_filter = ("created_at",)
     date_hierarchy = "created_at"
 
 
@@ -60,29 +60,18 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(Bill)
 class BillAdmin(admin.ModelAdmin):
-    # Colunas úteis na listagem
-    list_display = (
-        "id",
-        "created_at",
-    )
-    # Navegação por data (escolha 1 campo principal)
-    date_hierarchy = "created_at"  # ou "due_date" se fizer mais sentido
-
-    # Busca: id, nome e campos relacionados
     search_fields = (
         "id",
-        "payment_method__id",
-        "payment_method__name",
+        "description",
+        "due_date",
     )
 
-    # Performance: se você exibe FKs no list_display
     list_select_related = (
-        "enterprise",
-        "plan",
-        "type_bill",
         "status",
         "payment_method",
     )
+
+    list_filter = ["payment_method__method"]
 
     ordering = ("-created_at",)
 
