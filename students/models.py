@@ -212,7 +212,7 @@ class Payment(TimeStampedModel, models.Model):
     )
 
     def __str__(self):
-        return f"R$ {self.value} no {self.payment_method}"
+        return f"{self.montlhyfee} no {self.payment_method}"
 
     class Meta:
         verbose_name = "Pagamento"

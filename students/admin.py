@@ -18,8 +18,18 @@ class StudentAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
 
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    search_fields = ["montlhyfee__student__name"]
+    list_filter = ["payment_method"]
+
+
+@admin.register(MonthlyFee)
+class MonthlyFeeAdmin(admin.ModelAdmin):
+    search_fields = ["student_name", "reference_month", "plan"]
+    list_filter = ["plan", "reference_month"]
+
+
 admin.site.register(StatusStudent)
 admin.site.register(History)
 admin.site.register(Frequency)
-admin.site.register(MonthlyFee)
-admin.site.register(Payment)
